@@ -18,7 +18,7 @@ class MenuScene {
     this._onClick = (e) => this._handleClick(e);
     this._onKey = (e) => {
       if (e.code === 'KeyC' || e.code === 'Digit1') this.onSelect('campaign');
-      if (e.code === 'KeyE' || e.code === 'Digit2') this.onSelect('endless');
+      if (e.code === 'KeyE' || e.code === 'Digit2') this.onSelect('arcade');
     };
     this.canvas.addEventListener('click', this._onClick);
     window.addEventListener('keydown', this._onKey);
@@ -39,9 +39,9 @@ class MenuScene {
     const btnW = 400, btnH = 90;
 
     if (x > CX - btnW/2 && x < CX + btnW/2 && y > 580 && y < 580 + btnH)
-      this.onSelect('campaign');
+      this.onSelect('arcade');
     if (x > CX - btnW/2 && x < CX + btnW/2 && y > 710 && y < 710 + btnH)
-      this.onSelect('endless');
+      this.onSelect('campaign');
   }
 
   draw(ctx) {
@@ -66,28 +66,20 @@ class MenuScene {
     // Subtitle
     ctx.font = `22px ${MENU_FONT}`;
     ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    ctx.fillText('Ukraine Air Defence', CX, 355);
-
-    // Divider
-    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(CX - 220, 400);
-    ctx.lineTo(CX + 220, 400);
-    ctx.stroke();
+    ctx.fillText('Hold up the shield of truth to stop the fiery arrows of the evil', CX, 355);
 
     // Select label
     ctx.font = `16px ${MENU_FONT}`;
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
-    ctx.fillText('SELECT MODE', CX, 510);
+    ctx.fillText('Choose your mission', CX, 510);
 
     // Buttons
     this._drawButton(ctx, CX, 580, 400, 90,
-      '1  STORY MODE',
-      '5 attacks · upgrades · campaign');
+      'Arcade',
+      'No ceasefire. No end.');
     this._drawButton(ctx, CX, 710, 400, 90,
-      '2  ARCADE MODE',
-      'Endless · auto-upgrades · survive');
+      'Campaign',
+      'A story of resilience, night after night');
 
     // Controls
     ctx.font = `15px ${MENU_FONT}`;

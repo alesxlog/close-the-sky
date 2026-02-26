@@ -77,7 +77,7 @@ class GameOverScene {
       this._drawButton(ctx, CX, 960, 400, 80, 'R  PLAY AGAIN');
       this._drawButton(ctx, CX, 1060, 400, 80, 'M  MAIN MENU');
 
-    } else if (s.mode === 'endless') {
+    } else if (s.mode === 'arcade') {
       // Arcade game over
       ctx.font = `bold 72px ${FONT}`;
       ctx.fillStyle = '#ff3333';

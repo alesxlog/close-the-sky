@@ -1,106 +1,166 @@
 // ============================================================
 // CLOSE THE SKY — hud.js
-// Bottom strip: HP hearts, lives (car icons), kill counter
+// LEFT: vehicle icons + HP hearts
+// CENTER: mode label (row1) + stopwatch (row2)
+// RIGHT: kills + points
 // ============================================================
+
+const HUD_FONT  = "'Share Tech Mono', monospace";
 
 class HUD {
   constructor() {
     this.C = CONFIG.CANVAS;
     this.H = CONFIG.HUD;
-    this._truckImg = new Image();
-    this._truckImg.src = 'assets/images/truck.png';
-    this._lavImg = new Image();
-    this._lavImg.src = 'assets/images/lav.png';
+    this._imgs = {};
+    this._imgLoaded = {};
+    for (const id of ['truck', 'lav']) {
+      const img = new Image();
+      img.src = CONFIG.VEHICLES[id.toUpperCase()].sprite;
+      img.onload = () => { this._imgLoaded[id] = true; };
+      this._imgs[id] = img;
+    }
   }
 
+  // state: { garage, hp, maxHp, kills, points, mode, attackNum, waveNum, timeElapsed }
   draw(ctx, state) {
-    // state: { hp, maxHp, lives, maxLives, kills, points, vehicleId, mode, attackNum, waveNum }
-    const y = this.C.HUD_TOP;
-    const h = this.C.HUD_HEIGHT;
-    const W = this.C.WIDTH;
-    const P = this.H.PADDING;
+    const y  = this.C.HUD_TOP;
+    const h  = this.C.HUD_HEIGHT;
+    const W  = this.C.WIDTH;
+    const P  = this.H.PADDING;
+    const CX = W / 2;
 
-    // HUD background
-    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    // Background
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
     ctx.fillRect(0, y, W, h);
 
-    // Top border line
-    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    // Top border
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(W, y);
     ctx.stroke();
 
-    const midY = y + h / 2;
+    const row1Y = y + 36;
+    const row2Y = y + 72;
 
-    // ---- LEFT: HP hearts ----
-    this._drawHP(ctx, P, midY, state.hp, state.maxHp);
+    // ---- LEFT: vehicles + hearts ----
+    this._drawLeft(ctx, P, row1Y, row2Y, state);
 
-    // ---- CENTER: kills + points ----
-    this._drawCenter(ctx, W / 2, midY, state.kills, state.points);
+    // ---- CENTER: mode label + stopwatch ----
+    this._drawCenter(ctx, CX, row1Y, row2Y, state);
 
-    // ---- RIGHT: lives (car icons) ----
-    this._drawLives(ctx, W - P, midY, state.lives, state.vehicleId);
-
-    // ---- Mode / attack label (top-left small) ----
-    this._drawLabel(ctx, P, y + 14, state);
+    // ---- RIGHT: kills + points ----
+    this._drawRight(ctx, W - P, row1Y, row2Y, state);
   }
 
-  _drawHP(ctx, x, midY, hp, maxHp) {
-    const size = this.H.HEART_SIZE;
-    for (let i = 0; i < maxHp; i++) {
-      const filled = i < hp;
-      ctx.font = `${size}px serif`;
-      ctx.globalAlpha = filled ? 1.0 : 0.25;
-      ctx.fillText('❤️', x + i * (size + 4), midY + size / 2 - 4);
-    }
-    ctx.globalAlpha = 1;
-  }
+  _drawLeft(ctx, x, row1Y, row2Y, state) {
+    const iw = 72;
+    const ih = 40;
+    const gap = 12;
+    let cx = x;
 
-  _drawLives(ctx, rightX, midY, lives, vehicleId) {
-    const iw = this.H.CAR_ICON_WIDTH;
-    const ih = this.H.CAR_ICON_HEIGHT;
-    const img = vehicleId === 'lav' ? this._lavImg : this._truckImg;
-    const maxLives = CONFIG.GAME.LIVES;
+    // Draw each vehicle in garage order (active first, then others)
+    const garage = state.garage || [];
+    // Sort: active first, then parked, then destroyed
+    const order = ['active', 'parked', 'destroyed'];
+    const sorted = [...garage].sort((a, b) =>
+      order.indexOf(a.state) - order.indexOf(b.state)
+    );
 
-    for (let i = 0; i < maxLives; i++) {
-      const x = rightX - (i + 1) * (iw + 6);
-      const alpha = i < lives ? 1.0 : 0.2;
-      ctx.globalAlpha = alpha;
-      if (img.complete) {
-        ctx.drawImage(img, x, midY - ih / 2, iw, ih);
+    for (const v of sorted) {
+      const img = this._imgs[v.id];
+      const loaded = this._imgLoaded[v.id];
+
+      ctx.save();
+
+      // Opacity by state
+      ctx.globalAlpha = v.state === 'active' ? 1.0
+        : v.state === 'parked' ? 0.45 : 0.25;
+
+      if (loaded) {
+        ctx.drawImage(img, cx, row1Y - ih / 2 - 4, iw, ih);
       } else {
         ctx.fillStyle = '#4a8a4a';
-        ctx.fillRect(x, midY - ih / 2, iw, ih);
+        ctx.fillRect(cx, row1Y - ih / 2 - 4, iw, ih);
       }
+
+      // Red X over destroyed vehicle
+      if (v.state === 'destroyed') {
+        ctx.globalAlpha = 0.85;
+        ctx.strokeStyle = '#ff2222';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(cx + 6,      row1Y - ih/2 - 4 + 4);
+        ctx.lineTo(cx + iw - 6, row1Y + ih/2 - 4 - 4);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx + iw - 6, row1Y - ih/2 - 4 + 4);
+        ctx.lineTo(cx + 6,      row1Y + ih/2 - 4 - 4);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+      cx += iw + gap;
+    }
+
+    // HP hearts for active vehicle — row 2
+    const active = garage.find(v => v.state === 'active');
+    if (active) {
+      this._drawHearts(ctx, x, row2Y, active.hp, active.maxHp);
+    }
+  }
+
+  _drawHearts(ctx, x, y, hp, maxHp) {
+    const size = 26;
+    for (let i = 0; i < maxHp; i++) {
+      ctx.globalAlpha = i < hp ? 1.0 : 0.2;
+      ctx.font = `${size}px serif`;
+      ctx.fillText('❤️', x + i * (size + 2), y + 8);
     }
     ctx.globalAlpha = 1;
   }
 
-  _drawCenter(ctx, cx, midY, kills, points) {
+  _drawCenter(ctx, cx, row1Y, row2Y, state) {
     ctx.textAlign = 'center';
 
-    // Points
-    ctx.font = 'bold 28px monospace';
+    // Row 1 — mode label
+    ctx.font = `bold 22px ${HUD_FONT}`;
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(points, cx, midY + 4);
+    if (state.mode === 'campaign') {
+      ctx.fillText(`ATTACK ${state.attackNum}`, cx, row1Y);
+    } else {
+      ctx.fillText(`WAVE ${state.waveNum}`, cx, row1Y);
+    }
 
-    // Kills label
-    ctx.font = "14px 'Share Tech Mono', monospace";
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.fillText(`kills: ${kills}`, cx, midY + 22);
+    // Row 2 — stopwatch
+    ctx.font = `20px ${HUD_FONT}`;
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.fillText(this._formatTime(state.timeElapsed || 0), cx, row2Y);
 
     ctx.textAlign = 'left';
   }
 
-  _drawLabel(ctx, x, y, state) {
-    ctx.font = "14px 'Share Tech Mono', monospace";
-    ctx.fillStyle = 'rgba(255,255,255,0.45)';
-    if (state.mode === 'campaign') {
-      ctx.fillText(`ATTACK ${state.attackNum}  WAVE ${state.waveNum}`, x, y);
-    } else {
-      ctx.fillText(`ENDLESS  WAVE ${state.waveNum}`, x, y);
-    }
+  _drawRight(ctx, rightX, row1Y, row2Y, state) {
+    ctx.textAlign = 'right';
+
+    // Row 1 — kills
+    ctx.font = `bold 22px ${HUD_FONT}`;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`${state.kills} kills`, rightX, row1Y);
+
+    // Row 2 — points
+    ctx.font = `20px ${HUD_FONT}`;
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.fillText(`${state.points} pts`, rightX, row2Y);
+
+    ctx.textAlign = 'left';
+  }
+
+  _formatTime(ms) {
+    const totalSec = Math.floor(ms / 1000);
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   }
 }

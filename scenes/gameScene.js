@@ -1,13 +1,13 @@
 // ============================================================
 // CLOSE THE SKY — gameScene.js
-// Shared game loop for Campaign and Endless modes
+// Shared game loop for Campaign and arcade modes
 // ============================================================
 
 class GameScene {
   constructor(canvas, ctx, mode, onGameOver, onPitstop) {
     this.canvas = canvas;
     this.ctx = ctx;
-    this.mode = mode;           // 'campaign' | 'endless'
+    this.mode = mode;           // 'campaign' | 'arcade'
     this.onGameOver = onGameOver;
     this.onPitstop = onPitstop; // campaign only
 
@@ -47,8 +47,8 @@ class GameScene {
     this._wavePauseTimer = 0;
     this._inWavePause = false;
 
-    // Endless unlock state
-    this._endlessStep = 0;
+    // arcade unlock state
+    this._arcadeStep = 0;
     this._unlockedEnemyTypes = ['geran1', 'geran2'];
 
     this._initMode();
@@ -63,8 +63,8 @@ class GameScene {
       this._loadAttack(1);
     } else {
       this._spawner.reset(
-        CONFIG.ENDLESS.PHASE1.spawnIntervalMin,
-        CONFIG.ENDLESS.PHASE1.spawnIntervalMax,
+        CONFIG.arcade.PHASE1.spawnIntervalMin,
+        CONFIG.arcade.PHASE1.spawnIntervalMax,
         this._unlockedEnemyTypes
       );
       this._spawner.setEnemyList(this.enemies);
@@ -116,7 +116,7 @@ class GameScene {
       if (this._wavePauseTimer <= 0) {
         this._inWavePause = false;
         this.waveNum++;
-        if (this.mode === 'endless') this._checkEndlessEscalation();
+        if (this.mode === 'arcade') this._checkarcadeEscalation();
       }
       // Still update existing entities during pause
       this._updateEntities(dt, now);
@@ -126,7 +126,7 @@ class GameScene {
     // Spawn
     const maxSim = this.mode === 'campaign'
       ? this._currentAttack.maxSimultaneous
-      : this._getEndlessMaxSim();
+      : this._getarcadeMaxSim();
 
     const newEnemy = this._spawner.update(maxSim, null);
     if (newEnemy) {
@@ -149,7 +149,7 @@ class GameScene {
         this.kills++;
         this.points += h.enemy.cfg.killPts;
         this.cumulativePoints += h.enemy.cfg.killPts;
-        if (this.mode === 'endless') this._checkEndlessUpgrades();
+        if (this.mode === 'arcade') this._checkarcadeUpgrades();
       }
     }
 
@@ -212,16 +212,16 @@ class GameScene {
   // ----------------------------------------------------------
   _onPlayerDeath() {
     this.explosions.push(new Explosion(this.player.x, this.player.y));
-    this.lives--;
 
-    if (this.lives <= 0) {
+    const hasBackup = this.player.activateNextVehicle();
+
+    if (!hasBackup) {
       this._gameEnded = true;
       setTimeout(() => this._endGame(false), 500);
       return;
     }
 
-    // Restart attack from wave 1
-    this.player.resetHP();
+    // Backup vehicle activated — clear field and respawn
     this.enemies = [];
     this.projectiles = [];
     this._spawner.triggerSpawnLock();
@@ -253,17 +253,16 @@ class GameScene {
         }
       }
     } else {
-      // Endless — wave complete when enemies cleared and at least one has spawned
-      if (this._waveStarted && this.enemies.length === 0 && !this._inWavePause && !this._gameEnded) {
+      // arcade — wave complete when enemies cleared and at least one has spawned
+      if (this._waveStarted && this.enemies.length === 0 && !this._inWavePause) {
         this._waveStarted = false;
         this._inWavePause = true;
-        this._wavePauseTimer = CONFIG.ENDLESS.WAVE_PAUSE;
+        this._wavePauseTimer = CONFIG.arcade.WAVE_PAUSE;
       }
     }
   }
 
   _endGame(win) {
-    this._gameEnded = true;
     this.onGameOver({
       win,
       kills: this.kills,
@@ -276,20 +275,20 @@ class GameScene {
   }
 
   // ----------------------------------------------------------
-  // ENDLESS — upgrades + escalation
+  // arcade — upgrades + escalation
   // ----------------------------------------------------------
-  _checkEndlessUpgrades() {
-    const steps = CONFIG.ENDLESS.UPGRADES;
-    while (this._endlessStep < steps.length) {
-      const step = steps[this._endlessStep];
+  _checkarcadeUpgrades() {
+    const steps = CONFIG.arcade.UPGRADES;
+    while (this._arcadeStep < steps.length) {
+      const step = steps[this._arcadeStep];
       if (this.cumulativePoints >= step.cumulative) {
-        this._applyEndlessUpgrade(step);
-        this._endlessStep++;
+        this._applyarcadeUpgrade(step);
+        this._arcadeStep++;
       } else break;
     }
   }
 
-  _applyEndlessUpgrade(step) {
+  _applyarcadeUpgrade(step) {
     const p = this.player;
     switch (step.upgrade) {
       case 'mg_double':
@@ -319,8 +318,8 @@ class GameScene {
     this._upgradeMsgTimer = 3000;
   }
 
-  _checkEndlessEscalation() {
-    const P3 = CONFIG.ENDLESS.PHASE3;
+  _checkarcadeEscalation() {
+    const P3 = CONFIG.arcade.PHASE3;
     if (this.waveNum < P3.startWave) return;
 
     const wavesSince = this.waveNum - P3.startWave;
@@ -328,11 +327,11 @@ class GameScene {
       P3.startSimultaneous + Math.floor(wavesSince / 3) * P3.simultaneousIncrement,
       P3.simultaneousCap
     );
-    this._endlessMaxSim = newSim;
+    this._arcadeMaxSim = newSim;
   }
 
-  _getEndlessMaxSim() {
-    return this._endlessMaxSim || CONFIG.ENDLESS.START_SIMULTANEOUS;
+  _getarcadeMaxSim() {
+    return this._arcadeMaxSim || CONFIG.arcade.START_SIMULTANEOUS;
   }
 
   // ----------------------------------------------------------
@@ -353,15 +352,15 @@ class GameScene {
 
     // HUD
     this._hud.draw(ctx, {
-      hp: this.player.hp,
-      maxHp: this.player.maxHp,
-      lives: this.lives,
-      kills: this.kills,
-      points: this.points,
-      vehicleId: this.player.vehicle.id,
-      mode: this.mode,
+      garage:    this.player.garage,
+      hp:        this.player.hp,
+      maxHp:     this.player.maxHp,
+      kills:     this.kills,
+      points:    this.points,
+      mode:      this.mode,
       attackNum: this.attackNum,
-      waveNum: this.waveNum,
+      waveNum:   this.waveNum,
+      timeElapsed: this.timeElapsed,
     });
 
     // Wave pause overlay
@@ -373,7 +372,7 @@ class GameScene {
       ctx.textAlign = 'left';
     }
 
-    // Endless upgrade notification
+    // arcade upgrade notification
     if (this._upgradeMsgTimer > 0) {
       this._upgradeMsgTimer -= 16;
       ctx.save();

@@ -416,9 +416,9 @@ const CONFIG = {
   ],
 
   // ----------------------------------------------------------
-  // ENDLESS MODE
+  // arcade MODE
   // ----------------------------------------------------------
-  ENDLESS: {
+  arcade: {
     WAVE_PAUSE: 4000,         // ms between waves
     START_SIMULTANEOUS: 5,
 
