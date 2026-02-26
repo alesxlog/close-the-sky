@@ -63,8 +63,8 @@ class GameScene {
       this._loadAttack(1);
     } else {
       this._spawner.reset(
-        CONFIG.arcade.PHASE1.spawnIntervalMin,
-        CONFIG.arcade.PHASE1.spawnIntervalMax,
+        CONFIG.ARCADE.PHASE1.spawnIntervalMin,
+        CONFIG.ARCADE.PHASE1.spawnIntervalMax,
         this._unlockedEnemyTypes
       );
       this._spawner.setEnemyList(this.enemies);
@@ -257,7 +257,7 @@ class GameScene {
       if (this._waveStarted && this.enemies.length === 0 && !this._inWavePause) {
         this._waveStarted = false;
         this._inWavePause = true;
-        this._wavePauseTimer = CONFIG.arcade.WAVE_PAUSE;
+        this._wavePauseTimer = CONFIG.ARCADE.WAVE_PAUSE;
       }
     }
   }
@@ -278,7 +278,7 @@ class GameScene {
   // arcade — upgrades + escalation
   // ----------------------------------------------------------
   _checkarcadeUpgrades() {
-    const steps = CONFIG.arcade.UPGRADES;
+    const steps = CONFIG.ARCADE.UPGRADES;
     while (this._arcadeStep < steps.length) {
       const step = steps[this._arcadeStep];
       if (this.cumulativePoints >= step.cumulative) {
@@ -319,7 +319,7 @@ class GameScene {
   }
 
   _checkarcadeEscalation() {
-    const P3 = CONFIG.arcade.PHASE3;
+    const P3 = CONFIG.ARCADE.PHASE3;
     if (this.waveNum < P3.startWave) return;
 
     const wavesSince = this.waveNum - P3.startWave;
@@ -331,7 +331,7 @@ class GameScene {
   }
 
   _getarcadeMaxSim() {
-    return this._arcadeMaxSim || CONFIG.arcade.START_SIMULTANEOUS;
+    return this._arcadeMaxSim || CONFIG.ARCADE.START_SIMULTANEOUS;
   }
 
   // ----------------------------------------------------------
