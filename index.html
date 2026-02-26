@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Close The Sky</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #gameCanvas {
+      display: block;
+      max-width: 100vw;
+      max-height: 100vh;
+      width: auto; height: auto;
+      image-rendering: pixelated;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="1280" height="1280"></canvas>
+
+  <!-- Config -->
+  <script src="config/config.js"></script>
+
+  <!-- Utils -->
+  <script src="utils/input.js"></script>
+  <script src="utils/spawner.js"></script>
+  <script src="utils/collision.js"></script>
+  <script src="utils/logger.js"></script>
+
+  <!-- Entities -->
+  <script src="entities/player.js"></script>
+  <script src="entities/enemies.js"></script>
+  <script src="entities/projectiles.js"></script>
+  <script src="entities/explosion.js"></script>
+
+  <!-- Scenes -->
+  <script src="scenes/background.js"></script>
+  <script src="scenes/hud.js"></script>
+  <script src="scenes/menuScene.js"></script>
+  <script src="scenes/pitstopScene.js"></script>
+  <script src="scenes/gameOverScene.js"></script>
+  <script src="scenes/gameScene.js"></script>
+
+  <script>
+    window.addEventListener('load', () => {
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+
+      function scaleCanvas() {
+        const scale = Math.min(
+          window.innerWidth  / CONFIG.CANVAS.WIDTH,
+          window.innerHeight / CONFIG.CANVAS.HEIGHT
+        );
+        canvas.style.width  = (CONFIG.CANVAS.WIDTH  * scale) + 'px';
+        canvas.style.height = (CONFIG.CANVAS.HEIGHT * scale) + 'px';
+      }
+      scaleCanvas();
+      window.addEventListener('resize', scaleCanvas);
+
+      function getScale() {
+        return parseFloat(canvas.style.width) / CONFIG.CANVAS.WIDTH;
+      }
+
+      Input.init(canvas, getScale);
+
+      // ---- SCENE MANAGER ----
+      let currentScene = null;
+      let rafId = null;
+      let lastTime = 0;
+
+      function startLoop(scene) {
+        currentScene = scene;
+        if (rafId) cancelAnimationFrame(rafId);
+        lastTime = 0;
+        function loop(ts) {
+          const dt = Math.min((ts - (lastTime || ts)) / 1000, 0.05);
+          lastTime = ts;
+          if (currentScene.update) currentScene.update(dt);
+          currentScene.draw(ctx);
+          rafId = requestAnimationFrame(loop);
+        }
+        rafId = requestAnimationFrame(loop);
+      }
+
+      function showMenu() {
+        if (currentScene && currentScene.destroy) currentScene.destroy();
+        const menu = new MenuScene(canvas, ctx, (mode) => {
+          menu.destroy();
+          startGame(mode);
+        });
+        startLoop(menu);
+      }
+
+      function startGame(mode) {
+        if (currentScene && currentScene.destroy) currentScene.destroy();
+        const scene = new GameScene(
+          canvas, ctx, mode,
+          // onGameOver
+          (stats) => {
+            if (currentScene && currentScene.destroy) currentScene.destroy();
+            const go = new GameOverScene(canvas, ctx, stats,
+              () => { go.destroy(); startGame(mode); },
+              () => { go.destroy(); showMenu(); }
+            );
+            startLoop(go);
+          },
+          // onPitstop (campaign only)
+          (gameState) => {
+            if (currentScene && currentScene.destroy) currentScene.destroy();
+            const ps = new PitstopScene(canvas, ctx, gameState, () => {
+              ps.destroy();
+              // Resume campaign — next attack
+              scene.points = gameState.points;
+              scene.player = gameState.player;
+              scene._loadAttack(gameState.attackNum + 1);
+              scene.enemies = [];
+              scene.projectiles = [];
+              currentScene = scene;
+              scene._bindInput && scene._bindInput();
+            });
+            startLoop(ps);
+          }
+        );
+        startLoop(scene);
+      }
+
+      // Boot to menu
+      showMenu();
+    });
+  </script>
+</body>
+</html>
