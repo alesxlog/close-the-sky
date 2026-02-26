@@ -38,10 +38,17 @@ class MenuScene {
     const CX = CONFIG.CANVAS.WIDTH / 2;
     const btnW = 400, btnH = 90;
 
-    if (x > CX - btnW/2 && x < CX + btnW/2 && y > 580 && y < 580 + btnH)
-      this.onSelect('arcade');
-    if (x > CX - btnW/2 && x < CX + btnW/2 && y > 710 && y < 710 + btnH)
-      this.onSelect('campaign');
+    const BTN_W = 400, BTN_H = 90, BTN_GAP = 130, BTN_START_Y = 520;
+    const buttons = [
+      { mode: 'arcade',   y: BTN_START_Y },
+      { mode: 'campaign', y: BTN_START_Y + BTN_GAP },
+    ];
+    for (const btn of buttons) {
+      if (x > CX - BTN_W/2 && x < CX + BTN_W/2 && y > btn.y && y < btn.y + BTN_H) {
+        this.onSelect(btn.mode);
+        return;
+      }
+    }
   }
 
   draw(ctx) {
@@ -75,12 +82,16 @@ class MenuScene {
     ctx.fillText('Choose your mission', CX, 550);
 
     // Buttons
-    this._drawButton(ctx, CX, 580, 400, 90,
-      'Arcade',
-      'No ceasefire. No end.'); // first button
-    this._drawButton(ctx, CX, 710, 400, 90,
-      'Campaign',
-      'A story of resilience, night after night.'); // second button
+    const BTN_W = 400, BTN_H = 90, BTN_GAP = 130;
+    const BTN_START_Y = 580;
+    const buttons = [
+      { label: 'Arcade',   sub: 'No ceasefire. No stopping. Till the end.', mode: 'arcade'   },
+      { label: 'Campaign', sub: 'Story of resilience. Night after night.', mode: 'campaign' },
+    ];
+    buttons.forEach((btn, i) => {
+      btn.y = BTN_START_Y + i * BTN_GAP;
+      this._drawButton(ctx, CX, btn.y, BTN_W, BTN_H, btn.label, btn.sub);
+    });
 
     // Controls
     ctx.font = `15px ${MENU_FONT}`;

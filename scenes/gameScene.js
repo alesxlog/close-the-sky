@@ -59,6 +59,8 @@ class GameScene {
   // INIT
   // ----------------------------------------------------------
   _initMode() {
+    console.log('CONFIG:', CONFIG);
+    console.log('CONFIG.ARCADE:', CONFIG.ARCADE);
     if (this.mode === 'campaign') {
       this._loadAttack(1);
     } else {

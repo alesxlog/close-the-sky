@@ -87,12 +87,10 @@ class GameOverScene {
       ctx.font = `18px ${FONT}`;
       ctx.fillStyle = 'rgba(255,255,255,0.65)';
       const lines = [
-        'You failed to close the sky.',
         'The insidious enemy broke through the air defense',
         'and destroyed all critical infrastructure.',
-        '600,000 residents left the city,',
-        'abandoning their homes.',
-        'The city is now deserted.',
+        'Many residents abandoned their homes.',
+        'The city looks deserted.',
       ];
       lines.forEach((line, i) => {
         ctx.fillText(line, CX, 300 + i * 32);
