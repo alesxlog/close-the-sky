@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Close The Sky</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
@@ -26,6 +28,9 @@
 </head>
 <body>
   <canvas id="gameCanvas" width="1280" height="1280"></canvas>
+
+  <!-- Tuning — your values, never overwritten -->
+  <script src="config/tuning.js"></script>
 
   <!-- Config -->
   <script src="config/config.js"></script>
@@ -118,14 +123,16 @@
             if (currentScene && currentScene.destroy) currentScene.destroy();
             const ps = new PitstopScene(canvas, ctx, gameState, () => {
               ps.destroy();
-              // Resume campaign — next attack
+              // Update game scene state and resume
               scene.points = gameState.points;
               scene.player = gameState.player;
               scene._loadAttack(gameState.attackNum + 1);
               scene.enemies = [];
               scene.projectiles = [];
-              currentScene = scene;
-              scene._bindInput && scene._bindInput();
+              scene.explosions = [];
+              scene._destroyed = false;
+              scene._bindInput();
+              startLoop(scene);
             });
             startLoop(ps);
           }

@@ -3,11 +3,13 @@
 // Main menu — mode selection
 // ============================================================
 
+const MENU_FONT = "'Share Tech Mono', monospace";
+
 class MenuScene {
   constructor(canvas, ctx, onSelect) {
     this.canvas = canvas;
     this.ctx = ctx;
-    this.onSelect = onSelect; // callback(mode) — 'campaign' or 'endless'
+    this.onSelect = onSelect;
     this._bg = new Background();
     this._bind();
   }
@@ -33,20 +35,13 @@ class MenuScene {
     const scaleY = CONFIG.CANVAS.HEIGHT / rect.height;
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
-
     const CX = CONFIG.CANVAS.WIDTH / 2;
-    const btnW = 360, btnH = 80;
+    const btnW = 400, btnH = 90;
 
-    // Campaign button
-    if (x > CX - btnW/2 && x < CX + btnW/2 &&
-        y > 560 && y < 560 + btnH) {
+    if (x > CX - btnW/2 && x < CX + btnW/2 && y > 580 && y < 580 + btnH)
       this.onSelect('campaign');
-    }
-    // Endless button
-    if (x > CX - btnW/2 && x < CX + btnW/2 &&
-        y > 680 && y < 680 + btnH) {
+    if (x > CX - btnW/2 && x < CX + btnW/2 && y > 710 && y < 710 + btnH)
       this.onSelect('endless');
-    }
   }
 
   draw(ctx) {
@@ -54,46 +49,60 @@ class MenuScene {
 
     const CX = CONFIG.CANVAS.WIDTH / 2;
 
-    // Title
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 72px monospace';
-    ctx.fillText('CLOSE THE SKY', CX, 280);
+    // Dark overlay for readability
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.fillRect(0, 0, CONFIG.CANVAS.WIDTH, CONFIG.CANVAS.HEIGHT);
 
-    ctx.font = '24px monospace';
-    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.fillText('Ukraine Air Defence', CX, 340);
+    ctx.textAlign = 'center';
+
+    // Title
+    ctx.font = `bold 80px ${MENU_FONT}`;
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(255,100,0,0.6)';
+    ctx.shadowBlur = 24;
+    ctx.fillText('CLOSE THE SKY', CX, 300);
+    ctx.shadowBlur = 0;
+
+    // Subtitle
+    ctx.font = `22px ${MENU_FONT}`;
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.fillText('Ukraine Air Defence', CX, 355);
 
     // Divider
-    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(CX - 200, 380);
-    ctx.lineTo(CX + 200, 380);
+    ctx.moveTo(CX - 220, 400);
+    ctx.lineTo(CX + 220, 400);
     ctx.stroke();
 
-    // Buttons
-    this._drawButton(ctx, CX, 560, 360, 80, '1  STORY MODE',
-      'Campaign — 5 attacks with upgrades');
-    this._drawButton(ctx, CX, 680, 360, 80, '2  ARCADE MODE',
-      'Endless — survive as long as you can');
+    // Select label
+    ctx.font = `16px ${MENU_FONT}`;
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.fillText('SELECT MODE', CX, 510);
 
-    // Controls hint
-    ctx.font = '16px monospace';
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.fillText('Arrow keys / WASD to move   Space to fire', CX, 820);
+    // Buttons
+    this._drawButton(ctx, CX, 580, 400, 90,
+      '1  STORY MODE',
+      '5 attacks · upgrades · campaign');
+    this._drawButton(ctx, CX, 710, 400, 90,
+      '2  ARCADE MODE',
+      'Endless · auto-upgrades · survive');
+
+    // Controls
+    ctx.font = `15px ${MENU_FONT}`;
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fillText('WASD / ARROWS — move   SPACE — fire', CX, 880);
 
     ctx.textAlign = 'left';
   }
 
   _drawButton(ctx, cx, y, w, h, label, sub) {
-    // Button bg
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillStyle = 'rgba(255,255,255,0.07)';
     ctx.beginPath();
     ctx.roundRect(cx - w/2, y, w, h, 8);
     ctx.fill();
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.roundRect(cx - w/2, y, w, h, 8);
@@ -101,11 +110,11 @@ class MenuScene {
 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px monospace';
-    ctx.fillText(label, cx, y + 34);
+    ctx.font = `bold 26px ${MENU_FONT}`;
+    ctx.fillText(label, cx, y + 38);
 
-    ctx.fillStyle = 'rgba(255,255,255,0.45)';
-    ctx.font = '14px monospace';
-    ctx.fillText(sub, cx, y + 58);
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = `15px ${MENU_FONT}`;
+    ctx.fillText(sub, cx, y + 64);
   }
 }

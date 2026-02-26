@@ -27,12 +27,13 @@ class GameScene {
     this.lives = CONFIG.GAME.LIVES;
     this.kills = 0;
     this.points = 0;
-    this.cumulativePoints = 0; // endless — never decremented
+    this.cumulativePoints = 0;
+    this.timeElapsed = 0; // ms
 
     // Attack / wave tracking
     this.attackNum = 1;
     this.waveNum = 1;
-    this._waveEnemiesLeft = 0;
+    this._waveStarted = false; // prevents false wave-end at game start
     this._attackEnemiesLeft = 0;
 
     // Weapon cooldowns
@@ -95,15 +96,19 @@ class GameScene {
   }
 
   destroy() {
-    window.removeEventListener('keydown', this._onKey);
-    this.canvas.removeEventListener('click', this._onCanvasClick);
+    if (this._onKey) window.removeEventListener('keydown', this._onKey);
+    if (this._onCanvasClick) this.canvas.removeEventListener('click', this._onCanvasClick);
+    this._destroyed = true;
   }
 
   // ----------------------------------------------------------
   // UPDATE
   // ----------------------------------------------------------
   update(dt) {
+    if (this._destroyed) return;
     const now = performance.now();
+
+    this.timeElapsed += dt * 1000;
 
     // Wave pause countdown
     if (this._inWavePause) {
@@ -126,6 +131,7 @@ class GameScene {
     const newEnemy = this._spawner.update(maxSim, null);
     if (newEnemy) {
       this.enemies.push(newEnemy);
+      this._waveStarted = true;
       if (this.mode === 'campaign') this._attackEnemiesLeft--;
     }
 
@@ -209,7 +215,8 @@ class GameScene {
     this.lives--;
 
     if (this.lives <= 0) {
-      this._endGame(false);
+      this._gameEnded = true;
+      setTimeout(() => this._endGame(false), 500);
       return;
     }
 
@@ -246,8 +253,9 @@ class GameScene {
         }
       }
     } else {
-      // Endless — wave complete when enemies cleared and none left to spawn
-      if (this.enemies.length === 0 && !this._inWavePause) {
+      // Endless — wave complete when enemies cleared and at least one has spawned
+      if (this._waveStarted && this.enemies.length === 0 && !this._inWavePause && !this._gameEnded) {
+        this._waveStarted = false;
         this._inWavePause = true;
         this._wavePauseTimer = CONFIG.ENDLESS.WAVE_PAUSE;
       }
@@ -255,6 +263,7 @@ class GameScene {
   }
 
   _endGame(win) {
+    this._gameEnded = true;
     this.onGameOver({
       win,
       kills: this.kills,
@@ -262,6 +271,7 @@ class GameScene {
       mode: this.mode,
       attackNum: this.attackNum,
       waveNum: this.waveNum,
+      timeElapsed: this.timeElapsed,
     });
   }
 

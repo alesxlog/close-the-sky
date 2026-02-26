@@ -87,7 +87,7 @@ class HUD {
     ctx.fillText(points, cx, midY + 4);
 
     // Kills label
-    ctx.font = '13px monospace';
+    ctx.font = "14px 'Share Tech Mono', monospace";
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.fillText(`kills: ${kills}`, cx, midY + 22);
 
@@ -95,7 +95,7 @@ class HUD {
   }
 
   _drawLabel(ctx, x, y, state) {
-    ctx.font = '13px monospace';
+    ctx.font = "14px 'Share Tech Mono', monospace";
     ctx.fillStyle = 'rgba(255,255,255,0.45)';
     if (state.mode === 'campaign') {
       ctx.fillText(`ATTACK ${state.attackNum}  WAVE ${state.waveNum}`, x, y);

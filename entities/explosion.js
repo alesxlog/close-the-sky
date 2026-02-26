@@ -68,7 +68,7 @@ class Explosion {
     // Particles
     for (const p of this.particles) {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size * (1 - progress * 0.7), 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, Math.max(0, p.size * (1 - progress * 0.7)), 0, Math.PI * 2);
       ctx.fillStyle = p.color;
       ctx.globalAlpha = alpha;
       ctx.fill();

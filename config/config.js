@@ -71,7 +71,7 @@ const CONFIG = {
       name: 'Pickup Truck',
       hp: 2,
       slots: 2,
-      speed: 175,         // px/s
+      speed: (typeof TUNING !== 'undefined' ? TUNING.TRUCK_SPEED : 200),
       cost: 0,
       width: 168,
       height: 96,
@@ -82,7 +82,7 @@ const CONFIG = {
       name: 'Light Armoured Vehicle',
       hp: 3,
       slots: 4,
-      speed: 150,         // px/s
+      speed: (typeof TUNING !== 'undefined' ? TUNING.LAV_SPEED : 160),
       cost: 300,
       width: 192,
       height: 96,
@@ -99,7 +99,7 @@ const CONFIG = {
       name: 'Machine Gun',
       slots: 1,
       damage: 1,
-      projSpeed: 500,     // px/s
+      projSpeed: (typeof TUNING !== 'undefined' ? TUNING.MG_PROJ_SPEED : 500),     // px/s
       cooldown: 400,      // ms
       cost: 100,
       despawnDist: 768,   // px travel before despawn
@@ -125,7 +125,7 @@ const CONFIG = {
       name: 'Autocannon (20mm)',
       slots: 2,
       damage: 3,
-      projSpeed: 420,     // px/s
+      projSpeed: (typeof TUNING !== 'undefined' ? TUNING.AUTOCANNON_PROJ_SPEED : 420),     // px/s
       cooldown: 300,      // ms
       cost: 200,
       despawnDist: 1024,  // px
@@ -146,7 +146,7 @@ const CONFIG = {
       name: 'SAM Launcher',
       slots: 2,
       damage: 7,
-      projSpeed: 280,     // px/s
+      projSpeed: (typeof TUNING !== 'undefined' ? TUNING.SAM_PROJ_SPEED : 280),     // px/s
       cooldown: 750,      // ms
       cost: 350,
       despawnDist: null,  // unlimited — homing
@@ -176,7 +176,7 @@ const CONFIG = {
       hitboxH: 77,
       hp: 2,
       killPts: 5,
-      speed: 100,         // px/s
+      speed: (typeof TUNING !== 'undefined' ? TUNING.GERAN1_SPEED : 60),         // px/s
       radarTarget: false,
       trajectory: 'diagonal',
       diagonalAngle: 20,  // degrees from vertical
@@ -197,7 +197,7 @@ const CONFIG = {
       hitboxH: 96,
       hp: 3,
       killPts: 10,
-      speed: 120,
+      speed: (typeof TUNING !== 'undefined' ? TUNING.GERAN2_SPEED : 70),
       radarTarget: false,
       trajectory: 'slalom',
       slalomAmpTop: 30,   // px amplitude at y=80
@@ -218,8 +218,8 @@ const CONFIG = {
       hitboxH: 96,
       hp: 4,
       killPts: 15,
-      speedNormal: 100,
-      speedTerminal: 140,
+      speedNormal:   (typeof TUNING !== 'undefined' ? TUNING.GERAN3_SPEED_NORMAL   : 50),
+      speedTerminal: (typeof TUNING !== 'undefined' ? TUNING.GERAN3_SPEED_TERMINAL : 100),
       terminalTime: 3000, // ms before bottom — switch to terminal speed
       radarTarget: false,
       trajectory: 'diagonal_accel',
@@ -237,10 +237,10 @@ const CONFIG = {
       spriteW: 56,
       spriteH: 112,
       hitboxW: 67,
-      hitboxH: 180,
+      hitboxH: 134,
       hp: 6,
       killPts: 40,
-      speed: 130,
+      speed: (typeof TUNING !== 'undefined' ? TUNING.KH555_SPEED : 90),
       radarTarget: true,
       trajectory: 'wide_sine',
       sineAmplitude: 275, // px
@@ -262,7 +262,7 @@ const CONFIG = {
       hitboxH: 134,
       hp: 8,
       killPts: 50,
-      speed: 190,
+      speed: (typeof TUNING !== 'undefined' ? TUNING.KALIBR_SPEED : 105),
       radarTarget: true,
       trajectory: 'medium_sine',
       sineAmplitude: 125,
@@ -284,7 +284,7 @@ const CONFIG = {
       hitboxH: 154,
       hp: 10,
       killPts: 60,
-      speed: 200,
+      speed: (typeof TUNING !== 'undefined' ? TUNING.KH101_SPEED : 120),
       radarTarget: true,
       radarLockDelay: 750,  // ms total (stealth adds 0.5s)
       trajectory: 'perlin',
@@ -318,8 +318,9 @@ const CONFIG = {
   HUD: {
     Y: 1180,
     HEIGHT: 100,
-    FONT: '24px monospace',
-    FONT_SMALL: '18px monospace',
+    FONT: "22px 'Share Tech Mono', monospace",
+    FONT_SMALL: "16px 'Share Tech Mono', monospace",
+    FONT_LARGE: "32px 'Share Tech Mono', monospace",
     COLOR: '#ffffff',
     HEART_SIZE: 32,
     CAR_ICON_WIDTH: 56,
