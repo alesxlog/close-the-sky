@@ -38,7 +38,7 @@ class MenuScene {
     const CX = CONFIG.CANVAS.WIDTH / 2;
     const btnW = 400, btnH = 90;
 
-    const BTN_W = 400, BTN_H = 90, BTN_GAP = 130, BTN_START_Y = 520;
+    const BTN_W = 400, BTN_H = 90, BTN_GAP = 130, BTN_START_Y = 580;
     const buttons = [
       { mode: 'arcade',   y: BTN_START_Y },
       { mode: 'campaign', y: BTN_START_Y + BTN_GAP },

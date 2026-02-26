@@ -69,9 +69,19 @@ class GameOverScene {
       ctx.fillStyle = '#44ff88';
       ctx.fillText('SKY CLOSED', CX, 260);
 
-      ctx.font = `22px ${FONT}`;
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.fillText('All attacks repelled. The city is safe.', CX, 320);
+      // Narrative body
+      ctx.font = `18px ${FONT}`;
+      ctx.fillStyle = 'rgba(255,255,255,0.65)';
+      const lines = [
+        'Congratulations!',
+        'You have successfully closed the sky over your city.',
+        'The North Atlantic Council was deeply impressed',
+        'and decided to invite you to join NATO.',
+        'Will you accept?',
+      ];
+      lines.forEach((line, i) => {
+        ctx.fillText(line, CX, 310 + i * 30);
+      });
 
       this._drawStats(ctx, CX, 420, s);
       this._drawButton(ctx, CX, 960, 400, 80, 'R  PLAY AGAIN');

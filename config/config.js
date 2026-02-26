@@ -70,8 +70,8 @@ const CONFIG = {
       id: 'truck',
       name: 'Pickup Truck',
       hp:    (typeof TUNING !== 'undefined' ? TUNING.TRUCK_HP    : 2),
-      slots: (typeof TUNING !== 'undefined' ? TUNING.TRUCK_SLOTS : 2),
-      speed: (typeof TUNING !== 'undefined' ? TUNING.TRUCK_SPEED : 200),
+      slots: (typeof TUNING !== 'undefined' ? TUNING.TRUCK_SLOTS : 1),
+      speed: (typeof TUNING !== 'undefined' ? TUNING.TRUCK_SPEED : 250),
       cost: 0,
       width: 168,
       height: 96,
@@ -81,10 +81,10 @@ const CONFIG = {
       id: 'lav',
       name: 'Light Armoured Vehicle',
       hp:    (typeof TUNING !== 'undefined' ? TUNING.LAV_HP    : 3),
-      slots: (typeof TUNING !== 'undefined' ? TUNING.LAV_SLOTS : 4),
-      speed: (typeof TUNING !== 'undefined' ? TUNING.LAV_SPEED : 160),
+      slots: (typeof TUNING !== 'undefined' ? TUNING.LAV_SLOTS : 3),
+      speed: (typeof TUNING !== 'undefined' ? TUNING.LAV_SPEED : 200),
       cost: 300,
-      width: 192,
+      width: 224,
       height: 96,
       sprite: 'assets/images/lav.png',
     },
@@ -169,7 +169,7 @@ const CONFIG = {
       trajectory: 'diagonal',
       diagonalAngle: (typeof TUNING !== 'undefined' ? TUNING.GERAN1_DIAGONAL_ANGLE : 20),
       spawnXMin: 192, spawnXMax: 1088,
-      rimColor: 'rgba(255, 160, 60, 0.4)', bodyColor: '#4a5e2a', accentColor: '#3a4a1a',
+      rimColor: 'rgba(255, 160, 60, 0.4)', bodyColor: '#a0a69e', accentColor: '#6b725e',
     },
 
     GERAN2: {
@@ -184,7 +184,7 @@ const CONFIG = {
       slalomAmpTop:    (typeof TUNING !== 'undefined' ? TUNING.GERAN2_SLALOM_AMP_TOP    : 30),
       slalomAmpBottom: (typeof TUNING !== 'undefined' ? TUNING.GERAN2_SLALOM_AMP_BOTTOM : 180),
       spawnXMin: 192, spawnXMax: 1088,
-      rimColor: 'rgba(255, 160, 60, 0.4)', bodyColor: '#4a5e2a', accentColor: '#3a4a1a',
+      rimColor: 'rgba(255, 160, 60, 0.4)', bodyColor: '#888d7e90', accentColor: '#748259',
     },
 
     GERAN3: {
@@ -285,7 +285,7 @@ const CONFIG = {
     {
       id: 1,
       roster: ['geran1', 'geran2'],
-      totalEnemies: 40, duration: 90000,
+      totalEnemies: 20, duration: 40000,
       maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_MAX_SIM   : 2),
       spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_SPAWN_MIN : 5000),
       spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_SPAWN_MAX : 7000),
@@ -299,7 +299,7 @@ const CONFIG = {
     {
       id: 2,
       roster: ['geran1', 'geran2', 'geran3'],
-      totalEnemies: 60, duration: 105000,
+      totalEnemies: 40, duration: 80000,
       maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_MAX_SIM   : 3),
       spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_SPAWN_MIN : 4000),
       spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_SPAWN_MAX : 6000),
@@ -313,7 +313,7 @@ const CONFIG = {
     {
       id: 3,
       roster: ['geran1', 'geran2', 'geran3', 'kh555'],
-      totalEnemies: 80, duration: 120000,
+      totalEnemies: 60, duration: 100000,
       maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_MAX_SIM   : 4),
       spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_SPAWN_MIN : 3000),
       spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_SPAWN_MAX : 5000),
@@ -327,7 +327,7 @@ const CONFIG = {
     {
       id: 4,
       roster: ['geran1', 'geran2', 'geran3', 'kh555', 'kalibr'],
-      totalEnemies: 100, duration: 135000,
+      totalEnemies: 80, duration: 120000,
       maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_MAX_SIM   : 5),
       spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_SPAWN_MIN : 2500),
       spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_SPAWN_MAX : 4000),
@@ -341,7 +341,7 @@ const CONFIG = {
     {
       id: 5,
       roster: ['geran1', 'geran2', 'geran3', 'kh555', 'kalibr', 'kh101'],
-      totalEnemies: 120, duration: 150000,
+      totalEnemies: 100, duration: 150000,
       maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_MAX_SIM   : 6),
       spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_SPAWN_MIN : 2000),
       spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_SPAWN_MAX : 3500),
@@ -360,7 +360,7 @@ const CONFIG = {
   // ----------------------------------------------------------
   ARCADE: {
     WAVE_PAUSE:        (typeof TUNING !== 'undefined' ? TUNING.ARCADE_WAVE_PAUSE         : 4000),
-    START_SIMULTANEOUS:(typeof TUNING !== 'undefined' ? TUNING.ARCADE_START_SIMULTANEOUS : 5),
+    START_SIMULTANEOUS:(typeof TUNING !== 'undefined' ? TUNING.ARCADE_START_SIMULTANEOUS : 4),
 
     UPGRADES: [
       { step: 1, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_1_THRESHOLD : 100),  upgrade: 'mg_double',      enemyUnlock: 'geran3' },
@@ -370,19 +370,19 @@ const CONFIG = {
       { step: 5, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_5_THRESHOLD : 1300), upgrade: 'sam_2rockets',   enemyUnlock: 'kh101'  },
     ],
 
-    // Phase 1: Learning (waves 1-14)
+    // Phase 1: Learning (waves 1-9)
     PHASE1: {
-      waves: [1, 14],
-      simultaneousCap: 5,
+      waves: [1, 9],
+      simultaneousCap: 4,
       spawnIntervalMin: 3000,
       spawnIntervalMax: 5000,
     },
 
-    // Phase 2: Combination (waves 15-19) — handcrafted
+    // Phase 2: Combination (waves 10-19) — handcrafted
     PHASE2: {
-      waves: [15, 19],
+      waves: [10, 19],
       simultaneousCap: 6,
-      spawnIntervalMin: 2500,
+      spawnIntervalMin: 200,
       spawnIntervalMax: 3000,
     },
 

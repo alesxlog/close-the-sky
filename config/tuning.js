@@ -10,22 +10,22 @@ const TUNING = {
   // ================================================================
   TRUCK_SPEED:  200,
   TRUCK_HP:     2,
-  TRUCK_SLOTS:  2,
+  TRUCK_SLOTS:  1,
 
-  LAV_SPEED:    160,
+  LAV_SPEED:    175,
   LAV_HP:       3,
-  LAV_SLOTS:    4,
+  LAV_SLOTS:    2,
 
   // ================================================================
   // ENEMY SPEEDS
   // ================================================================
-  GERAN1_SPEED:          100,
+  GERAN1_SPEED:          110,
   GERAN2_SPEED:          120,
-  GERAN3_SPEED_NORMAL:   100,
-  GERAN3_SPEED_TERMINAL: 140,
-  KH555_SPEED:           140,
-  KALIBR_SPEED:          150,
-  KH101_SPEED:           160,
+  GERAN3_SPEED_NORMAL:   130,
+  GERAN3_SPEED_TERMINAL: 150,
+  KH555_SPEED:           160,
+  KALIBR_SPEED:          170,
+  KH101_SPEED:           180,
 
   // ================================================================
   // ENEMY HP
@@ -50,8 +50,8 @@ const TUNING = {
   // ================================================================
   // ENEMY TRAJECTORIES
   // ================================================================
-  GERAN1_DIAGONAL_ANGLE:    20,   // degrees from vertical
-  GERAN3_DIAGONAL_ANGLE:    15,   // degrees from vertical
+  GERAN1_DIAGONAL_ANGLE:    30,   // degrees from vertical
+  GERAN3_DIAGONAL_ANGLE:    60,   // degrees from vertical
   GERAN3_TERMINAL_TIME:     3000, // ms before bottom to accelerate
 
   GERAN2_SLALOM_AMP_TOP:    30,   // px oscillation at spawn
@@ -80,7 +80,7 @@ const TUNING = {
   AUTOCANNON_COOLDOWN:     300,
   AUTOCANNON_DESPAWN_DIST: 1024,
 
-  SAM_PROJ_SPEED:   280,
+  SAM_PROJ_SPEED:   360,
   SAM_DAMAGE:       7,
   SAM_COOLDOWN:     750,
   SAM_RADAR_RADIUS: 640,
@@ -110,10 +110,10 @@ const TUNING = {
   // ================================================================
   // CAMPAIGN
   // ================================================================
-  ATTACK1_SPAWN_MIN: 5000, ATTACK1_SPAWN_MAX: 7000, ATTACK1_MAX_SIM: 2,
-  ATTACK2_SPAWN_MIN: 4000, ATTACK2_SPAWN_MAX: 6000, ATTACK2_MAX_SIM: 3,
-  ATTACK3_SPAWN_MIN: 3000, ATTACK3_SPAWN_MAX: 5000, ATTACK3_MAX_SIM: 4,
-  ATTACK4_SPAWN_MIN: 2500, ATTACK4_SPAWN_MAX: 4000, ATTACK4_MAX_SIM: 5,
-  ATTACK5_SPAWN_MIN: 2000, ATTACK5_SPAWN_MAX: 3500, ATTACK5_MAX_SIM: 6,
+  ATTACK1_SPAWN_MIN: 5000, ATTACK1_SPAWN_MAX: 5500, ATTACK1_MAX_SIM: 2,
+  ATTACK2_SPAWN_MIN: 4000, ATTACK2_SPAWN_MAX: 5000, ATTACK2_MAX_SIM: 3,
+  ATTACK3_SPAWN_MIN: 3000, ATTACK3_SPAWN_MAX: 4500, ATTACK3_MAX_SIM: 4,
+  ATTACK4_SPAWN_MIN: 2000, ATTACK4_SPAWN_MAX: 4000, ATTACK4_MAX_SIM: 5,
+  ATTACK5_SPAWN_MIN: 1000, ATTACK5_SPAWN_MAX: 3000, ATTACK5_MAX_SIM: 6,
 
 };
