@@ -55,11 +55,11 @@ const CONFIG = {
   GAME: {
     TARGET_FPS: 60,
     LIVES: 2,
-    SPAWN_LOCK_AFTER_DEATH: 15000,  // ms — no spawns after car destroyed
-    MIN_SPAWN_INTERVAL: 2000,       // ms — hard floor
-    MAX_SIMULTANEOUS_HIGHTIER: 2,   // Kh-555 and above
-    MAX_SIMULTANEOUS_KH101: 2,      // hard cap
-    NO_HIGHTIER_FIRST: 15000,       // ms — no Kalibr/Kh-101 in first 15s
+    SPAWN_LOCK_AFTER_DEATH: (typeof TUNING !== 'undefined' ? TUNING.SPAWN_LOCK_AFTER_DEATH : 15000),
+    MIN_SPAWN_INTERVAL:     (typeof TUNING !== 'undefined' ? TUNING.MIN_SPAWN_INTERVAL     : 2000),
+    MAX_SIMULTANEOUS_HIGHTIER: (typeof TUNING !== 'undefined' ? TUNING.MAX_SIMULTANEOUS_HIGHTIER : 2),
+    MAX_SIMULTANEOUS_KH101:    (typeof TUNING !== 'undefined' ? TUNING.MAX_SIMULTANEOUS_KH101    : 2),
+    NO_HIGHTIER_FIRST:      (typeof TUNING !== 'undefined' ? TUNING.NO_HIGHTIER_FIRST      : 15000),
   },
 
   // ----------------------------------------------------------
@@ -69,8 +69,8 @@ const CONFIG = {
     TRUCK: {
       id: 'truck',
       name: 'Pickup Truck',
-      hp: 2,
-      slots: 2,
+      hp:    (typeof TUNING !== 'undefined' ? TUNING.TRUCK_HP    : 2),
+      slots: (typeof TUNING !== 'undefined' ? TUNING.TRUCK_SLOTS : 2),
       speed: (typeof TUNING !== 'undefined' ? TUNING.TRUCK_SPEED : 200),
       cost: 0,
       width: 168,
@@ -80,8 +80,8 @@ const CONFIG = {
     LAV: {
       id: 'lav',
       name: 'Light Armoured Vehicle',
-      hp: 3,
-      slots: 4,
+      hp:    (typeof TUNING !== 'undefined' ? TUNING.LAV_HP    : 3),
+      slots: (typeof TUNING !== 'undefined' ? TUNING.LAV_SLOTS : 4),
       speed: (typeof TUNING !== 'undefined' ? TUNING.LAV_SPEED : 160),
       cost: 300,
       width: 192,
@@ -98,68 +98,59 @@ const CONFIG = {
       id: 'mg',
       name: 'Machine Gun',
       slots: 1,
-      damage: 1,
-      projSpeed: (typeof TUNING !== 'undefined' ? TUNING.MG_PROJ_SPEED : 500),     // px/s
-      cooldown: 400,      // ms
+      damage:    (typeof TUNING !== 'undefined' ? TUNING.MG_DAMAGE      : 1),
+      projSpeed: (typeof TUNING !== 'undefined' ? TUNING.MG_PROJ_SPEED  : 500),
+      cooldown:  (typeof TUNING !== 'undefined' ? TUNING.MG_COOLDOWN    : 400),
       cost: 100,
-      despawnDist: 768,   // px travel before despawn
-      spread: 0,          // px from center (single barrel)
+      despawnDist: (typeof TUNING !== 'undefined' ? TUNING.MG_DESPAWN_DIST : 768),
+      spread: 0,
       projectileWidth: 4,
       projectileColor: '#ffff99',
       trailAlpha: 0.3,
-      // Distance falloff
       falloff: [
-        { maxDist: 384,  multiplier: 1.0 },
-        { maxDist: 768,  multiplier: 0.5 },
-        { maxDist: 1020, multiplier: 0.25 },
+        { maxDist: (typeof TUNING !== 'undefined' ? TUNING.MG_FALLOFF_FULL_DIST    : 384),  multiplier: 1.0  },
+        { maxDist: (typeof TUNING !== 'undefined' ? TUNING.MG_FALLOFF_HALF_DIST    : 768),  multiplier: 0.5  },
+        { maxDist: (typeof TUNING !== 'undefined' ? TUNING.MG_FALLOFF_QUARTER_DIST : 1020), multiplier: 0.25 },
       ],
       exclusions: ['autocannon'],
-      doubleBarrel: {
-        cost: 100,
-        separation: 32,   // px apart (16px each side of center)
-      },
+      doubleBarrel: { cost: 100, separation: 32 },
     },
 
     AUTOCANNON: {
       id: 'autocannon',
       name: 'Autocannon (20mm)',
       slots: 2,
-      damage: 3,
-      projSpeed: (typeof TUNING !== 'undefined' ? TUNING.AUTOCANNON_PROJ_SPEED : 420),     // px/s
-      cooldown: 300,      // ms
+      damage:    (typeof TUNING !== 'undefined' ? TUNING.AUTOCANNON_DAMAGE      : 3),
+      projSpeed: (typeof TUNING !== 'undefined' ? TUNING.AUTOCANNON_PROJ_SPEED  : 420),
+      cooldown:  (typeof TUNING !== 'undefined' ? TUNING.AUTOCANNON_COOLDOWN    : 300),
       cost: 200,
-      despawnDist: 1024,  // px
+      despawnDist: (typeof TUNING !== 'undefined' ? TUNING.AUTOCANNON_DESPAWN_DIST : 1024),
       spread: 0,
       projectileWidth: 8,
       projectileColor: '#ff9900',
       trailAlpha: 0.6,
-      falloff: null,      // no falloff
+      falloff: null,
       exclusions: ['mg'],
-      doubleBarrel: {
-        cost: 200,
-        separation: 40,   // px apart
-      },
+      doubleBarrel: { cost: 200, separation: 40 },
     },
 
     SAM: {
       id: 'sam',
       name: 'SAM Launcher',
       slots: 2,
-      damage: 7,
-      projSpeed: (typeof TUNING !== 'undefined' ? TUNING.SAM_PROJ_SPEED : 280),     // px/s
-      cooldown: 750,      // ms
+      damage:    (typeof TUNING !== 'undefined' ? TUNING.SAM_DAMAGE      : 7),
+      projSpeed: (typeof TUNING !== 'undefined' ? TUNING.SAM_PROJ_SPEED  : 280),
+      cooldown:  (typeof TUNING !== 'undefined' ? TUNING.SAM_COOLDOWN    : 750),
       cost: 350,
-      despawnDist: null,  // unlimited — homing
-      radarRadius: 640,   // px centered on car
-      lockOnDelay: 250,   // ms standard
-      kh101LockDelay: 750,// ms total (0.5s stealth + 250ms)
+      despawnDist: null,
+      radarRadius:  (typeof TUNING !== 'undefined' ? TUNING.SAM_RADAR_RADIUS : 640),
+      lockOnDelay:  (typeof TUNING !== 'undefined' ? TUNING.SAM_LOCK_DELAY   : 250),
+      kh101LockDelay: 750,
       projectileWidth: 12,
       projectileColor: '#ff4400',
       thrustColor: '#ffaa00',
       exclusions: ['manpads'],
-      twoRockets: {
-        cost: 350,
-      },
+      twoRockets: { cost: 350 },
     },
   },
 
@@ -170,134 +161,93 @@ const CONFIG = {
     GERAN1: {
       id: 'geran1',
       name: 'Geran-1',
-      spriteW: 64,
-      spriteH: 64,
-      hitboxW: 77,
-      hitboxH: 77,
-      hp: 2,
-      killPts: 5,
-      speed: (typeof TUNING !== 'undefined' ? TUNING.GERAN1_SPEED : 60),         // px/s
+      spriteW: 64, spriteH: 64, hitboxW: 77, hitboxH: 77,
+      hp:      (typeof TUNING !== 'undefined' ? TUNING.GERAN1_HP  : 2),
+      killPts: (typeof TUNING !== 'undefined' ? TUNING.GERAN1_PTS : 5),
+      speed:   (typeof TUNING !== 'undefined' ? TUNING.GERAN1_SPEED : 60),
       radarTarget: false,
       trajectory: 'diagonal',
-      diagonalAngle: 20,  // degrees from vertical
-      spawnXMin: 192,     // middle 70% of 1280
-      spawnXMax: 1088,
-      // Sunrise rim light color
-      rimColor: 'rgba(255, 160, 60, 0.4)',
-      bodyColor: '#4a5e2a',
-      accentColor: '#3a4a1a',
+      diagonalAngle: (typeof TUNING !== 'undefined' ? TUNING.GERAN1_DIAGONAL_ANGLE : 20),
+      spawnXMin: 192, spawnXMax: 1088,
+      rimColor: 'rgba(255, 160, 60, 0.4)', bodyColor: '#4a5e2a', accentColor: '#3a4a1a',
     },
 
     GERAN2: {
       id: 'geran2',
       name: 'Geran-2',
-      spriteW: 64,
-      spriteH: 80,
-      hitboxW: 77,
-      hitboxH: 96,
-      hp: 3,
-      killPts: 10,
-      speed: (typeof TUNING !== 'undefined' ? TUNING.GERAN2_SPEED : 70),
+      spriteW: 64, spriteH: 80, hitboxW: 77, hitboxH: 96,
+      hp:      (typeof TUNING !== 'undefined' ? TUNING.GERAN2_HP  : 3),
+      killPts: (typeof TUNING !== 'undefined' ? TUNING.GERAN2_PTS : 10),
+      speed:   (typeof TUNING !== 'undefined' ? TUNING.GERAN2_SPEED : 70),
       radarTarget: false,
       trajectory: 'slalom',
-      slalomAmpTop: 30,   // px amplitude at y=80
-      slalomAmpBottom: 180, // px amplitude at y=1000
-      spawnXMin: 192,
-      spawnXMax: 1088,
-      rimColor: 'rgba(255, 160, 60, 0.4)',
-      bodyColor: '#4a5e2a',
-      accentColor: '#3a4a1a',
+      slalomAmpTop:    (typeof TUNING !== 'undefined' ? TUNING.GERAN2_SLALOM_AMP_TOP    : 30),
+      slalomAmpBottom: (typeof TUNING !== 'undefined' ? TUNING.GERAN2_SLALOM_AMP_BOTTOM : 180),
+      spawnXMin: 192, spawnXMax: 1088,
+      rimColor: 'rgba(255, 160, 60, 0.4)', bodyColor: '#4a5e2a', accentColor: '#3a4a1a',
     },
 
     GERAN3: {
       id: 'geran3',
       name: 'Geran-3',
-      spriteW: 72,
-      spriteH: 80,
-      hitboxW: 86,
-      hitboxH: 96,
-      hp: 4,
-      killPts: 15,
+      spriteW: 72, spriteH: 80, hitboxW: 86, hitboxH: 96,
+      hp:      (typeof TUNING !== 'undefined' ? TUNING.GERAN3_HP  : 4),
+      killPts: (typeof TUNING !== 'undefined' ? TUNING.GERAN3_PTS : 15),
       speedNormal:   (typeof TUNING !== 'undefined' ? TUNING.GERAN3_SPEED_NORMAL   : 50),
       speedTerminal: (typeof TUNING !== 'undefined' ? TUNING.GERAN3_SPEED_TERMINAL : 100),
-      terminalTime: 3000, // ms before bottom — switch to terminal speed
+      terminalTime:  (typeof TUNING !== 'undefined' ? TUNING.GERAN3_TERMINAL_TIME  : 3000),
       radarTarget: false,
       trajectory: 'diagonal_accel',
-      diagonalAngle: 15,
-      spawnXMin: 100,
-      spawnXMax: 1180,
-      rimColor: 'rgba(255, 160, 60, 0.35)',
-      bodyColor: '#5a6a7a',
-      accentColor: '#3a4a5a',
+      diagonalAngle: (typeof TUNING !== 'undefined' ? TUNING.GERAN3_DIAGONAL_ANGLE : 15),
+      spawnXMin: 100, spawnXMax: 1180,
+      rimColor: 'rgba(255, 160, 60, 0.35)', bodyColor: '#5a6a7a', accentColor: '#3a4a5a',
     },
 
     KH555: {
       id: 'kh555',
       name: 'Kh-555',
-      spriteW: 56,
-      spriteH: 112,
-      hitboxW: 67,
-      hitboxH: 134,
-      hp: 6,
-      killPts: 40,
-      speed: (typeof TUNING !== 'undefined' ? TUNING.KH555_SPEED : 90),
+      spriteW: 56, spriteH: 112, hitboxW: 67, hitboxH: 134,
+      hp:      (typeof TUNING !== 'undefined' ? TUNING.KH555_HP  : 6),
+      killPts: (typeof TUNING !== 'undefined' ? TUNING.KH555_PTS : 40),
+      speed:   (typeof TUNING !== 'undefined' ? TUNING.KH555_SPEED : 90),
       radarTarget: true,
       trajectory: 'wide_sine',
-      sineAmplitude: 275, // px
-      sinePeriod: 3000,   // ms for one full oscillation
-      spawnXMin: 320,     // middle 50%
-      spawnXMax: 960,
-      rimColor: 'rgba(255, 180, 80, 0.5)',
-      bodyColor: '#c8c8c8',
-      finColor: '#aaaaaa',
-      noseColor: '#e0e0e0',
+      sineAmplitude: (typeof TUNING !== 'undefined' ? TUNING.KH555_SINE_AMPLITUDE : 275),
+      sinePeriod:    (typeof TUNING !== 'undefined' ? TUNING.KH555_SINE_PERIOD    : 4000),
+      spawnXMin: 320, spawnXMax: 960,
+      rimColor: 'rgba(255, 180, 80, 0.5)', bodyColor: '#c8c8c8', finColor: '#aaaaaa', noseColor: '#e0e0e0',
     },
 
     KALIBR: {
       id: 'kalibr',
       name: '3M54 Kalibr',
-      spriteW: 56,
-      spriteH: 112,
-      hitboxW: 67,
-      hitboxH: 134,
-      hp: 8,
-      killPts: 50,
-      speed: (typeof TUNING !== 'undefined' ? TUNING.KALIBR_SPEED : 105),
+      spriteW: 56, spriteH: 112, hitboxW: 67, hitboxH: 134,
+      hp:      (typeof TUNING !== 'undefined' ? TUNING.KALIBR_HP  : 8),
+      killPts: (typeof TUNING !== 'undefined' ? TUNING.KALIBR_PTS : 50),
+      speed:   (typeof TUNING !== 'undefined' ? TUNING.KALIBR_SPEED : 105),
       radarTarget: true,
       trajectory: 'medium_sine',
-      sineAmplitude: 125,
-      sinePeriod: 2500,
-      spawnXMin: 200,
-      spawnXMax: 1080,
-      rimColor: 'rgba(255, 180, 80, 0.5)',
-      bodyColor: '#b0b8c0',
-      finColor: '#909aa0',
-      noseColor: '#d0d8e0',
+      sineAmplitude: (typeof TUNING !== 'undefined' ? TUNING.KALIBR_SINE_AMPLITUDE : 125),
+      sinePeriod:    (typeof TUNING !== 'undefined' ? TUNING.KALIBR_SINE_PERIOD    : 5000),
+      spawnXMin: 200, spawnXMax: 1080,
+      rimColor: 'rgba(255, 180, 80, 0.5)', bodyColor: '#b0b8c0', finColor: '#909aa0', noseColor: '#d0d8e0',
     },
 
     KH101: {
       id: 'kh101',
       name: 'Kh-101',
-      spriteW: 64,
-      spriteH: 128,
-      hitboxW: 77,
-      hitboxH: 154,
-      hp: 10,
-      killPts: 60,
-      speed: (typeof TUNING !== 'undefined' ? TUNING.KH101_SPEED : 120),
+      spriteW: 64, spriteH: 128, hitboxW: 77, hitboxH: 154,
+      hp:      (typeof TUNING !== 'undefined' ? TUNING.KH101_HP  : 10),
+      killPts: (typeof TUNING !== 'undefined' ? TUNING.KH101_PTS : 60),
+      speed:   (typeof TUNING !== 'undefined' ? TUNING.KH101_SPEED : 120),
       radarTarget: true,
-      radarLockDelay: 750,  // ms total (stealth adds 0.5s)
+      radarLockDelay: 750,
       trajectory: 'perlin',
-      stealthDuration: 2000,  // ms at low opacity
+      stealthDuration: 2000,
       stealthOpacity: 0.25,
-      stealthFadeTime: 1000,  // ms to fade in
-      spawnXMin: 200,
-      spawnXMax: 1080,
-      rimColor: 'rgba(255, 140, 60, 0.3)',
-      bodyColor: '#2a3a5a',
-      finColor: '#1a2a3a',
-      noseColor: '#3a4a6a',
-      // Flare decoy — first SAM shot always misses
+      stealthFadeTime: 1000,
+      spawnXMin: 200, spawnXMax: 1080,
+      rimColor: 'rgba(255, 140, 60, 0.3)', bodyColor: '#2a3a5a', finColor: '#1a2a3a', noseColor: '#3a4a6a',
       flareDecoy: true,
     },
   },
@@ -335,13 +285,11 @@ const CONFIG = {
     {
       id: 1,
       roster: ['geran1', 'geran2'],
-      totalEnemies: 40,
-      duration: 90000,
-      maxSimultaneous: 2,
-      spawnIntervalMin: 5000,
-      spawnIntervalMax: 7000,
-      noHighTierFirst: true,
-      pitstopAfter: true,
+      totalEnemies: 40, duration: 90000,
+      maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_MAX_SIM   : 2),
+      spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_SPAWN_MIN : 5000),
+      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_SPAWN_MAX : 7000),
+      noHighTierFirst: true, pitstopAfter: true,
       waves: [
         { enemies: [{ type: 'geran1', count: 4, solo: true }] },
         { enemies: [{ type: 'geran2', count: 4, solo: true }] },
@@ -351,13 +299,11 @@ const CONFIG = {
     {
       id: 2,
       roster: ['geran1', 'geran2', 'geran3'],
-      totalEnemies: 60,
-      duration: 105000,
-      maxSimultaneous: 3,
-      spawnIntervalMin: 4000,
-      spawnIntervalMax: 6000,
-      noHighTierFirst: true,
-      pitstopAfter: true,
+      totalEnemies: 60, duration: 105000,
+      maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_MAX_SIM   : 3),
+      spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_SPAWN_MIN : 4000),
+      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_SPAWN_MAX : 6000),
+      noHighTierFirst: true, pitstopAfter: true,
       waves: [
         { enemies: [{ type: 'geran1', count: 3 }, { type: 'geran2', count: 3 }] },
         { enemies: [{ type: 'geran3', count: 3, solo: true }] },
@@ -367,13 +313,11 @@ const CONFIG = {
     {
       id: 3,
       roster: ['geran1', 'geran2', 'geran3', 'kh555'],
-      totalEnemies: 80,
-      duration: 120000,
-      maxSimultaneous: 4,
-      spawnIntervalMin: 3000,
-      spawnIntervalMax: 5000,
-      noHighTierFirst: true,
-      pitstopAfter: true,
+      totalEnemies: 80, duration: 120000,
+      maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_MAX_SIM   : 4),
+      spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_SPAWN_MIN : 3000),
+      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_SPAWN_MAX : 5000),
+      noHighTierFirst: true, pitstopAfter: true,
       waves: [
         { enemies: [{ type: 'geran1', count: 2 }, { type: 'geran2', count: 2 }, { type: 'geran3', count: 2 }] },
         { enemies: [{ type: 'kh555', count: 2, solo: true }] },
@@ -383,13 +327,11 @@ const CONFIG = {
     {
       id: 4,
       roster: ['geran1', 'geran2', 'geran3', 'kh555', 'kalibr'],
-      totalEnemies: 100,
-      duration: 135000,
-      maxSimultaneous: 6,
-      spawnIntervalMin: 2500,
-      spawnIntervalMax: 4000,
-      noHighTierFirst: true,
-      pitstopAfter: true,
+      totalEnemies: 100, duration: 135000,
+      maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_MAX_SIM   : 5),
+      spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_SPAWN_MIN : 2500),
+      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_SPAWN_MAX : 4000),
+      noHighTierFirst: true, pitstopAfter: true,
       waves: [
         { enemies: [{ type: 'geran1', count: 3 }, { type: 'geran2', count: 3 }, { type: 'geran3', count: 2 }] },
         { enemies: [{ type: 'kalibr', count: 1, solo: true }] },
@@ -399,13 +341,11 @@ const CONFIG = {
     {
       id: 5,
       roster: ['geran1', 'geran2', 'geran3', 'kh555', 'kalibr', 'kh101'],
-      totalEnemies: 120,
-      duration: 150000,
-      maxSimultaneous: 8,
-      spawnIntervalMin: 2000,
-      spawnIntervalMax: 3500,
-      noHighTierFirst: true,
-      pitstopAfter: false,
+      totalEnemies: 120, duration: 150000,
+      maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_MAX_SIM   : 6),
+      spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_SPAWN_MIN : 2000),
+      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_SPAWN_MAX : 3500),
+      noHighTierFirst: true, pitstopAfter: false,
       waves: [
         { enemies: [{ type: 'geran1', count: 3 }, { type: 'geran2', count: 2 }, { type: 'kh555', count: 1 }] },
         { enemies: [{ type: 'kh101', count: 1, solo: true }] },
@@ -416,19 +356,18 @@ const CONFIG = {
   ],
 
   // ----------------------------------------------------------
-  // arcade MODE
+  // ENDLESS MODE
   // ----------------------------------------------------------
-  arcade: {
-    WAVE_PAUSE: 4000,         // ms between waves
-    START_SIMULTANEOUS: 5,
+  ENDLESS: {
+    WAVE_PAUSE:        (typeof TUNING !== 'undefined' ? TUNING.ARCADE_WAVE_PAUSE         : 4000),
+    START_SIMULTANEOUS:(typeof TUNING !== 'undefined' ? TUNING.ARCADE_START_SIMULTANEOUS : 5),
 
-    // Auto-upgrade thresholds (cumulative points)
     UPGRADES: [
-      { step: 1, cumulative: 100,  upgrade: 'mg_double',      enemyUnlock: 'geran3' },
-      { step: 2, cumulative: 400,  upgrade: 'lav_autocannon', enemyUnlock: 'kh555'  },
-      { step: 3, cumulative: 750,  upgrade: 'sam',            enemyUnlock: 'kalibr' },
-      { step: 4, cumulative: 950,  upgrade: 'ac_double',      enemyUnlock: null     },
-      { step: 5, cumulative: 1300, upgrade: 'sam_2rockets',   enemyUnlock: 'kh101'  },
+      { step: 1, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_1_THRESHOLD : 100),  upgrade: 'mg_double',      enemyUnlock: 'geran3' },
+      { step: 2, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_2_THRESHOLD : 400),  upgrade: 'lav_autocannon', enemyUnlock: 'kh555'  },
+      { step: 3, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_3_THRESHOLD : 750),  upgrade: 'sam',            enemyUnlock: 'kalibr' },
+      { step: 4, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_4_THRESHOLD : 950),  upgrade: 'ac_double',      enemyUnlock: null     },
+      { step: 5, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_5_THRESHOLD : 1300), upgrade: 'sam_2rockets',   enemyUnlock: 'kh101'  },
     ],
 
     // Phase 1: Learning (waves 1-14)

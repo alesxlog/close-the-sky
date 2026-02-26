@@ -66,12 +66,13 @@ class MenuScene {
     // Subtitle
     ctx.font = `22px ${MENU_FONT}`;
     ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    ctx.fillText('Hold up the shield of truth to stop the fiery arrows of the evil', CX, 355);
+    ctx.fillText('Hold up the shield of truth', CX, 390);
+    ctx.fillText('to stop the fiery arrows of the evil', CX, 420);
 
     // Select label
     ctx.font = `16px ${MENU_FONT}`;
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
-    ctx.fillText('Choose your mission', CX, 510);
+    ctx.fillText('Choose your mission', CX, 550);
 
     // Buttons
     this._drawButton(ctx, CX, 580, 400, 90,
@@ -79,7 +80,7 @@ class MenuScene {
       'No ceasefire. No end.');
     this._drawButton(ctx, CX, 710, 400, 90,
       'Campaign',
-      'A story of resilience, night after night');
+      'A story of resilience, night after night.');
 
     // Controls
     ctx.font = `15px ${MENU_FONT}`;
