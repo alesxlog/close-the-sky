@@ -77,10 +77,10 @@ class MenuScene {
     // Buttons
     this._drawButton(ctx, CX, 580, 400, 90,
       'Arcade',
-      'No ceasefire. No end.');
+      'No ceasefire. No end.'); // first button
     this._drawButton(ctx, CX, 710, 400, 90,
       'Campaign',
-      'A story of resilience, night after night.');
+      'A story of resilience, night after night.'); // second button
 
     // Controls
     ctx.font = `15px ${MENU_FONT}`;

@@ -356,9 +356,9 @@ const CONFIG = {
   ],
 
   // ----------------------------------------------------------
-  // ENDLESS MODE
+  // ARCADE MODE
   // ----------------------------------------------------------
-  ENDLESS: {
+  ARCADE: {
     WAVE_PAUSE:        (typeof TUNING !== 'undefined' ? TUNING.ARCADE_WAVE_PAUSE         : 4000),
     START_SIMULTANEOUS:(typeof TUNING !== 'undefined' ? TUNING.ARCADE_START_SIMULTANEOUS : 5),
 
