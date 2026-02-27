@@ -15,10 +15,22 @@ class EnemyBase {
     this.dead = false;
     this.reachedBottom = false;
     this.age = 0;
+    this.bounceFlip = 1;
   }
 
   update(dt) {
     this.age += dt * 1000;
+  }
+
+  _checkBounce() {
+    const half = this.cfg.hitboxW / 2;
+    if (this.x < half) {
+      this.x = half;
+      this.bounceFlip *= -1;
+    } else if (this.x > CONFIG.CANVAS.WIDTH - half) {
+      this.x = CONFIG.CANVAS.WIDTH - half;
+      this.bounceFlip *= -1;
+    }
   }
 
   isOffScreen() {
@@ -66,8 +78,9 @@ class Geran1 extends EnemyBase {
 
   update(dt) {
     super.update(dt);
-    this.x += this.vx * dt;
+    this.x += this.vx * this.bounceFlip * dt;
     this.y += this.vy * dt;
+    this._checkBounce();
     if (this.y >= CONFIG.CANVAS.PLAY_BOTTOM) this.reachedBottom = true;
   }
 
@@ -138,8 +151,8 @@ class Geran2 extends EnemyBase {
 
     const progress = Math.max(0, (this.y - CANVAS.PLAY_TOP) / (CANVAS.PLAY_BOTTOM - CANVAS.PLAY_TOP));
     const amp = cfg.slalomAmpTop + (cfg.slalomAmpBottom - cfg.slalomAmpTop) * progress;
-    this.x = this.startX + Math.sin(this.y * 0.0018 + this.phase) * amp;
-
+    this.x = this.startX + Math.sin(this.y * 0.0018 + this.phase) * amp * this.bounceFlip;
+    this._checkBounce();
     if (this.y >= CANVAS.PLAY_BOTTOM) this.reachedBottom = true;
   }
 
@@ -211,7 +224,8 @@ class Geran3 extends EnemyBase {
     if (timeToBottom <= cfg.terminalTime / 1000) this._terminal = true;
 
     this.y += speed * dt;
-    this.x += this._dirX * speed * dt;
+    this.x += this._dirX * this.bounceFlip * speed * dt;
+    this._checkBounce();
 
     if (this.y >= CANVAS.PLAY_BOTTOM) this.reachedBottom = true;
   }
@@ -284,7 +298,8 @@ class Kh555 extends EnemyBase {
     const cfg = this.cfg;
     this.y += cfg.speed * dt;
     const t = this.age / cfg.sinePeriod;
-    this.x = this.startX + Math.sin(t * Math.PI * 2 + this.phase) * cfg.sineAmplitude;
+    this.x = this.startX + Math.sin(t * Math.PI * 2 + this.phase) * cfg.sineAmplitude * this.bounceFlip;
+    this._checkBounce();
     if (this.y >= CONFIG.CANVAS.PLAY_BOTTOM) this.reachedBottom = true;
   }
 
@@ -345,7 +360,8 @@ class Kalibr extends EnemyBase {
     const cfg = this.cfg;
     this.y += cfg.speed * dt;
     const t = this.age / cfg.sinePeriod;
-    this.x = this.startX + Math.sin(t * Math.PI * 2 + this.phase) * cfg.sineAmplitude;
+    this.x = this.startX + Math.sin(t * Math.PI * 2 + this.phase) * cfg.sineAmplitude * this.bounceFlip;
+    this._checkBounce();
     if (this.y >= CONFIG.CANVAS.PLAY_BOTTOM) this.reachedBottom = true;
   }
 
@@ -415,7 +431,7 @@ class Kh101 extends EnemyBase {
       + Math.sin(t * this._p2.freq + this._p2.phase) * this._p2.amp
       + Math.sin(t * this._p3.freq + this._p3.phase) * this._p3.amp;
 
-    this.x = Math.max(40, Math.min(CANVAS.WIDTH - 40, this.x));
+    this._checkBounce();
     if (this.y >= CANVAS.PLAY_BOTTOM) this.reachedBottom = true;
   }
 

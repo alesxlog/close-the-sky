@@ -285,10 +285,10 @@ const CONFIG = {
     {
       id: 1,
       roster: ['geran1', 'geran2'],
-      totalEnemies: 20, duration: 40000,
+      totalEnemies: 20, duration: 50000,
       maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_MAX_SIM   : 2),
       spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_SPAWN_MIN : 5000),
-      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_SPAWN_MAX : 7000),
+      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_SPAWN_MAX : 6000),
       noHighTierFirst: true, pitstopAfter: true,
       waves: [
         { enemies: [{ type: 'geran1', count: 4, solo: true }] },
@@ -299,10 +299,10 @@ const CONFIG = {
     {
       id: 2,
       roster: ['geran1', 'geran2', 'geran3'],
-      totalEnemies: 40, duration: 80000,
+      totalEnemies: 40, duration: 100000,
       maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_MAX_SIM   : 3),
       spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_SPAWN_MIN : 4000),
-      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_SPAWN_MAX : 6000),
+      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_SPAWN_MAX : 5000),
       noHighTierFirst: true, pitstopAfter: true,
       waves: [
         { enemies: [{ type: 'geran1', count: 3 }, { type: 'geran2', count: 3 }] },
@@ -313,10 +313,10 @@ const CONFIG = {
     {
       id: 3,
       roster: ['geran1', 'geran2', 'geran3', 'kh555'],
-      totalEnemies: 60, duration: 100000,
+      totalEnemies: 60, duration: 150000,
       maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_MAX_SIM   : 4),
       spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_SPAWN_MIN : 3000),
-      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_SPAWN_MAX : 5000),
+      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_SPAWN_MAX : 4000),
       noHighTierFirst: true, pitstopAfter: true,
       waves: [
         { enemies: [{ type: 'geran1', count: 2 }, { type: 'geran2', count: 2 }, { type: 'geran3', count: 2 }] },
@@ -327,10 +327,10 @@ const CONFIG = {
     {
       id: 4,
       roster: ['geran1', 'geran2', 'geran3', 'kh555', 'kalibr'],
-      totalEnemies: 80, duration: 120000,
+      totalEnemies: 80, duration: 200000,
       maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_MAX_SIM   : 5),
-      spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_SPAWN_MIN : 2500),
-      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_SPAWN_MAX : 4000),
+      spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_SPAWN_MIN : 2000),
+      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_SPAWN_MAX : 3000),
       noHighTierFirst: true, pitstopAfter: true,
       waves: [
         { enemies: [{ type: 'geran1', count: 3 }, { type: 'geran2', count: 3 }, { type: 'geran3', count: 2 }] },
@@ -341,10 +341,10 @@ const CONFIG = {
     {
       id: 5,
       roster: ['geran1', 'geran2', 'geran3', 'kh555', 'kalibr', 'kh101'],
-      totalEnemies: 100, duration: 150000,
+      totalEnemies: 100, duration: 250000,
       maxSimultaneous:  (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_MAX_SIM   : 6),
-      spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_SPAWN_MIN : 2000),
-      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_SPAWN_MAX : 3500),
+      spawnIntervalMin: (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_SPAWN_MIN : 1000),
+      spawnIntervalMax: (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_SPAWN_MAX : 2000),
       noHighTierFirst: true, pitstopAfter: false,
       waves: [
         { enemies: [{ type: 'geran1', count: 3 }, { type: 'geran2', count: 2 }, { type: 'kh555', count: 1 }] },
@@ -416,7 +416,7 @@ const CONFIG = {
       { id: 'autocannon',  name: 'Autocannon (20mm)',   cost: 200, requires: 'mg',          replaces: 'mg'        },
       { id: 'sam',         name: 'SAM Launcher',        cost: 350, requires: null,          replaces: null,  slots: 2 },
       { id: 'sam_2rockets',name: 'SAM: 2 Rockets',      cost: 350, requires: 'sam',         replaces: null        },
-      { id: 'ac_double',   name: 'Autocannon 2-Barrel', cost: 200, requires: 'autocannon',  replaces: null        },
+      { id: 'ac_double',   name: 'Autocannon Twin Barrel', cost: 200, requires: 'autocannon',  replaces: null        },
       { id: 'lav',         name: 'Light Armoured Vehicle', cost: 300, requires: null,       replaces: null        },
     ],
   },

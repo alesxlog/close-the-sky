@@ -1,25 +1,83 @@
 // ============================================================
 // CLOSE THE SKY — pitstopScene.js
-// Campaign pitstop shop between attacks
+// Army catalog brochure style shop between attacks
 // ============================================================
+
+const PAPER_BG   = '#f2ece0';
+const PAPER_LINE = '#c8b89a';
+const INK        = '#1a1a1a';
+const INK_DIM    = '#888070';
+const GOLD       = '#7a6a2a';
+const OLIVE_BTN  = '#4a5a1a';
+const STAMP_COL  = 'rgba(80,80,80,0.45)';
+const PS_FONT    = "'Share Tech Mono', monospace";
+
+const BP_W  = 700;
+const BP_H  = 920;
+
+const CARD_COLS  = 2;
+const CARD_ROWS  = 4;
+const CARD_W     = 310;
+const CARD_H     = 185;
+const CARD_PAD_X = 16;
+const GRID_GAP_X = 20;
+const GRID_GAP_Y = 12;
+const GRID_TOP   = 112;
+const GRID_LEFT  = 20;
+
+const CATALOG = [
+  { id: 'truck',       label: 'Pickup Truck',         type: 'vehicle', img: 'assets/images/b_truck.png',        stat: null,     slots: 2, cost: 0   },
+  { id: 'lav',         label: 'Light Armoured Vehicle',type: 'vehicle', img: 'assets/images/b_lav.png',          stat: null,     slots: 4, cost: 300 },
+  { id: 'mg',          label: 'Machine Gun',           type: 'weapon',  img: 'assets/images/b_machinegun.png',   stat: 'DMG 1',  slots: 1, cost: 100 },
+  { id: 'mg_double',   label: 'Double Barrel MG',      type: 'weapon',  img: 'assets/images/b_machinegun2b.png', stat: 'DMG 1×2',slots: 1, cost: 100 },
+  { id: 'autocannon',  label: 'Autocannon 20mm',       type: 'weapon',  img: 'assets/images/b_autocannon.png',  stat: 'DMG 3',  slots: 2, cost: 200 },
+  { id: 'ac_double',   label: 'Twin Autocannon',       type: 'weapon',  img: 'assets/images/b_autocannon2b.png',stat: 'DMG 3×2',slots: 2, cost: 200 },
+  { id: 'sam',         label: 'SAM Launcher ×1',       type: 'weapon',  img: 'assets/images/b_sam1.png',         stat: 'DMG 7',  slots: 2, cost: 350 },
+  { id: 'sam_2rockets',label: 'SAM Launcher ×2',       type: 'weapon',  img: 'assets/images/b_sam2.png',         stat: 'DMG 7×2',slots: 2, cost: 350 },
+];
 
 class PitstopScene {
   constructor(canvas, ctx, gameState, onContinue) {
-    this.canvas = canvas;
-    this.ctx = ctx;
-    this.gs = gameState; // { points, player, attackNum }
+    this.canvas     = canvas;
+    this.ctx        = ctx;
+    this.gs         = gameState;
     this.onContinue = onContinue;
-    this._bg = new Background();
-    this._message = '';
-    this._messageTimer = 0;
+
+    this._px = Math.floor((CONFIG.CANVAS.WIDTH  - BP_W) / 2);
+    this._py = Math.floor((CONFIG.CANVAS.HEIGHT - BP_H) / 2);
+
+    this._imgs = {};
+    for (const c of CATALOG) {
+      const img = new Image();
+      img.src = c.img;
+      this._imgs[c.id] = img;
+    }
+
+    this._paperCanvas = document.createElement('canvas');
+    this._paperCanvas.width  = BP_W;
+    this._paperCanvas.height = BP_H;
+    this._drawPaper(this._paperCanvas.getContext('2d'));
+
+    this._confirm = null;
     this._bind();
+  }
+
+  _drawPaper(pctx) {
+    pctx.fillStyle = PAPER_BG;
+    pctx.fillRect(0, 0, BP_W, BP_H);
+    for (let i = 0; i < 9000; i++) {
+      const a = Math.random() * 0.055;
+      pctx.fillStyle = `rgba(80,60,20,${a})`;
+      pctx.fillRect(Math.random() * BP_W, Math.random() * BP_H, 1, 1);
+    }
+    pctx.strokeStyle = '#b0a080';
+    pctx.lineWidth = 2;
+    pctx.strokeRect(8, 8, BP_W - 16, BP_H - 16);
   }
 
   _bind() {
     this._onClick = (e) => this._handleClick(e);
-    this._onKey = (e) => {
-      if (e.code === 'Space' || e.code === 'Enter') this.onContinue();
-    };
+    this._onKey   = (e) => { if (e.code === 'Escape') this._confirm = null; };
     this.canvas.addEventListener('click', this._onClick);
     window.addEventListener('keydown', this._onKey);
   }
@@ -29,179 +87,327 @@ class PitstopScene {
     window.removeEventListener('keydown', this._onKey);
   }
 
-  _handleClick(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    const scaleX = CONFIG.CANVAS.WIDTH / rect.width;
+  _canvasXY(e) {
+    const rect   = this.canvas.getBoundingClientRect();
+    const scaleX = CONFIG.CANVAS.WIDTH  / rect.width;
     const scaleY = CONFIG.CANVAS.HEIGHT / rect.height;
-    const x = (e.clientX - rect.left) * scaleX;
-    const y = (e.clientY - rect.top) * scaleY;
-
-    // Check shop item clicks
-    const items = this._getAvailableItems();
-    items.forEach((item, i) => {
-      const iy = 360 + i * 100;
-      if (x > 200 && x < 1080 && y > iy && y < iy + 80) {
-        this._purchase(item);
-      }
-    });
-
-    // Continue button
-    const CX = CONFIG.CANVAS.WIDTH / 2;
-    if (x > CX - 180 && x < CX + 180 && y > 950 && y < 1030) {
-      this.onContinue();
-    }
+    return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
   }
 
-  _getAvailableItems() {
-    const player = this.gs.player;
-    return CONFIG.PITSTOP.ITEMS.filter(item => {
-      if (item.id === 'lav' && player.vehicle.id === 'lav') return false;
-      if (item.requires && !player.hasWeapon(item.requires) && player.vehicle.id !== item.requires) return false;
-      if (item.id === 'mg_double' && (player.weapons.find(w => w.id === 'mg' && w.doubleBarrel))) return false;
-      if (item.id === 'ac_double' && (player.weapons.find(w => w.id === 'autocannon' && w.doubleBarrel))) return false;
-      if (item.id === 'sam' && player.hasWeapon('sam')) return false;
-      if (item.id === 'sam_2rockets') {
-        const sam = player.weapons.find(w => w.id === 'sam');
-        if (!sam || sam.twoRockets) return false;
-      }
-      if (item.id === 'autocannon' && player.hasWeapon('autocannon')) return false;
-      return true;
-    });
-  }
+  _handleClick(e) {
+    const { x, y } = this._canvasXY(e);
 
-  _purchase(item) {
-    const player = this.gs.player;
-    if (this.gs.points < item.cost) {
-      this._showMessage('Not enough points');
+    if (this._confirm) {
+      const mx = CONFIG.CANVAS.WIDTH  / 2;
+      const my = CONFIG.CANVAS.HEIGHT / 2;
+      if (x > mx - 160 && x < mx - 30 && y > my + 36 && y < my + 86) {
+        this._executePurchase(this._confirm.item);
+        this._confirm = null;
+        return;
+      }
+      if (x > mx + 30 && x < mx + 160 && y > my + 36 && y < my + 86) {
+        this._confirm = null;
+        return;
+      }
+      this._confirm = null;
       return;
     }
 
-    this.gs.points -= item.cost;
+    // Continue button
+    const bx = this._px + BP_W / 2 - 140;
+    const by = this._py + BP_H + 18;
+    if (x > bx && x < bx + 280 && y > by && y < by + 50) {
+      this.onContinue();
+      return;
+    }
 
-    if (item.id === 'lav') {
-      player.upgradeToLAV();
-    } else if (item.id === 'mg_double') {
-      player.upgradeDoubleBarrel('mg');
-    } else if (item.id === 'ac_double') {
-      player.upgradeDoubleBarrel('autocannon');
-    } else if (item.id === 'autocannon') {
-      const mgIdx = player.weapons.findIndex(w => w.id === 'mg');
-      if (mgIdx !== -1) {
-        player.slotsUsed -= player.weapons[mgIdx].def.slots;
-        player.weapons.splice(mgIdx, 1);
+    // Card clicks
+    CATALOG.forEach((item, idx) => {
+      const { cx, cy } = this._cardPos(idx);
+      if (x > cx && x < cx + CARD_W && y > cy && y < cy + CARD_H) {
+        if (this._cardState(item) === 'buyable') {
+          this._confirm = { item };
+        }
       }
-      player.addWeapon('autocannon');
+    });
+  }
+
+  _cardPos(idx) {
+    const col = idx % CARD_COLS;
+    const row = Math.floor(idx / CARD_COLS);
+    return {
+      cx: this._px + GRID_LEFT + col * (CARD_W + GRID_GAP_X),
+      cy: this._py + GRID_TOP  + row * (CARD_H + GRID_GAP_Y),
+    };
+  }
+
+  _cardState(item) {
+    const p = this.gs.player;
+
+    // Owned checks
+    if (item.id === 'truck') return 'owned';
+    if (item.id === 'lav'          && p.garage.some(v => v.id === 'lav')) return 'owned';
+    if (item.id === 'mg'           && p.hasWeapon('mg')) return 'owned';
+    if (item.id === 'mg_double') {
+      const mg = p.weapons.find(w => w.id === 'mg');
+      if (mg && mg.doubleBarrel) return 'owned';
+    }
+    if (item.id === 'autocannon'   && p.hasWeapon('autocannon')) return 'owned';
+    if (item.id === 'ac_double') {
+      const ac = p.weapons.find(w => w.id === 'autocannon');
+      if (ac && ac.doubleBarrel) return 'owned';
+    }
+    if (item.id === 'sam'          && p.hasWeapon('sam')) return 'owned';
+    if (item.id === 'sam_2rockets') {
+      const sam = p.weapons.find(w => w.id === 'sam');
+      if (sam && sam.twoRockets) return 'owned';
+    }
+
+    // Prerequisite / exclusion / affordability / slot checks
+    if (item.id === 'mg'           && p.hasWeapon('autocannon'))  return 'unavailable';
+    if (item.id === 'mg_double'    && !p.hasWeapon('mg'))         return 'unavailable';
+    if (item.id === 'mg_double'    && p.hasWeapon('autocannon'))  return 'unavailable';
+    if (item.id === 'autocannon'   && !p.hasWeapon('mg'))         return 'unavailable';
+    if (item.id === 'ac_double'    && !p.hasWeapon('autocannon')) return 'unavailable';
+    if (item.id === 'sam_2rockets' && !p.hasWeapon('sam'))        return 'unavailable';
+    if (item.type === 'weapon') {
+      const def = CONFIG.WEAPONS[item.id.toUpperCase()];
+      if (def && p.slotsUsed + def.slots > p.vehicle.slots)       return 'unavailable';
+    }
+    if (this.gs.points < item.cost) return 'unavailable';
+
+    return 'buyable';
+  }
+
+  _executePurchase(item) {
+    const p = this.gs.player;
+    this.gs.points -= item.cost;
+    if (item.id === 'lav') {
+      p.upgradeToLAV();
+    } else if (item.id === 'mg') {
+      p.addWeapon('mg');
+    } else if (item.id === 'mg_double') {
+      p.upgradeDoubleBarrel('mg');
+    } else if (item.id === 'autocannon') {
+      const mgIdx = p.weapons.findIndex(w => w.id === 'mg');
+      if (mgIdx !== -1) { p.slotsUsed -= p.weapons[mgIdx].def.slots; p.weapons.splice(mgIdx, 1); }
+      p.addWeapon('autocannon');
+    } else if (item.id === 'ac_double') {
+      p.upgradeDoubleBarrel('autocannon');
     } else if (item.id === 'sam') {
-      player.addWeapon('sam');
+      p.addWeapon('sam');
     } else if (item.id === 'sam_2rockets') {
-      const sam = player.weapons.find(w => w.id === 'sam');
+      const sam = p.weapons.find(w => w.id === 'sam');
       if (sam) sam.twoRockets = true;
     }
-
-    this._showMessage(`Purchased: ${item.name}`);
   }
 
-  _showMessage(msg) {
-    this._message = msg;
-    this._messageTimer = 2000;
-  }
-
-  update(dt) {
-    if (this._messageTimer > 0) this._messageTimer -= dt * 1000;
-  }
+  update(dt) {}
 
   draw(ctx) {
-    this._bg.draw(ctx);
-
-    const CX = CONFIG.CANVAS.WIDTH / 2;
-
-    // Dark overlay
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    // Dark surround
+    ctx.fillStyle = '#1e1e1e';
     ctx.fillRect(0, 0, CONFIG.CANVAS.WIDTH, CONFIG.CANVAS.HEIGHT);
 
-    ctx.textAlign = 'center';
+    const px = this._px, py = this._py;
 
-    // Title
-    ctx.font = 'bold 48px monospace';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(`PITSTOP — ATTACK ${this.gs.attackNum} COMPLETE`, CX, 120);
+    // Paper
+    ctx.drawImage(this._paperCanvas, px, py);
 
-    // HP restored notice
-    ctx.font = '20px monospace';
-    ctx.fillStyle = '#44ff88';
-    ctx.fillText('✓ Vehicle repaired to full HP', CX, 170);
-
-    // Points
-    ctx.font = 'bold 36px monospace';
-    ctx.fillStyle = '#ffdd44';
-    ctx.fillText(`${this.gs.points} pts available`, CX, 240);
-
-    // Loadout
-    ctx.font = '18px monospace';
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    const weapons = this.gs.player.weapons.map(w => w.id).join(', ');
-    ctx.fillText(`Loadout: ${this.gs.player.vehicle.name} | ${weapons}`, CX, 290);
-
-    // Shop items
-    const items = this._getAvailableItems();
-    if (items.length === 0) {
-      ctx.font = '22px monospace';
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.fillText('No items available', CX, 480);
-    } else {
-      items.forEach((item, i) => {
-        this._drawShopItem(ctx, item, 360 + i * 100);
-      });
-    }
-
-    // Message
-    if (this._messageTimer > 0) {
-      ctx.font = 'bold 22px monospace';
-      ctx.fillStyle = '#44ff88';
-      ctx.fillText(this._message, CX, 880);
-    }
-
-    // Continue button
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.beginPath();
-    ctx.roundRect(CX - 180, 950, 360, 80, 8);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.font = 'bold 26px monospace';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText('CONTINUE →', CX, 1000);
+    // Header bar
+    ctx.fillStyle = INK;
+    ctx.fillRect(px + 8, py + 8, BP_W - 16, 62);
 
     ctx.textAlign = 'left';
-  }
-
-  _drawShopItem(ctx, item, y) {
-    const CX = CONFIG.CANVAS.WIDTH / 2;
-    const canAfford = this.gs.points >= item.cost;
-
-    ctx.fillStyle = canAfford ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)';
-    ctx.beginPath();
-    ctx.roundRect(200, y, 880, 80, 8);
-    ctx.fill();
-    ctx.strokeStyle = canAfford ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    ctx.textAlign = 'left';
-    ctx.font = 'bold 22px monospace';
-    ctx.fillStyle = canAfford ? '#ffffff' : 'rgba(255,255,255,0.3)';
-    ctx.fillText(item.name, 230, y + 34);
-
-    ctx.font = '16px monospace';
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.fillText(item.requires ? `Requires: ${item.requires}` : '', 230, y + 58);
+    ctx.font = `bold 26px ${PS_FONT}`;
+    ctx.fillStyle = PAPER_BG;
+    ctx.fillText('DEFENCE SUPPLY', px + 22, py + 50);
 
     ctx.textAlign = 'right';
-    ctx.font = 'bold 24px monospace';
-    ctx.fillStyle = canAfford ? '#ffdd44' : '#ff6644';
-    ctx.fillText(`${item.cost} pts`, 1060, y + 44);
+    ctx.font = `20px ${PS_FONT}`;
+    ctx.fillStyle = '#f0c040';
+    ctx.fillText(`★  ${this.gs.points} pts`, px + BP_W - 22, py + 50);
+
+    // Subtitle
+    ctx.textAlign = 'left';
+    ctx.font = `12px ${PS_FONT}`;
+    ctx.fillStyle = INK_DIM;
+    ctx.fillText(`ATTACK ${this.gs.attackNum} COMPLETE  —  SELECT EQUIPMENT`, px + 22, py + 88);
+
+    // Header divider
+    ctx.strokeStyle = PAPER_LINE;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(px + 16, py + GRID_TOP - 6);
+    ctx.lineTo(px + BP_W - 16, py + GRID_TOP - 6);
+    ctx.stroke();
+
+    // Row dividers
+    ctx.setLineDash([3, 6]);
+    ctx.strokeStyle = '#c0b090';
+    ctx.lineWidth = 0.6;
+    for (let row = 1; row < CARD_ROWS; row++) {
+      const dy = py + GRID_TOP + row * (CARD_H + GRID_GAP_Y) - GRID_GAP_Y / 2;
+      ctx.beginPath();
+      ctx.moveTo(px + 16, dy);
+      ctx.lineTo(px + BP_W - 16, dy);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // Cards
+    CATALOG.forEach((item, idx) => this._drawCard(ctx, item, idx));
+
+    // Continue button
+    const bx = px + BP_W / 2 - 140;
+    const by = py + BP_H + 18;
+    ctx.fillStyle = '#333';
+    ctx.fillRect(bx, by, 280, 50);
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(bx, by, 280, 50);
+    ctx.textAlign = 'center';
+    ctx.font = `bold 20px ${PS_FONT}`;
+    ctx.fillStyle = '#fff';
+    ctx.fillText('CONTINUE  →', px + BP_W / 2, by + 33);
+
+    // Confirm modal
+    if (this._confirm) this._drawConfirmModal(ctx, this._confirm.item);
+  }
+
+  _drawCard(ctx, item, idx) {
+    const { cx, cy } = this._cardPos(idx);
+    const state  = this._cardState(item);
+    const dim    = state !== 'buyable';
+    const owned  = state === 'owned';
+
+    ctx.save();
+
+    // Card fill
+    ctx.fillStyle   = dim ? 'rgba(160,140,100,0.10)' : 'rgba(255,255,255,0.60)';
+    ctx.strokeStyle = dim ? 'rgba(160,140,100,0.25)' : PAPER_LINE;
+    ctx.lineWidth = 1;
+    ctx.fillRect(cx, cy, CARD_W, CARD_H);
+    ctx.strokeRect(cx, cy, CARD_W, CARD_H);
+
+    ctx.globalAlpha = dim ? 0.35 : 1.0;
+
+    // Image
+    const imgW = 130, imgH = 100;
+    const imgX = cx + CARD_PAD_X;
+    const imgY = cy + (CARD_H - imgH) / 2;
+    const img  = this._imgs[item.id];
+    if (img && img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, imgX, imgY, imgW, imgH);
+    }
+
+    // Text column
+    const tx = cx + imgW + CARD_PAD_X * 2 + 4;
+    const tw = CARD_W - imgW - CARD_PAD_X * 3 - 4;
+
+    ctx.globalAlpha = dim ? 0.42 : 1.0;
+    ctx.textAlign = 'left';
+
+    // Name
+    ctx.font = `bold 13px ${PS_FONT}`;
+    ctx.fillStyle = owned ? INK_DIM : GOLD;
+    this._wrapText(ctx, item.label.toUpperCase(), tx, cy + 28, tw, 17);
+
+    // Divider
+    ctx.strokeStyle = 'rgba(160,130,60,0.35)';
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(tx, cy + 44); ctx.lineTo(cx + CARD_W - CARD_PAD_X, cy + 44);
+    ctx.stroke();
+
+    // Stats
+    ctx.font = `11px ${PS_FONT}`;
+    ctx.fillStyle = INK_DIM;
+    let sy = cy + 62;
+    if (item.type === 'vehicle') {
+      const def = CONFIG.VEHICLES[item.id.toUpperCase()];
+      if (def) {
+        ctx.fillText(`HP     ${def.hp}`, tx, sy); sy += 16;
+        ctx.fillText(`SLOTS  ${def.slots}`, tx, sy); sy += 16;
+        ctx.fillText(`SPEED  ${def.speed}`, tx, sy);
+      }
+    } else {
+      if (item.stat) { ctx.fillText(item.stat, tx, sy); sy += 16; }
+      ctx.fillText(`SLOTS  ${item.slots}`, tx, sy);
+    }
+
+    // BUY button or OWNED stamp
+    ctx.globalAlpha = 1.0;
+    if (owned) {
+      ctx.save();
+      ctx.translate(cx + CARD_W - 52, cy + CARD_H - 32);
+      ctx.rotate(-0.22);
+      ctx.font = `bold 18px ${PS_FONT}`;
+      ctx.strokeStyle = 'rgba(80,80,80,0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeText('OWNED', -30, 0);
+      ctx.restore();
+    } else if (state === 'buyable') {
+      const bx = cx + CARD_W - 86 - CARD_PAD_X;
+      const by = cy + CARD_H - 36;
+      ctx.fillStyle = OLIVE_BTN;
+      ctx.fillRect(bx, by, 86, 26);
+      ctx.font = `bold 12px ${PS_FONT}`;
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${item.cost} pts`, bx + 43, by + 18);
+    }
+
+    ctx.restore();
+  }
+
+  _wrapText(ctx, text, x, y, maxW, lineH) {
+    const words = text.split(' ');
+    let line = '', lineY = y;
+    for (const word of words) {
+      const test = line ? line + ' ' + word : word;
+      if (ctx.measureText(test).width > maxW && line) {
+        ctx.fillText(line, x, lineY);
+        line = word; lineY += lineH;
+      } else { line = test; }
+    }
+    if (line) ctx.fillText(line, x, lineY);
+  }
+
+  _drawConfirmModal(ctx, item) {
+    const CW = CONFIG.CANVAS.WIDTH, CH = CONFIG.CANVAS.HEIGHT;
+    const mx = CW / 2, my = CH / 2;
+    const mw = 400, mh = 150;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.70)';
+    ctx.fillRect(0, 0, CW, CH);
+
+    ctx.fillStyle = '#1e1e1e';
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(mx - mw/2, my - mh/2, mw, mh, 6);
+    ctx.fill(); ctx.stroke();
 
     ctx.textAlign = 'center';
+    ctx.font = `bold 17px ${PS_FONT}`;
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`Purchase: ${item.label}?`, mx, my - 24);
+
+    ctx.font = `14px ${PS_FONT}`;
+    ctx.fillStyle = '#f0c040';
+    ctx.fillText(`${item.cost} pts  →  ${this.gs.points - item.cost} pts remaining`, mx, my + 4);
+
+    // CONFIRM
+    ctx.fillStyle = OLIVE_BTN;
+    ctx.fillRect(mx - 155, my + 36, 120, 40);
+    ctx.font = `bold 14px ${PS_FONT}`;
+    ctx.fillStyle = '#fff';
+    ctx.fillText('CONFIRM', mx - 95, my + 61);
+
+    // CANCEL
+    ctx.fillStyle = '#5a2020';
+    ctx.fillRect(mx + 35, my + 36, 120, 40);
+    ctx.fillText('CANCEL', mx + 95, my + 61);
   }
 }
