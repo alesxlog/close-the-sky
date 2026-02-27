@@ -138,10 +138,11 @@ class GameOverScene {
 
   _drawStats(ctx, cx, startY, s) {
     const rows = [
-      { label: 'ENEMIES DESTROYED', value: `${s.kills}` },
-      { label: 'POINTS EARNED',     value: `${s.points}` },
       { label: 'WAVES SURVIVED',    value: `${s.waveNum}` },
       { label: 'TIME SURVIVED',     value: this._formatTime(s.timeElapsed || 0) },
+      { label: 'ENEMIES DESTROYED', value: `${s.kills}` },
+      { label: 'POINTS EARNED',     value: `${s.points}` },
+
     ];
 
     rows.forEach((row, i) => {
