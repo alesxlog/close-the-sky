@@ -75,7 +75,7 @@ class GameOverScene {
       const lines = [
         'Congratulations!',
         'You have successfully closed the sky over your city.',
-        'The North Atlantic Council was deeply impressed',
+        'The North Atlantic Council was very impressed',
         'and decided to invite you to join NATO.',
         'Will you accept?',
       ];
