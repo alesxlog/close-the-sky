@@ -19,9 +19,9 @@ const TUNING = {
   // ================================================================
   // ENEMY SPEEDS
   // ================================================================
-  GERAN1_SPEED:          110,
-  GERAN2_SPEED:          120,
-  GERAN3_SPEED_NORMAL:   130,
+  GERAN1_SPEED:          120,
+  GERAN2_SPEED:          130,
+  GERAN3_SPEED_NORMAL:   100,
   GERAN3_SPEED_TERMINAL: 150,
   KH555_SPEED:           160,
   KALIBR_SPEED:          170,
@@ -34,8 +34,8 @@ const TUNING = {
   GERAN2_HP:  3,
   GERAN3_HP:  4,
   KH555_HP:   6,
-  KALIBR_HP:  8,
-  KH101_HP:   10,
+  KALIBR_HP:  7,
+  KH101_HP:   8,
 
   // ================================================================
   // ENEMY KILL POINTS

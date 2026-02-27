@@ -58,6 +58,7 @@ class PitstopScene {
     this._paperCanvas.height = BP_H;
     this._drawPaper(this._paperCanvas.getContext('2d'));
 
+    this._bg = new Background();
     this._confirm = null;
     this._bind();
   }
@@ -205,8 +206,11 @@ class PitstopScene {
   update(dt) {}
 
   draw(ctx) {
-    // Dark surround
-    ctx.fillStyle = '#1e1e1e';
+    // Game background behind brochure
+    this._bg.draw(ctx);
+
+    // Dark tint over background
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
     ctx.fillRect(0, 0, CONFIG.CANVAS.WIDTH, CONFIG.CANVAS.HEIGHT);
 
     const px = this._px, py = this._py;
