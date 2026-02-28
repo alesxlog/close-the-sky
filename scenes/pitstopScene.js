@@ -3,7 +3,7 @@
 // Army catalog brochure style shop between attacks
 // ============================================================
 
-const PAPER_BG   = '#f2ece0';
+const PAPER_BG   = '#ffffff';
 const PAPER_LINE = '#c8b89a';
 const INK        = '#1a1a1a';
 const INK_DIM    = '#888070';
@@ -32,8 +32,8 @@ const CATALOG = [
   { id: 'mg_double',   label: 'Double Barrel MG',      type: 'weapon',  img: 'assets/images/b_machinegun2b.png', stat: 'DMG 1×2',slots: 1, cost: 100 },
   { id: 'autocannon',  label: 'Autocannon 20mm',       type: 'weapon',  img: 'assets/images/b_autocannon.png',  stat: 'DMG 3',  slots: 2, cost: 200 },
   { id: 'ac_double',   label: 'Twin Autocannon',       type: 'weapon',  img: 'assets/images/b_autocannon2b.png',stat: 'DMG 3×2',slots: 2, cost: 200 },
-  { id: 'sam',         label: 'SAM Launcher ×1',       type: 'weapon',  img: 'assets/images/b_sam1.png',         stat: 'DMG 7',  slots: 2, cost: 350 },
-  { id: 'sam_2rockets',label: 'SAM Launcher ×2',       type: 'weapon',  img: 'assets/images/b_sam2.png',         stat: 'DMG 7×2',slots: 2, cost: 350 },
+  { id: 'sam',         label: 'SAM Launcher (1)',       type: 'weapon',  img: 'assets/images/b_sam1.png',         stat: 'DMG 7',  slots: 2, cost: 350 },
+  { id: 'sam_2rockets',label: 'SAM Launcher (2)',       type: 'weapon',  img: 'assets/images/b_sam2.png',         stat: 'DMG 7×2',slots: 2, cost: 350 },
 ];
 
 class PitstopScene {
@@ -116,7 +116,7 @@ class PitstopScene {
 
     // Continue button
     const bx = this._px + BP_W / 2 - 140;
-    const by = this._py + BP_H + 18;
+    const by = this._py + BP_H - 70; // Move inside canvas (70px from bottom)
     if (x > bx && x < bx + 280 && y > by && y < by + 50) {
       this.onContinue();
       return;
@@ -264,7 +264,7 @@ class PitstopScene {
 
     // Continue button
     const bx = px + BP_W / 2 - 140;
-    const by = py + BP_H + 18;
+    const by = py + BP_H - 70; // Move inside canvas (70px from bottom)
     ctx.fillStyle = '#333';
     ctx.fillRect(bx, by, 280, 50);
     ctx.strokeStyle = '#666';
@@ -273,7 +273,7 @@ class PitstopScene {
     ctx.textAlign = 'center';
     ctx.font = `bold 20px ${PS_FONT}`;
     ctx.fillStyle = '#fff';
-    ctx.fillText('CONTINUE  →', px + BP_W / 2, by + 33);
+    ctx.fillText('CLOSE', px + BP_W / 2, by + 33);
 
     // Confirm modal
     if (this._confirm) this._drawConfirmModal(ctx, this._confirm.item);
@@ -282,24 +282,29 @@ class PitstopScene {
   _drawCard(ctx, item, idx) {
     const { cx, cy } = this._cardPos(idx);
     const state  = this._cardState(item);
-    const dim    = state !== 'buyable';
     const owned  = state === 'owned';
 
     ctx.save();
 
-    // Card fill
-    ctx.fillStyle   = dim ? 'rgba(160,140,100,0.10)' : 'rgba(255,255,255,0.60)';
-    ctx.strokeStyle = dim ? 'rgba(160,140,100,0.25)' : PAPER_LINE;
+    // Card fill - always active (white)
+    ctx.fillStyle   = 'rgba(255,255,255,0.60)';
+    ctx.strokeStyle = PAPER_LINE;
     ctx.lineWidth = 1;
     ctx.fillRect(cx, cy, CARD_W, CARD_H);
     ctx.strokeRect(cx, cy, CARD_W, CARD_H);
 
-    ctx.globalAlpha = dim ? 0.35 : 1.0;
+    ctx.globalAlpha = 1.0; // Always full opacity
 
-    // Image
-    const imgW = 130, imgH = 100;
+    // Header - centered across full card width with actual item name
+    ctx.font = `bold 14px ${PS_FONT}`;
+    ctx.fillStyle = INK;
+    ctx.textAlign = 'center';
+    ctx.fillText(item.label.toUpperCase(), cx + CARD_W / 2, cy + 25);
+
+    // Image (moved down to make space for header)
+    const imgW = 130, imgH = 90; // Reduced height to fit header
     const imgX = cx + CARD_PAD_X;
-    const imgY = cy + (CARD_H - imgH) / 2;
+    const imgY = cy + 40; // Moved down from center
     const img  = this._imgs[item.id];
     if (img && img.complete && img.naturalWidth > 0) {
       ctx.drawImage(img, imgX, imgY, imgW, imgH);
@@ -309,13 +314,10 @@ class PitstopScene {
     const tx = cx + imgW + CARD_PAD_X * 2 + 4;
     const tw = CARD_W - imgW - CARD_PAD_X * 3 - 4;
 
-    ctx.globalAlpha = dim ? 0.42 : 1.0;
+    ctx.globalAlpha = 1.0;
     ctx.textAlign = 'left';
 
-    // Name
-    ctx.font = `bold 13px ${PS_FONT}`;
-    ctx.fillStyle = owned ? INK_DIM : GOLD;
-    this._wrapText(ctx, item.label.toUpperCase(), tx, cy + 28, tw, 17);
+    // No name in body - moved to header
 
     // Divider
     ctx.strokeStyle = 'rgba(160,130,60,0.35)';
@@ -324,7 +326,7 @@ class PitstopScene {
     ctx.moveTo(tx, cy + 44); ctx.lineTo(cx + CARD_W - CARD_PAD_X, cy + 44);
     ctx.stroke();
 
-    // Stats
+    // Stats - always normal color
     ctx.font = `11px ${PS_FONT}`;
     ctx.fillStyle = INK_DIM;
     let sy = cy + 62;
@@ -332,35 +334,43 @@ class PitstopScene {
       const def = CONFIG.VEHICLES[item.id.toUpperCase()];
       if (def) {
         ctx.fillText(`HP     ${def.hp}`, tx, sy); sy += 16;
+        ctx.fillText(`DMG    ${def.damage || 0}`, tx, sy); sy += 16;
         ctx.fillText(`SLOTS  ${def.slots}`, tx, sy); sy += 16;
-        ctx.fillText(`SPEED  ${def.speed}`, tx, sy);
       }
     } else {
       if (item.stat) { ctx.fillText(item.stat, tx, sy); sy += 16; }
-      ctx.fillText(`SLOTS  ${item.slots}`, tx, sy);
+      ctx.fillText(`DMG    ${item.damage || 0}`, tx, sy); sy += 16;
+      ctx.fillText(`SLOTS  ${item.slots}`, tx, sy); sy += 16;
     }
+    
+    // Price
+    ctx.fillText(`PRICE  ${item.cost} pts`, tx, sy);
 
-    // BUY button or OWNED stamp
+    // BUY button - always show in bottom right corner
     ctx.globalAlpha = 1.0;
+    const bx = cx + CARD_W - 86 - CARD_PAD_X;
+    const by = cy + CARD_H - 36;
+    
+    // Determine button state and color
+    let btnColor, btnText;
     if (owned) {
-      ctx.save();
-      ctx.translate(cx + CARD_W - 52, cy + CARD_H - 32);
-      ctx.rotate(-0.22);
-      ctx.font = `bold 18px ${PS_FONT}`;
-      ctx.strokeStyle = 'rgba(80,80,80,0.5)';
-      ctx.lineWidth = 1.5;
-      ctx.strokeText('OWNED', -30, 0);
-      ctx.restore();
-    } else if (state === 'buyable') {
-      const bx = cx + CARD_W - 86 - CARD_PAD_X;
-      const by = cy + CARD_H - 36;
-      ctx.fillStyle = OLIVE_BTN;
-      ctx.fillRect(bx, by, 86, 26);
-      ctx.font = `bold 12px ${PS_FONT}`;
-      ctx.fillStyle = '#fff';
-      ctx.textAlign = 'center';
-      ctx.fillText(`${item.cost} pts`, bx + 43, by + 18);
+      btnColor = '#666666'; // Grey for owned
+      btnText = 'OWNED';
+    } else if (this.gs.points >= item.cost) {
+      btnColor = '#4CAF50'; // Green for available
+      btnText = `${item.cost} pts`;
+    } else {
+      btnColor = '#666666'; // Grey for not enough points
+      btnText = `${item.cost} pts`;
     }
+    
+    ctx.fillStyle = btnColor;
+    ctx.fillRect(bx, by, 86, 26);
+    ctx.font = `bold 12px ${PS_FONT}`;
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.fillText(btnText, bx + 43, by + 18);
+    ctx.textAlign = 'left'; // Reset alignment
 
     ctx.restore();
   }
@@ -381,9 +391,9 @@ class PitstopScene {
   _drawConfirmModal(ctx, item) {
     const CW = CONFIG.CANVAS.WIDTH, CH = CONFIG.CANVAS.HEIGHT;
     const mx = CW / 2, my = CH / 2;
-    const mw = 400, mh = 200;
+    const mw = 420, mh = 240;
 
-    ctx.fillStyle = 'rgba(0,0,0,0.70)';
+    ctx.fillStyle = 'rgba(164, 152, 152, 0.7)';
     ctx.fillRect(0, 0, CW, CH);
 
     ctx.fillStyle = '#1e1e1e';
@@ -410,7 +420,7 @@ class PitstopScene {
     ctx.fillText('CONFIRM', mx - 95, my + 61);
 
     // CANCEL
-    ctx.fillStyle = '#5a2020';
+    ctx.fillStyle = '#ecb4b4';
     ctx.fillRect(mx + 35, my + 36, 120, 40);
     ctx.fillText('CANCEL', mx + 95, my + 61);
   }

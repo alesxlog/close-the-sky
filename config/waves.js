@@ -16,11 +16,11 @@ const WAVES = {
       total: 15,
       maxSim: 2,
       spawnMin: 2000,
-      spawnMax: 2000,
+      spawnMax: 3000,
       spawnCount: [1],
       roster: [
-        { type: 'geran1', from: 0,  weight: 1 },
-        { type: 'geran2', from: 10, weight: 1 },
+        { type: 'geran1', from: 0,  weight: 2 },
+        { type: 'geran2', from: 15, weight: 1 },
       ],
     },
 
@@ -28,7 +28,7 @@ const WAVES = {
       total: 40,
       maxSim: 2,
       spawnMin: 1500,
-      spawnMax: 2000,
+      spawnMax: 2500,
       spawnCount: [1],
       roster: [
         { type: 'geran1', from: 0,  weight: 1 },
@@ -40,8 +40,8 @@ const WAVES = {
     attack3: {
       total: 50,
       maxSim: 3,
-      spawnMin: 3000,
-      spawnMax: 5000,
+      spawnMin: 1500,
+      spawnMax: 3500,
       spawnCount: [1],
       roster: [
         { type: 'geran1', from: 6,  weight: 1 },
@@ -55,7 +55,7 @@ const WAVES = {
       total: 60,
       maxSim: 3,
       spawnMin: 2000,
-      spawnMax: 4000,
+      spawnMax: 5000,
       spawnCount: [1,2],
       spawnGap: 200,        // min px between enemies on X axis
       roster: [
@@ -69,7 +69,7 @@ const WAVES = {
     attack5: {
       total: 75,
       maxSim: 3,
-      spawnMin: 2000,
+      spawnMin: 2500,
       spawnMax: 5000,
       spawnCount: [1, 2, 3],
       spawnGap: 300,        // min px between enemies on X axis
@@ -116,7 +116,6 @@ const WAVES = {
     // sequence: ordered groups, spawner works through them in order
     // spawnAt: trigger enemy at specific count within the wave (optional)
     phase2: [
-
       // Wave 6 — total: 30
       {
         total: 30,
