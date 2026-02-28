@@ -19,48 +19,48 @@ const TUNING = {
   // ================================================================
   // ENEMY SPEEDS
   // ================================================================
-  GERAN1_SPEED:          120,
-  GERAN2_SPEED:          130,
-  GERAN3_SPEED_NORMAL:   100,
-  GERAN3_SPEED_TERMINAL: 140,
+  GERAN1_SPEED:          130,
+  GERAN2_SPEED:          140,
+  GERAN3_SPEED_NORMAL:   120,
+  GERAN3_SPEED_TERMINAL: 150,
   KH555_SPEED:           150,
-  KALIBR_SPEED:          160,
-  KH101_SPEED:           170,
+  KALIBR_SPEED:          155,
+  KH101_SPEED:           160,
 
   // ================================================================
   // ENEMY HP
   // ================================================================
-  GERAN1_HP:  2,
-  GERAN2_HP:  3,
-  GERAN3_HP:  4,
-  KH555_HP:   6,
-  KALIBR_HP:  7,
-  KH101_HP:   8,
+  GERAN1_HP:  3,
+  GERAN2_HP:  4,
+  GERAN3_HP:  5,
+  KH555_HP:   8,
+  KALIBR_HP:  9,
+  KH101_HP:   10,
 
   // ================================================================
   // ENEMY KILL POINTS
   // ================================================================
-  GERAN1_PTS:  5,
-  GERAN2_PTS:  10,
-  GERAN3_PTS:  15,
-  KH555_PTS:   40,
-  KALIBR_PTS:  50,
-  KH101_PTS:   60,
+  GERAN1_PTS:  11,
+  GERAN2_PTS:  13,
+  GERAN3_PTS:  17,
+  KH555_PTS:   33,
+  KALIBR_PTS:  44,
+  KH101_PTS:   55,
 
   // ================================================================
   // ENEMY TRAJECTORIES
   // ================================================================
-  GERAN1_DIAGONAL_ANGLE:    30,   // degrees from vertical
-  GERAN3_DIAGONAL_ANGLE:    60,   // degrees from vertical
-  GERAN3_TERMINAL_TIME:     3000, // ms before bottom to accelerate
+  GERAN1_DIAGONAL_ANGLE:    22,   // degrees from vertical
+  GERAN3_DIAGONAL_ANGLE:    45,   // degrees from vertical
+  GERAN3_TERMINAL_TIME:     3500, // ms before bottom to accelerate
 
-  GERAN2_SLALOM_AMP_TOP:    30,   // px oscillation at spawn
-  GERAN2_SLALOM_AMP_BOTTOM: 180,  // px oscillation near bottom
+  GERAN2_SLALOM_AMP_TOP:    45,   // px oscillation at spawn
+  GERAN2_SLALOM_AMP_BOTTOM: 90,  // px oscillation near bottom
 
-  KH555_SINE_AMPLITUDE:  275,     // px
+  KH555_SINE_AMPLITUDE:  640,     // px
   KH555_SINE_PERIOD:     4000,    // ms per full oscillation
-  KALIBR_SINE_AMPLITUDE: 125,
-  KALIBR_SINE_PERIOD:    5000,
+  KALIBR_SINE_AMPLITUDE: 320,
+  KALIBR_SINE_PERIOD:    3000,
 
   // ================================================================
   // WEAPONS
@@ -68,10 +68,10 @@ const TUNING = {
 
   MG_PROJ_SPEED:         500,
   MG_DAMAGE:             1,
-  MG_COOLDOWN:           400,
+  MG_COOLDOWN:           500,
   MG_DESPAWN_DIST:       768,
 
-  MG_FALLOFF_FULL_DIST:    384,
+  MG_FALLOFF_FULL_DIST:    512,
   MG_FALLOFF_HALF_DIST:    768,
   MG_FALLOFF_QUARTER_DIST: 1020,
 
@@ -89,8 +89,8 @@ const TUNING = {
   // ================================================================
   // SPAWNING
   // ================================================================
-  SPAWN_LOCK_AFTER_DEATH:    15000,
-  MIN_SPAWN_INTERVAL:        2000,
+  SPAWN_LOCK_AFTER_DEATH:    2000,
+  MIN_SPAWN_INTERVAL:        1500,
   NO_HIGHTIER_FIRST:         15000,
   MAX_SIMULTANEOUS_HIGHTIER: 2,
   MAX_SIMULTANEOUS_KH101:    2,
@@ -98,8 +98,8 @@ const TUNING = {
   // ================================================================
   // ARCADE MODE
   // ================================================================
-  ARCADE_WAVE_PAUSE:         4000,
-  ARCADE_START_SIMULTANEOUS: 5,
+  ARCADE_WAVE_PAUSE:         2000,
+  ARCADE_START_SIMULTANEOUS: 2,
 
   ARCADE_UPGRADE_1_THRESHOLD: 100,
   ARCADE_UPGRADE_2_THRESHOLD: 400,
@@ -110,10 +110,25 @@ const TUNING = {
   // ================================================================
   // CAMPAIGN
   // ================================================================
-  AATTACK1_SPAWN_MIN: 2500, ATTACK1_SPAWN_MAX: 5000, ATTACK1_MAX_SIM: 1,
-  ATTACK2_SPAWN_MIN: 2000, ATTACK2_SPAWN_MAX: 4000, ATTACK2_MAX_SIM: 2,
-  ATTACK3_SPAWN_MIN: 1800, ATTACK3_SPAWN_MAX: 3000, ATTACK3_MAX_SIM: 3,
-  ATTACK4_SPAWN_MIN: 1300, ATTACK4_SPAWN_MAX: 2500, ATTACK4_MAX_SIM: 4,
-  ATTACK5_SPAWN_MIN: 1000, ATTACK5_SPAWN_MAX: 2000, ATTACK5_MAX_SIM: 5,
+  //   SPAWN_MIN/MAX  — ms between spawn events
+  //   SPAWN_COUNT    — enemies fired per event
+  //   MAX_SIM        — hard screen cap (skips event if exceeded)
+  //   MIN_DISTANCE   — min px between enemies in same batch (Y axis)
 
+  ATTACK1_SPAWN_MIN: 2000, ATTACK1_SPAWN_MAX: 5000, ATTACK1_MAX_SIM: 3,  ATTACK1_SPAWN_COUNT: 1, ATTACK1_MIN_DISTANCE: 200, ATTACK1_TOTAL: 20,
+  ATTACK2_SPAWN_MIN: 2000, ATTACK2_SPAWN_MAX: 4000, ATTACK2_MAX_SIM: 4,  ATTACK2_SPAWN_COUNT: 2, ATTACK2_MIN_DISTANCE: 200, ATTACK2_TOTAL: 40,
+  ATTACK3_SPAWN_MIN: 2500, ATTACK3_SPAWN_MAX: 3000, ATTACK3_MAX_SIM: 6,  ATTACK3_SPAWN_COUNT: 2, ATTACK3_MIN_DISTANCE: 180, ATTACK3_TOTAL: 60,
+  ATTACK4_SPAWN_MIN: 2500, ATTACK4_SPAWN_MAX: 2500, ATTACK4_MAX_SIM: 8,  ATTACK4_SPAWN_COUNT: 3, ATTACK4_MIN_DISTANCE: 160, ATTACK4_TOTAL: 80,
+  ATTACK5_SPAWN_MIN:  300, ATTACK5_SPAWN_MAX: 2000, ATTACK5_MAX_SIM: 10, ATTACK5_SPAWN_COUNT: 3, ATTACK5_MIN_DISTANCE: 140, ATTACK5_TOTAL: 100,
+
+  // ================================================================
+  // COSTS
+  // ================================================================
+  COST_LAV:          300,
+  COST_MG:           100,
+  COST_MG_DOUBLE:    100,
+  COST_AUTOCANNON:   200,
+  COST_AC_DOUBLE:    200,
+  COST_SAM:          350,
+  COST_SAM_2ROCKETS: 350,
 };

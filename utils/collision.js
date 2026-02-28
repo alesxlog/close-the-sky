@@ -113,12 +113,29 @@ const Collision = {
     return rockets;
   },
 
-  // Check if enemy reached bottom — deal damage to player
-  checkBottomReached(enemies, player, explosions) {
+  // Check if enemy reached bottom
+checkBottomReached(enemies, explosions) {
     for (const e of enemies) {
       if (e.reachedBottom && !e._bottomProcessed) {
         e._bottomProcessed = true;
         explosions.push(new Explosion(e.x, CONFIG.CANVAS.PLAY_BOTTOM));
+      }
+    }
+  },
+
+  checkCarHit(enemies, player, explosions) {
+    const carLeft   = player.x - player.width  / 2;
+    const carRight  = player.x + player.width  / 2;
+    const carTop    = player.y - player.height / 2;
+    const carBottom = player.y + player.height / 2;
+
+    for (const e of enemies) {
+      if (e.dead || e._hitCar) continue;
+      const b = e.getBounds();
+      if (b.right > carLeft && b.left < carRight && b.bottom > carTop && b.top < carBottom) {
+        e._hitCar = true;
+        e.dead = true;
+        explosions.push(new Explosion(e.x, e.y));
         player.takeDamage(1);
       }
     }

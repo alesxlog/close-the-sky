@@ -86,46 +86,48 @@ class Geran1 extends EnemyBase {
 
   draw(ctx) {
     const cfg = this.cfg;
-    const w = cfg.spriteW, h = cfg.spriteH;
+    const w = cfg.spriteW, h = cfg.spriteH; // 64×64
 
     ctx.save();
     ctx.translate(this.x, this.y);
 
-    // Delta wing — tip at BOTTOM (pointing toward player)
-    // Tail/wings at top
-    const path = new Path2D();
-    path.moveTo(0,      h/2);            // tip — bottom
-    path.lineTo(-w/2,  -h/2 * 0.5);     // left wing tip
-    path.lineTo(-w/8,  -h/2 * 0.1);     // inner left
-    path.lineTo(0,     -h/2);            // tail center top
-    path.lineTo(w/8,   -h/2 * 0.1);     // inner right
-    path.lineTo(w/2,   -h/2 * 0.5);     // right wing tip
-    path.closePath();
-
-    // Body fill
-    ctx.fillStyle = cfg.bodyColor;
-    ctx.fill(path);
-
-    // Dark center spine
-    const spine = new Path2D();
-    spine.moveTo(0,     h/2);
-    spine.lineTo(-w/8, -h/2 * 0.1);
-    spine.lineTo(0,    -h/2);
-    spine.lineTo(w/8,  -h/2 * 0.1);
-    spine.closePath();
-    ctx.fillStyle = cfg.accentColor;
-    ctx.fill(spine);
-
-    // Rim light — clip to body shape
-    ctx.save();
-    ctx.clip(path);
-    this._applyRimLight(ctx, w, h, cfg.rimColor);
-    ctx.restore();
-
-    // Orange sensor dot at tip (bottom)
+    // ---- Main delta wing — pure triangle ----
+    // Tip at bottom, straight trailing edge at top
     ctx.beginPath();
-    ctx.arc(0, h/2 - 6, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#ff6600';
+    ctx.moveTo(0,      h/2);    // nose tip — bottom center
+    ctx.lineTo(-w/2,  -h/2);    // left wingtip — top left
+    ctx.lineTo( w/2,  -h/2);    // right wingtip — top right
+    ctx.closePath();
+    ctx.fillStyle = '#dcdcdc';
+    ctx.fill();
+
+    // ---- Panel line — darker inner triangle ----
+    ctx.beginPath();
+    ctx.moveTo(0,      h/2 - 4);
+    ctx.lineTo(-w/2 + 10, -h/2 + 6);
+    ctx.lineTo( w/2 - 10, -h/2 + 6);
+    ctx.closePath();
+    ctx.fillStyle = '#b8b8b8';
+    ctx.fill();
+
+    // ---- Fuselage — narrow oval along center spine ----
+    ctx.beginPath();
+    ctx.ellipse(0, 0, w * 0.07, h * 0.42, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#a8a8a8';
+    ctx.fill();
+
+    // ---- Tail fin — small rectangle at rear (top) ----
+    ctx.fillStyle = '#c0c0c0';
+    ctx.fillRect(-2, -h/2, 4, 10);
+
+    // ---- Engine circle at very rear ----
+    ctx.beginPath();
+    ctx.arc(0, -h/2 + 6, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#888888';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(0, -h/2 + 6, 2, 0, Math.PI * 2);
+    ctx.fillStyle = '#cccccc';
     ctx.fill();
 
     ctx.restore();
@@ -158,43 +160,47 @@ class Geran2 extends EnemyBase {
 
   draw(ctx) {
     const cfg = this.cfg;
-    const w = cfg.spriteW, h = cfg.spriteH;
+    const w = cfg.spriteW, h = cfg.spriteH; // 64×80
 
     ctx.save();
     ctx.translate(this.x, this.y);
 
-    // Taller narrower delta — tip at bottom
-    const path = new Path2D();
-    path.moveTo(0,      h/2);
-    path.lineTo(-w/2,  -h/2 * 0.4);
-    path.lineTo(-w/10, -h/2 * 0.05);
-    path.lineTo(0,     -h/2);
-    path.lineTo(w/10,  -h/2 * 0.05);
-    path.lineTo(w/2,   -h/2 * 0.4);
-    path.closePath();
-
-    ctx.fillStyle = cfg.bodyColor;
-    ctx.fill(path);
-
-    // Split center
-    const spine = new Path2D();
-    spine.moveTo(-w/10, -h/2 * 0.5);
-    spine.lineTo(-w/10, -h/2 * 0.05);
-    spine.lineTo(0,      h/2);
-    spine.lineTo(w/10,  -h/2 * 0.05);
-    spine.lineTo(w/10,  -h/2 * 0.5);
-    spine.closePath();
-    ctx.fillStyle = cfg.accentColor;
-    ctx.fill(spine);
-
-    ctx.save();
-    ctx.clip(path);
-    this._applyRimLight(ctx, w, h, cfg.rimColor);
-    ctx.restore();
-
+    // ---- Main delta wing — narrower, more elongated ----
     ctx.beginPath();
-    ctx.arc(0, h/2 - 6, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#ff6600';
+    ctx.moveTo(0,      h/2);
+    ctx.lineTo(-w/2,  -h/2);
+    ctx.lineTo( w/2,  -h/2);
+    ctx.closePath();
+    ctx.fillStyle = '#787878';
+    ctx.fill();
+
+    // ---- Panel line ----
+    ctx.beginPath();
+    ctx.moveTo(0,      h/2 - 4);
+    ctx.lineTo(-w/2 + 10, -h/2 + 6);
+    ctx.lineTo( w/2 - 10, -h/2 + 6);
+    ctx.closePath();
+    ctx.fillStyle = '#585858';
+    ctx.fill();
+
+    // ---- Fuselage ----
+    ctx.beginPath();
+    ctx.ellipse(0, 0, w * 0.07, h * 0.42, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#484848';
+    ctx.fill();
+
+    // ---- Tail fin ----
+    ctx.fillStyle = '#686868';
+    ctx.fillRect(-2, -h/2, 4, 10);
+
+    // ---- Engine ----
+    ctx.beginPath();
+    ctx.arc(0, -h/2 + 6, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#333333';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(0, -h/2 + 6, 2, 0, Math.PI * 2);
+    ctx.fillStyle = '#888888';
     ctx.fill();
 
     ctx.restore();
@@ -232,50 +238,56 @@ class Geran3 extends EnemyBase {
 
   draw(ctx) {
     const cfg = this.cfg;
-    const w = cfg.spriteW, h = cfg.spriteH;
+    const w = cfg.spriteW, h = cfg.spriteH; // 72×80
 
     ctx.save();
     ctx.translate(this.x, this.y);
 
-    // Wider flatter shape — tip at bottom
-    const path = new Path2D();
-    path.moveTo(0,      h/2 * 0.6);     // blunt tip at bottom
-    path.lineTo(-w/2,  -h/2 * 0.4);
-    path.lineTo(-w/6,  -h/2 * 0.05);
-    path.lineTo(0,     -h/2);
-    path.lineTo(w/6,   -h/2 * 0.05);
-    path.lineTo(w/2,   -h/2 * 0.4);
-    path.closePath();
+    // ---- Main delta wing — wider, more aggressive sweep ----
+    ctx.beginPath();
+    ctx.moveTo(0,      h/2);
+    ctx.lineTo(-w/2,  -h/2);
+    ctx.lineTo( w/2,  -h/2);
+    ctx.closePath();
+    ctx.fillStyle = '#252525';
+    ctx.fill();
 
-    ctx.fillStyle = cfg.bodyColor;
-    ctx.fill(path);
+    // ---- Panel line ----
+    ctx.beginPath();
+    ctx.moveTo(0,      h/2 - 4);
+    ctx.lineTo(-w/2 + 12, -h/2 + 6);
+    ctx.lineTo( w/2 - 12, -h/2 + 6);
+    ctx.closePath();
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fill();
 
-    const spine = new Path2D();
-    spine.moveTo(0,     h/2 * 0.6);
-    spine.lineTo(-w/6, -h/2 * 0.05);
-    spine.lineTo(0,    -h/2);
-    spine.lineTo(w/6,  -h/2 * 0.05);
-    spine.closePath();
-    ctx.fillStyle = cfg.accentColor;
-    ctx.fill(spine);
+    // ---- Fuselage — slightly thicker for Geran-3 ----
+    ctx.beginPath();
+    ctx.ellipse(0, 0, w * 0.09, h * 0.42, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#111111';
+    ctx.fill();
 
-    ctx.save();
-    ctx.clip(path);
-    this._applyRimLight(ctx, w, h, cfg.rimColor);
-    ctx.restore();
+    // ---- Tail fin ----
+    ctx.fillStyle = '#303030';
+    ctx.fillRect(-2, -h/2, 4, 12);
 
-    // Terminal glow at rear (top)
+    // ---- Engine ----
+    ctx.beginPath();
+    ctx.arc(0, -h/2 + 7, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(0, -h/2 + 7, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#555555';
+    ctx.fill();
+
+    // ---- Terminal glow — engine afterburner ----
     if (this._terminal) {
       ctx.beginPath();
-      ctx.arc(0, -h/2 + 6, 7, 0, Math.PI * 2);
+      ctx.arc(0, -h/2 + 7, 7, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(255,120,0,0.85)';
       ctx.fill();
     }
-
-    ctx.beginPath();
-    ctx.arc(0, h/2 * 0.6 - 5, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#ff6600';
-    ctx.fill();
 
     ctx.restore();
   }

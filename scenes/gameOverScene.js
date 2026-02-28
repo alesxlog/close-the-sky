@@ -40,6 +40,11 @@ class GameOverScene {
     const y = (e.clientY - rect.top) * scaleY;
     const CX = CONFIG.CANVAS.WIDTH / 2;
 
+    // Campaign game over buttons (640, 740)
+    if (x > CX - 200 && x < CX + 200 && y > 640 && y < 720) this.onRestart();
+    if (x > CX - 200 && x < CX + 200 && y > 740 && y < 820) this.onMenu();
+    
+    // Arcade game over buttons (960, 1060)
     if (x > CX - 200 && x < CX + 200 && y > 960 && y < 1040) this.onRestart();
     if (x > CX - 200 && x < CX + 200 && y > 1060 && y < 1140) this.onMenu();
   }
@@ -97,10 +102,10 @@ class GameOverScene {
       ctx.font = `18px ${FONT}`;
       ctx.fillStyle = 'rgba(255,255,255,0.65)';
       const lines = [
-        'The insidious enemy broke through the air defense',
-        'and destroyed all critical infrastructure.',
-        'Many residents abandoned their homes.',
-        'The city looks deserted.',
+        'The city has fallen silent. ',
+        'Streets once full of life now lie empty —',
+        'no power, no water, no way home.',
+        'The sky belonged to the enemy today.',
       ];
       lines.forEach((line, i) => {
         ctx.fillText(line, CX, 300 + i * 32);
@@ -122,15 +127,23 @@ class GameOverScene {
       // Campaign game over
       ctx.font = `bold 64px ${FONT}`;
       ctx.fillStyle = '#ff3333';
-      ctx.fillText('MISSION FAILED', CX, 260);
+      ctx.fillText('GAME OVER', CX, 260);
 
-      ctx.font = `20px ${FONT}`;
-      ctx.fillStyle = 'rgba(255,255,255,0.6)';
-      ctx.fillText(`Fell at Attack ${s.attackNum}, Wave ${s.waveNum}`, CX, 320);
+      ctx.font = `18px ${FONT}`;
+      ctx.fillStyle = 'rgba(255,255,255,0.65)';
+      const lines = [
+        'The city has fallen silent.',
+        'Streets once full of life now lie empty —',
+        'no power, no water, no way home.',
+        'The sky belonged to the enemy today.',
+      ];
+      lines.forEach((line, i) => {
+        ctx.fillText(line, CX, 420 + i * 32);
+      });
 
-      this._drawStats(ctx, CX, 420, s);
-      this._drawButton(ctx, CX, 960, 400, 80, 'R  TRY AGAIN');
-      this._drawButton(ctx, CX, 1060, 400, 80, 'M  MAIN MENU');
+      // this._drawStats(ctx, CX, 420, s);
+      this._drawButton(ctx, CX, 640, 400, 80, 'R  TRY AGAIN');
+      this._drawButton(ctx, CX, 740, 400, 80, 'M  MAIN MENU');
     }
 
     ctx.textAlign = 'left';

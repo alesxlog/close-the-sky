@@ -33,6 +33,7 @@
   <script src="config/tuning.js"></script>
 
   <!-- Config -->
+  <script src="config/waves.js"></script>
   <script src="config/config.js"></script>
 
   <!-- Utils -->
@@ -112,6 +113,10 @@
           // onGameOver
           (stats) => {
             if (currentScene && currentScene.destroy) currentScene.destroy();
+            // Direct restart from pause menu
+            if (stats.restart) { startGame(mode); return; }
+            // Direct exit to menu from pause menu
+            if (stats.exit)    { showMenu(); return; }
             const go = new GameOverScene(canvas, ctx, stats,
               () => { go.destroy(); startGame(mode); },
               () => { go.destroy(); showMenu(); }

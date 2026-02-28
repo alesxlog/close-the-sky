@@ -85,7 +85,7 @@ class MenuScene {
     const BTN_W = 400, BTN_H = 90, BTN_GAP = 130;
     const BTN_START_Y = 580;
     const buttons = [
-      { label: 'Arcade',   sub: 'No ceasefire. No stopping. Till the end.', mode: 'arcade'   },
+      { label: 'Arcade',   sub: 'No ceasefire. Wave after wave.', mode: 'arcade'   },
       { label: 'Campaign', sub: 'Story of resilience. Night after night.', mode: 'campaign' },
     ];
     buttons.forEach((btn, i) => {

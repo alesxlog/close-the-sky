@@ -381,7 +381,7 @@ class PitstopScene {
   _drawConfirmModal(ctx, item) {
     const CW = CONFIG.CANVAS.WIDTH, CH = CONFIG.CANVAS.HEIGHT;
     const mx = CW / 2, my = CH / 2;
-    const mw = 400, mh = 150;
+    const mw = 400, mh = 200;
 
     ctx.fillStyle = 'rgba(0,0,0,0.70)';
     ctx.fillRect(0, 0, CW, CH);

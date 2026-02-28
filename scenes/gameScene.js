@@ -1,13 +1,13 @@
 // ============================================================
 // CLOSE THE SKY — gameScene.js
-// Shared game loop for Campaign and arcade modes
+// Shared game loop for Campaign and Endless modes
 // ============================================================
 
 class GameScene {
   constructor(canvas, ctx, mode, onGameOver, onPitstop) {
     this.canvas = canvas;
     this.ctx = ctx;
-    this.mode = mode;           // 'campaign' | 'arcade'
+    this.mode = mode;           // 'campaign' | 'endless'
     this.onGameOver = onGameOver;
     this.onPitstop = onPitstop; // campaign only
 
@@ -26,6 +26,10 @@ class GameScene {
 
     this.lives = CONFIG.GAME.LIVES;
     this.kills = 0;
+    this.killsByType = { geran1: 0, geran2: 0, geran3: 0, kh555: 0, kalibr: 0, kh101: 0 };
+
+    // Pause state
+    this._paused = false;
     this.points = 0;
     this.cumulativePoints = 0;
     this.timeElapsed = 0; // ms
@@ -47,8 +51,8 @@ class GameScene {
     this._wavePauseTimer = 0;
     this._inWavePause = false;
 
-    // arcade unlock state
-    this._arcadeStep = 0;
+    // Endless unlock state
+    this._endlessStep = 0;
     this._unlockedEnemyTypes = ['geran1', 'geran2'];
 
     this._initMode();
@@ -59,41 +63,60 @@ class GameScene {
   // INIT
   // ----------------------------------------------------------
   _initMode() {
-    console.log('CONFIG:', CONFIG);
-    console.log('CONFIG.ARCADE:', CONFIG.ARCADE);
     if (this.mode === 'campaign') {
       this._loadAttack(1);
     } else {
-      this._spawner.reset(
-        CONFIG.ARCADE.PHASE1.spawnIntervalMin,
-        CONFIG.ARCADE.PHASE1.spawnIntervalMax,
-        this._unlockedEnemyTypes
-      );
+      this._spawner.resetArcade();
       this._spawner.setEnemyList(this.enemies);
-      this._waveEnemiesLeft = 20;
+      this._waveStarted = false;
+      this._inWavePause = false;
     }
   }
 
   _loadAttack(num) {
-    const atk = CONFIG.ATTACKS[num - 1];
+    const atk = WAVES.campaign['attack' + num];
     this.attackNum = num;
     this.waveNum = 1;
-    this._currentAttack = atk;
-    this._currentWaveIndex = 0;
-    this._attackEnemiesLeft = atk.totalEnemies;
-    this._spawner.reset(atk.spawnIntervalMin, atk.spawnIntervalMax, atk.roster);
+    this._attackEnemiesLeft = atk.total;
+    this._spawnedThisAttack = 0;
+    this._spawner.resetCampaign(num);
     this._spawner.setEnemyList(this.enemies);
   }
 
   _bindInput() {
     this._onKey = (e) => {
+      if (e.code === 'Escape') { this._paused = !this._paused; return; }
       if (e.code === 'Space') {
         e.preventDefault();
         this._tryFire();
       }
     };
     window.addEventListener('keydown', this._onKey);
-    this._onCanvasClick = () => this._tryFire();
+    this._onCanvasClick = (e) => {
+      if (this._paused && this._pauseBtns) {
+        const rect   = this.canvas.getBoundingClientRect();
+        const scaleX = CONFIG.CANVAS.WIDTH  / rect.width;
+        const scaleY = CONFIG.CANVAS.HEIGHT / rect.height;
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top)  * scaleY;
+
+        const [resume, restart, exit] = this._pauseBtns;
+        if (x > resume.cx - resume.w/2 && x < resume.cx + resume.w/2 && y > resume.y && y < resume.y + resume.h) {
+          this._paused = false;
+        } else if (x > restart.cx - restart.w/2 && x < restart.cx + restart.w/2 && y > restart.y && y < restart.y + restart.h) {
+          this._paused = false;
+          this.destroy();
+          // Signal restart via game over with restart flag
+          this._endGame(false, true);
+        } else if (x > exit.cx - exit.w/2 && x < exit.cx + exit.w/2 && y > exit.y && y < exit.y + exit.h) {
+          this._paused = false;
+          this.destroy();
+          this._endGame(false, false, true);
+        }
+        return;
+      }
+      this._tryFire();
+    };
     this.canvas.addEventListener('click', this._onCanvasClick);
   }
 
@@ -108,6 +131,7 @@ class GameScene {
   // ----------------------------------------------------------
   update(dt) {
     if (this._destroyed) return;
+    if (this._paused) return;
     const now = performance.now();
 
     this.timeElapsed += dt * 1000;
@@ -118,7 +142,7 @@ class GameScene {
       if (this._wavePauseTimer <= 0) {
         this._inWavePause = false;
         this.waveNum++;
-        if (this.mode === 'arcade') this._checkarcadeEscalation();
+        if (this.mode === 'arcade') this._spawner.nextWave();
       }
       // Still update existing entities during pause
       this._updateEntities(dt, now);
@@ -126,15 +150,15 @@ class GameScene {
     }
 
     // Spawn
-    const maxSim = this.mode === 'campaign'
-      ? this._currentAttack.maxSimultaneous
-      : this._getarcadeMaxSim();
-
-    const newEnemy = this._spawner.update(maxSim, null);
-    if (newEnemy) {
-      this.enemies.push(newEnemy);
+    const newEnemies = this._spawner.update(this._spawnedThisAttack || 0);
+    for (const e of newEnemies) {
+      if (this.mode === 'campaign' && this._attackEnemiesLeft <= 0) break;
+      this.enemies.push(e);
       this._waveStarted = true;
-      if (this.mode === 'campaign') this._attackEnemiesLeft--;
+      if (this.mode === 'campaign') {
+        this._attackEnemiesLeft--;
+        this._spawnedThisAttack = (this._spawnedThisAttack || 0) + 1;
+      }
     }
 
     // SAM auto-fire
@@ -149,14 +173,18 @@ class GameScene {
     for (const h of hits) {
       if (h.killed) {
         this.kills++;
+        if (this.killsByType[h.enemy.type] !== undefined) this.killsByType[h.enemy.type]++;
         this.points += h.enemy.cfg.killPts;
         this.cumulativePoints += h.enemy.cfg.killPts;
-        if (this.mode === 'arcade') this._checkarcadeUpgrades();
+        if (this.mode === 'arcade') this._checkArcadeUpgrades();
       }
     }
 
     // Enemies reaching bottom
-    Collision.checkBottomReached(this.enemies, this.player, this.explosions);
+    Collision.checkBottomReached(this.enemies, this.explosions);
+
+    // Vehicle collisions
+    Collision.checkCarHit(this.enemies, this.player, this.explosions);
 
     // Clean up dead/off-screen entities
     this._cleanup();
@@ -241,8 +269,9 @@ class GameScene {
     if (this.mode === 'campaign') {
       // All enemies spawned and cleared
       if (this._attackEnemiesLeft <= 0 && this.enemies.length === 0) {
-        const atk = this._currentAttack;
-        if (atk.pitstopAfter) {
+        const atk = WAVES.campaign['attack' + this.attackNum];
+        const atkMeta = CONFIG.ATTACKS[this.attackNum - 1];
+        if (atkMeta.pitstopAfter) {
           this.player.resetHP();
           this.onPitstop({
             points: this.points,
@@ -250,13 +279,12 @@ class GameScene {
             attackNum: this.attackNum,
           });
         } else {
-          // Attack 5 complete — win
           this._endGame(true);
         }
       }
     } else {
-      // arcade — wave complete when enemies cleared and at least one has spawned
-      if (this._waveStarted && this.enemies.length === 0 && !this._inWavePause) {
+      // Arcade — wave complete when spawner is done and screen is clear
+      if (this._spawner.isWaveComplete() && this.enemies.length === 0 && !this._inWavePause) {
         this._waveStarted = false;
         this._inWavePause = true;
         this._wavePauseTimer = CONFIG.ARCADE.WAVE_PAUSE;
@@ -264,9 +292,11 @@ class GameScene {
     }
   }
 
-  _endGame(win) {
+  _endGame(win, restart = false, exit = false) {
     this.onGameOver({
       win,
+      restart,
+      exit,
       kills: this.kills,
       points: this.points,
       mode: this.mode,
@@ -277,63 +307,34 @@ class GameScene {
   }
 
   // ----------------------------------------------------------
-  // arcade — upgrades + escalation
+  // ARCADE — upgrades
   // ----------------------------------------------------------
-  _checkarcadeUpgrades() {
+  _checkArcadeUpgrades() {
     const steps = CONFIG.ARCADE.UPGRADES;
-    while (this._arcadeStep < steps.length) {
-      const step = steps[this._arcadeStep];
+    while (this._endlessStep < steps.length) {
+      const step = steps[this._endlessStep];
       if (this.cumulativePoints >= step.cumulative) {
-        this._applyarcadeUpgrade(step);
-        this._arcadeStep++;
+        this._applyArcadeUpgrade(step);
+        this._endlessStep++;
       } else break;
     }
   }
 
-  _applyarcadeUpgrade(step) {
+  _applyArcadeUpgrade(step) {
     const p = this.player;
     switch (step.upgrade) {
-      case 'mg_double':
-        p.upgradeDoubleBarrel('mg');
-        break;
-      case 'lav_autocannon':
-        p.upgradeToLAV();
-        break;
-      case 'sam':
-        p.addWeapon('sam');
-        break;
-      case 'ac_double':
-        p.upgradeDoubleBarrel('autocannon');
-        break;
+      case 'mg_double':      p.upgradeDoubleBarrel('mg');        break;
+      case 'lav_autocannon': p.upgradeToLAV();                    break;
+      case 'sam':            p.addWeapon('sam');                  break;
+      case 'ac_double':      p.upgradeDoubleBarrel('autocannon'); break;
       case 'sam_2rockets': {
         const sam = p.weapons.find(w => w.id === 'sam');
         if (sam) sam.twoRockets = true;
         break;
       }
     }
-    if (step.enemyUnlock) {
-      this._unlockedEnemyTypes.push(step.enemyUnlock);
-      this._spawner.unlock(step.enemyUnlock);
-    }
-    // Visual notification
-    this._upgradeMsg = `UPGRADE: ${step.upgrade.toUpperCase().replace('_', ' ')}`;
+    this._upgradeMsg = 'UPGRADE: ' + step.upgrade.toUpperCase().replace('_', ' ');
     this._upgradeMsgTimer = 3000;
-  }
-
-  _checkarcadeEscalation() {
-    const P3 = CONFIG.ARCADE.PHASE3;
-    if (this.waveNum < P3.startWave) return;
-
-    const wavesSince = this.waveNum - P3.startWave;
-    const newSim = Math.min(
-      P3.startSimultaneous + Math.floor(wavesSince / 3) * P3.simultaneousIncrement,
-      P3.simultaneousCap
-    );
-    this._arcadeMaxSim = newSim;
-  }
-
-  _getarcadeMaxSim() {
-    return this._arcadeMaxSim || CONFIG.ARCADE.START_SIMULTANEOUS;
   }
 
   // ----------------------------------------------------------
@@ -374,7 +375,7 @@ class GameScene {
       ctx.textAlign = 'left';
     }
 
-    // arcade upgrade notification
+    // Endless upgrade notification
     if (this._upgradeMsgTimer > 0) {
       this._upgradeMsgTimer -= 16;
       ctx.save();
@@ -386,6 +387,103 @@ class GameScene {
       ctx.textAlign = 'left';
       ctx.restore();
     }
+
+    // Pause overlay — drawn last, on top of everything
+    if (this._paused) this._drawPauseOverlay(ctx);
+  }
+
+  _drawPauseOverlay(ctx) {
+    const CW = CONFIG.CANVAS.WIDTH;
+    const CH = CONFIG.CANVAS.HEIGHT;
+    const CX = CW / 2;
+    const FONT = "'Share Tech Mono', monospace";
+
+    // Night vision tint
+    ctx.fillStyle = 'rgba(0, 48, 28, 0.78)';
+    ctx.fillRect(0, 0, CW, CH);
+
+    // Scanlines
+    ctx.save();
+    for (let y = 0; y < CH; y += 4) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+      ctx.fillRect(0, y, CW, 2);
+    }
+    ctx.restore();
+
+    // Header
+    ctx.textAlign = 'center';
+    ctx.font = `bold 56px ${FONT}`;
+    ctx.fillStyle = '#44ffaa';
+    ctx.fillText('GAME PAUSED', CX, 220);
+
+    // Divider
+    ctx.strokeStyle = 'rgba(68,255,170,0.25)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(CX - 300, 250); ctx.lineTo(CX + 300, 250);
+    ctx.stroke();
+
+    // Total kills
+    ctx.font = `bold 28px ${FONT}`;
+    ctx.fillStyle = '#44ffaa';
+    ctx.fillText('KILLED', CX, 300);
+
+    // Kill breakdown
+    const ENEMY_LABELS = {
+      geran1: 'Geran-1',
+      geran2: 'Geran-2',
+      geran3: 'Geran-3',
+      kh555:  'Kh-555',
+      kalibr: 'Kalibr',
+      kh101:  'Kh-101',
+      total:  'TOTAL',
+    };
+
+    let rowY = 350;
+    for (const [type, label] of Object.entries(ENEMY_LABELS)) {
+      const count = type === 'total' ? this.kills : (this.killsByType[type] || 0);
+      ctx.font = `18px ${FONT}`;
+      ctx.fillStyle = count > 0 ? 'rgba(68,255,170,0.9)' : 'rgba(68,255,170,0.35)';
+      ctx.textAlign = 'left';
+      ctx.fillText(label, CX - 120, rowY);
+      ctx.textAlign = 'right';
+      ctx.font = `bold 18px ${FONT}`;
+      ctx.fillText(`${count}`, CX + 120, rowY);
+      rowY += 34;
+    }
+
+    // Divider
+    ctx.strokeStyle = 'rgba(68,255,170,0.25)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(CX - 300, rowY + 10); ctx.lineTo(CX + 300, rowY + 10);
+    ctx.stroke();
+
+    // Buttons
+    const BTN_W = 280, BTN_H = 60, BTN_GAP = 20;
+    const btns = [
+      { label: 'RESUME',         y: rowY + 40  },
+      { label: 'RESTART',        y: rowY + 40 + BTN_H + BTN_GAP },
+      { label: 'EXIT TO MENU',   y: rowY + 40 + (BTN_H + BTN_GAP) * 2 },
+    ];
+
+    for (const btn of btns) {
+      ctx.fillStyle = 'rgba(0,80,40,0.7)';
+      ctx.strokeStyle = 'rgba(68,255,170,0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.rect(CX - BTN_W/2, btn.y, BTN_W, BTN_H);
+      ctx.fill(); ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.font = `bold 20px ${FONT}`;
+      ctx.fillStyle = '#44ffaa';
+      ctx.fillText(btn.label, CX, btn.y + 38);
+    }
+
+    // Store button Y positions for click detection
+    this._pauseBtns = btns.map(b => ({ ...b, w: BTN_W, h: BTN_H, cx: CX }));
+
+    ctx.textAlign = 'left';
   }
 
   _drawRadar(ctx) {
