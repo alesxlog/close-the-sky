@@ -29,11 +29,11 @@ const CATALOG = [
   { id: 'truck',       label: 'Pickup Truck',         type: 'vehicle', img: 'assets/images/b_truck.png',        stat: null,     slots: 2, cost: 0   },
   { id: 'lav',         label: 'Light Armoured Vehicle',type: 'vehicle', img: 'assets/images/b_lav.png',          stat: null,     slots: 4, cost: 300 },
   { id: 'mg',          label: 'Machine Gun',           type: 'weapon',  img: 'assets/images/b_machinegun.png',   stat: 'DMG 1',  slots: 1, cost: 100 },
-  { id: 'mg_double',   label: 'Double Barrel MG',      type: 'weapon',  img: 'assets/images/b_machinegun2b.png', stat: 'DMG 1×2',slots: 1, cost: 100 },
-  { id: 'autocannon',  label: 'Autocannon 20mm',       type: 'weapon',  img: 'assets/images/b_autocannon.png',  stat: 'DMG 3',  slots: 2, cost: 200 },
-  { id: 'ac_double',   label: 'Twin Autocannon',       type: 'weapon',  img: 'assets/images/b_autocannon2b.png',stat: 'DMG 3×2',slots: 2, cost: 200 },
-  { id: 'sam',         label: 'SAM Launcher (1)',       type: 'weapon',  img: 'assets/images/b_sam1.png',         stat: 'DMG 7',  slots: 2, cost: 350 },
-  { id: 'sam_2rockets',label: 'SAM Launcher (2)',       type: 'weapon',  img: 'assets/images/b_sam2.png',         stat: 'DMG 7×2',slots: 2, cost: 350 },
+  { id: 'mg_double',   label: 'Double Barrel Machine Gun',      type: 'weapon',  img: 'assets/images/b_machinegun2b.png', stat: 'DMG 1×2',slots: 1, cost: 100 },
+  { id: 'autocannon',  label: 'Autocannon',       type: 'weapon',  img: 'assets/images/b_autocannon.png',  stat: 'DMG 3',  slots: 2, cost: 200 },
+  { id: 'ac_double',   label: 'Twin Barrel Autocannon',       type: 'weapon',  img: 'assets/images/b_autocannon2b.png',stat: 'DMG 3×2',slots: 2, cost: 200 },
+  { id: 'sam',         label: 'SAM Launcher',       type: 'weapon',  img: 'assets/images/b_sam1.png',         stat: 'DMG 7',  slots: 2, cost: 350 },
+  { id: 'sam_2rockets',label: 'SAM Launcher',       type: 'weapon',  img: 'assets/images/b_sam2.png',         stat: 'DMG 7×2',slots: 2, cost: 350 },
 ];
 
 class PitstopScene {
@@ -358,7 +358,7 @@ class PitstopScene {
       btnText = 'OWNED';
     } else if (this.gs.points >= item.cost) {
       btnColor = '#4CAF50'; // Green for available
-      btnText = `${item.cost} pts`;
+      btnText = 'BUY';
     } else {
       btnColor = '#666666'; // Grey for not enough points
       btnText = `${item.cost} pts`;
