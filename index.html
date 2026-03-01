@@ -34,6 +34,7 @@
 
   <!-- Config -->
   <script src="config/waves.js"></script>
+  <script src="config/intel.js"></script>
   <script src="config/config.js"></script>
 
   <!-- Utils -->
@@ -54,6 +55,7 @@
   <script src="scenes/menuScene.js"></script>
   <script src="scenes/pitstopScene.js"></script>
   <script src="scenes/gameOverScene.js"></script>
+  <script src="scenes/intelScene.js"></script>
   <script src="scenes/gameScene.js"></script>
 
   <script>
@@ -106,6 +108,14 @@
         startLoop(menu);
       }
 
+      function showIntel(attackNum, onComplete) {
+        const intel = new IntelScene(canvas, ctx, attackNum, () => {
+          intel.destroy();
+          onComplete();
+        });
+        startLoop(intel);
+      }
+
       function startGame(mode) {
         if (currentScene && currentScene.destroy) currentScene.destroy();
         const scene = new GameScene(
@@ -128,21 +138,27 @@
             if (currentScene && currentScene.destroy) currentScene.destroy();
             const ps = new PitstopScene(canvas, ctx, gameState, () => {
               ps.destroy();
-              // Update game scene state and resume
-              scene.points = gameState.points;
-              scene.player = gameState.player;
-              scene._loadAttack(gameState.attackNum + 1);
-              scene.enemies = [];
-              scene.projectiles = [];
-              scene.explosions = [];
-              scene._destroyed = false;
-              scene._bindInput();
-              startLoop(scene);
+              const nextAttack = gameState.attackNum + 1;
+              showIntel(nextAttack, () => {
+                scene.points = gameState.points;
+                scene.player = gameState.player;
+                scene._loadAttack(nextAttack);
+                scene.enemies = [];
+                scene.projectiles = [];
+                scene.explosions = [];
+                scene._destroyed = false;
+                scene._bindInput();
+                startLoop(scene);
+              });
             });
             startLoop(ps);
           }
         );
-        startLoop(scene);
+        if (mode === 'campaign') {
+          showIntel(1, () => startLoop(scene));
+        } else {
+          startLoop(scene);
+        }
       }
 
       // Boot to menu

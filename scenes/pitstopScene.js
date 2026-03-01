@@ -225,7 +225,7 @@ class PitstopScene {
     ctx.textAlign = 'left';
     ctx.font = `bold 26px ${PS_FONT}`;
     ctx.fillStyle = PAPER_BG;
-    ctx.fillText('DEFENCE SUPPLY', px + 22, py + 50);
+    ctx.fillText('COME BACK ALIVE — SUPPLY CATALOGUE ', px + 22, py + 50);
 
     ctx.textAlign = 'right';
     ctx.font = `20px ${PS_FONT}`;
@@ -234,9 +234,9 @@ class PitstopScene {
 
     // Subtitle
     ctx.textAlign = 'left';
-    ctx.font = `12px ${PS_FONT}`;
+    ctx.font = `18px ${PS_FONT}`;
     ctx.fillStyle = INK_DIM;
-    ctx.fillText(`ATTACK ${this.gs.attackNum} COMPLETE  —  SELECT EQUIPMENT`, px + 22, py + 88);
+    ctx.fillText(`ATTACK ${this.gs.attackNum} REPELLED  —  TIME TO UPGRADE EQUIPMENT`, px + 22, py + 88);
 
     // Header divider
     ctx.strokeStyle = PAPER_LINE;

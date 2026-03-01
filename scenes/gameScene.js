@@ -1,13 +1,13 @@
 // ============================================================
 // CLOSE THE SKY — gameScene.js
-// Shared game loop for Campaign and Endless modes
+// Shared game loop for Campaign and Arcade modes
 // ============================================================
 
 class GameScene {
   constructor(canvas, ctx, mode, onGameOver, onPitstop) {
     this.canvas = canvas;
     this.ctx = ctx;
-    this.mode = mode;           // 'campaign' | 'endless'
+    this.mode = mode;           // 'campaign' | 'arcade'
     this.onGameOver = onGameOver;
     this.onPitstop = onPitstop; // campaign only
 
@@ -51,8 +51,8 @@ class GameScene {
     this._wavePauseTimer = 0;
     this._inWavePause = false;
 
-    // Endless unlock state
-    this._endlessStep = 0;
+    // Arcade unlock state
+    this._arcadeStep = 0;
     this._unlockedEnemyTypes = ['geran1', 'geran2'];
 
     this._initMode();
@@ -311,11 +311,11 @@ class GameScene {
   // ----------------------------------------------------------
   _checkArcadeUpgrades() {
     const steps = CONFIG.ARCADE.UPGRADES;
-    while (this._endlessStep < steps.length) {
-      const step = steps[this._endlessStep];
+    while (this._arcadeStep < steps.length) {
+      const step = steps[this._arcadeStep];
       if (this.cumulativePoints >= step.cumulative) {
         this._applyArcadeUpgrade(step);
-        this._endlessStep++;
+        this._arcadeStep++;
       } else break;
     }
   }
@@ -375,7 +375,7 @@ class GameScene {
       ctx.textAlign = 'left';
     }
 
-    // Endless upgrade notification
+    // Arcade upgrade notification
     if (this._upgradeMsgTimer > 0) {
       this._upgradeMsgTimer -= 16;
       ctx.save();

@@ -15,17 +15,29 @@ class MenuScene {
   }
 
   _bind() {
-    this._onClick = (e) => this._handleClick(e);
+    this._onClick = (e) => {
+      e.stopPropagation(); // Prevent other click handlers
+      this._handleClick(e);
+    };
+    this._onMouseMove = (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      const scaleX = CONFIG.CANVAS.WIDTH / rect.width;
+      const scaleY = CONFIG.CANVAS.HEIGHT / rect.height;
+      this._mouseX = (e.clientX - rect.left) * scaleX;
+      this._mouseY = (e.clientY - rect.top) * scaleY;
+    };
     this._onKey = (e) => {
       if (e.code === 'KeyC' || e.code === 'Digit1') this.onSelect('campaign');
       if (e.code === 'KeyE' || e.code === 'Digit2') this.onSelect('arcade');
     };
-    this.canvas.addEventListener('click', this._onClick);
+    this.canvas.addEventListener('click', this._onClick, true); // Use capture mode
+    this.canvas.addEventListener('mousemove', this._onMouseMove);
     window.addEventListener('keydown', this._onKey);
   }
 
   destroy() {
     this.canvas.removeEventListener('click', this._onClick);
+    this.canvas.removeEventListener('mousemove', this._onMouseMove);
     window.removeEventListener('keydown', this._onKey);
   }
 
@@ -36,7 +48,6 @@ class MenuScene {
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
     const CX = CONFIG.CANVAS.WIDTH / 2;
-    const btnW = 400, btnH = 90;
 
     const BTN_W = 400, BTN_H = 90, BTN_GAP = 130, BTN_START_Y = 580;
     const buttons = [
@@ -44,7 +55,12 @@ class MenuScene {
       { mode: 'campaign', y: BTN_START_Y + BTN_GAP },
     ];
     for (const btn of buttons) {
-      if (x > CX - BTN_W/2 && x < CX + BTN_W/2 && y > btn.y && y < btn.y + BTN_H) {
+      const btnLeft = CX - BTN_W/2;
+      const btnRight = CX + BTN_W/2;
+      const btnTop = btn.y;
+      const btnBottom = btn.y + BTN_H;
+      
+      if (x > btnLeft && x < btnRight && y > btnTop && y < btnBottom) {
         this.onSelect(btn.mode);
         return;
       }
@@ -97,6 +113,13 @@ class MenuScene {
     ctx.font = `15px ${MENU_FONT}`;
     ctx.fillStyle = 'rgba(255,255,255,0.25)';
     ctx.fillText('WASD / ARROWS — move   SPACE — fire', CX, 880);
+
+    // Debug: Mouse position
+    if (this._mouseX !== undefined && this._mouseY !== undefined) {
+      ctx.fillStyle = 'yellow';
+      ctx.font = `12px ${MENU_FONT}`;
+      ctx.fillText(`Mouse: ${Math.round(this._mouseX)}, ${Math.round(this._mouseY)}`, 10, CONFIG.CANVAS.HEIGHT - 10);
+    }
 
     ctx.textAlign = 'left';
   }
