@@ -54,6 +54,7 @@
   <script src="scenes/hud.js"></script>
   <script src="scenes/menuScene.js"></script>
   <script src="scenes/pitstopScene.js"></script>
+  <script src="scenes/aarScene.js"></script>
   <script src="scenes/gameOverScene.js"></script>
   <script src="scenes/intelScene.js"></script>
   <script src="scenes/gameScene.js"></script>
@@ -86,6 +87,7 @@
       let lastTime = 0;
 
       function startLoop(scene) {
+        if (currentScene && currentScene.destroy) currentScene.destroy();
         currentScene = scene;
         if (rafId) cancelAnimationFrame(rafId);
         lastTime = 0;
@@ -109,55 +111,60 @@
       }
 
       function showIntel(attackNum, onComplete) {
+        console.log('showIntel called for attack', attackNum);
         const intel = new IntelScene(canvas, ctx, attackNum, () => {
-          intel.destroy();
+          console.log('IntelScene completed for attack', attackNum);
           onComplete();
         });
         startLoop(intel);
       }
 
       function startGame(mode) {
-        if (currentScene && currentScene.destroy) currentScene.destroy();
-        const scene = new GameScene(
-          canvas, ctx, mode,
-          // onGameOver
-          (stats) => {
-            if (currentScene && currentScene.destroy) currentScene.destroy();
-            // Direct restart from pause menu
-            if (stats.restart) { startGame(mode); return; }
-            // Direct exit to menu from pause menu
-            if (stats.exit)    { showMenu(); return; }
-            const go = new GameOverScene(canvas, ctx, stats,
-              () => { go.destroy(); startGame(mode); },
-              () => { go.destroy(); showMenu(); }
-            );
-            startLoop(go);
-          },
-          // onPitstop (campaign only)
-          (gameState) => {
-            if (currentScene && currentScene.destroy) currentScene.destroy();
-            const ps = new PitstopScene(canvas, ctx, gameState, () => {
-              ps.destroy();
-              const nextAttack = gameState.attackNum + 1;
-              showIntel(nextAttack, () => {
-                scene.points = gameState.points;
-                scene.player = gameState.player;
-                scene._loadAttack(nextAttack);
-                scene.enemies = [];
-                scene.projectiles = [];
-                scene.explosions = [];
-                scene._destroyed = false;
-                scene._bindInput();
-                startLoop(scene);
+
+        function launchScene() {
+          const scene = new GameScene(
+            canvas, ctx, mode,
+            (stats) => {
+              if (currentScene && currentScene.destroy) currentScene.destroy();
+              if (stats.restart) { startGame(mode); return; }
+              if (stats.exit)    { showMenu(); return; }
+              const go = new GameOverScene(canvas, ctx, stats,
+                () => { go.destroy(); startGame(mode); },
+                () => { go.destroy(); showMenu(); }
+              );
+              startLoop(go);
+            },
+            (gameState) => {
+              if (currentScene && currentScene.destroy) currentScene.destroy();
+              const aar = new AARScene(canvas, ctx, gameState, () => {
+                aar.destroy();
+                const ps = new PitstopScene(canvas, ctx, gameState, () => {
+                  ps.destroy();
+                  const nextAttack = gameState.attackNum + 1;
+                  showIntel(nextAttack, () => {
+                    scene.points = gameState.points;
+                    scene.player = gameState.player;
+                    scene._loadAttack(nextAttack);
+                    scene.enemies = [];
+                    scene.projectiles = [];
+                    scene.explosions = [];
+                    scene._destroyed = false;
+                    scene._bindInput();
+                    startLoop(scene);
+                  });
+                });
+                startLoop(ps);
               });
-            });
-            startLoop(ps);
-          }
-        );
-        if (mode === 'campaign') {
-          showIntel(1, () => startLoop(scene));
-        } else {
+              startLoop(aar);
+            }
+          );
           startLoop(scene);
+        }
+
+        if (mode === 'campaign') {
+          showIntel(1, () => launchScene());
+        } else {
+          launchScene();
         }
       }
 

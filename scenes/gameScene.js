@@ -26,7 +26,8 @@ class GameScene {
 
     this.lives = CONFIG.GAME.LIVES;
     this.kills = 0;
-    this.killsByType = { geran1: 0, geran2: 0, geran3: 0, kh555: 0, kalibr: 0, kh101: 0 };
+    this.killsByType   = { geran1: 0, geran2: 0, geran3: 0, kh555: 0, kalibr: 0, kh101: 0 };
+    this.spawnedByType = { geran1: 0, geran2: 0, geran3: 0, kh555: 0, kalibr: 0, kh101: 0 };
 
     // Pause state
     this._paused = false;
@@ -79,6 +80,8 @@ class GameScene {
     this.waveNum = 1;
     this._attackEnemiesLeft = atk.total;
     this._spawnedThisAttack = 0;
+    this.spawnedByType = { geran1: 0, geran2: 0, geran3: 0, kh555: 0, kalibr: 0, kh101: 0 };
+    this.killsByType   = { geran1: 0, geran2: 0, geran3: 0, kh555: 0, kalibr: 0, kh101: 0 };
     this._spawner.resetCampaign(num);
     this._spawner.setEnemyList(this.enemies);
   }
@@ -158,6 +161,7 @@ class GameScene {
       if (this.mode === 'campaign') {
         this._attackEnemiesLeft--;
         this._spawnedThisAttack = (this._spawnedThisAttack || 0) + 1;
+        if (this.spawnedByType[e.type] !== undefined) this.spawnedByType[e.type]++;
       }
     }
 
@@ -273,11 +277,25 @@ class GameScene {
         const atkMeta = CONFIG.ATTACKS[this.attackNum - 1];
         if (atkMeta.pitstopAfter) {
           this.player.resetHP();
-          this.onPitstop({
-            points: this.points,
-            player: this.player,
-            attackNum: this.attackNum,
-          });
+
+          // Capture frozen frame for AAR background
+          const snap = document.createElement('canvas');
+          snap.width  = CONFIG.CANVAS.WIDTH;
+          snap.height = CONFIG.CANVAS.HEIGHT;
+          snap.getContext('2d').drawImage(this.canvas, 0, 0);
+
+          const aarData = {
+            points:        this.points,
+            player:        this.player,
+            attackNum:     this.attackNum,
+            killsByType:   Object.assign({}, this.killsByType),
+            spawnedByType: Object.assign({}, this.spawnedByType),
+            snapshot:      snap,
+          };
+
+          // Brief delay so last explosion settles before modal appears
+          setTimeout(() => this.onPitstop(aarData), 1500);
+
         } else {
           this._endGame(true);
         }

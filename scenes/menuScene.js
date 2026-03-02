@@ -36,7 +36,7 @@ class MenuScene {
   }
 
   destroy() {
-    this.canvas.removeEventListener('click', this._onClick);
+    this.canvas.removeEventListener('click', this._onClick, true);
     this.canvas.removeEventListener('mousemove', this._onMouseMove);
     window.removeEventListener('keydown', this._onKey);
   }
