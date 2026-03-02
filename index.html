@@ -50,13 +50,17 @@
   <script src="entities/explosion.js"></script>
 
   <!-- Scenes -->
-  <script src="scenes/background.js"></script>
+<script src="scenes/background.js"></script>
+  <script src="scenes/backgroundSnapshot.js"></script>
+  <script src="utils/tabletUI.js"></script>
   <script src="scenes/hud.js"></script>
   <script src="scenes/menuScene.js"></script>
   <script src="scenes/pitstopScene.js"></script>
   <script src="scenes/aarScene.js"></script>
   <script src="scenes/gameOverScene.js"></script>
   <script src="scenes/intelScene.js"></script>
+  <script src="scenes/pauseScene.js"></script>
+  <script src="scenes/winScene.js"></script>
   <script src="scenes/gameScene.js"></script>
 
   <script>
@@ -100,7 +104,8 @@
         }
         rafId = requestAnimationFrame(loop);
       }
-
+      
+      BackgroundSnapshot.init(canvas); 
       function showMenu() {
         if (currentScene && currentScene.destroy) currentScene.destroy();
         const menu = new MenuScene(canvas, ctx, (mode) => {
@@ -169,6 +174,7 @@
       }
 
       // Boot to menu
+      BackgroundSnapshot.init(canvas);
       showMenu();
     });
   </script>

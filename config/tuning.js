@@ -99,7 +99,7 @@ const TUNING = {
   // ARCADE MODE
   // ================================================================
   ARCADE_WAVE_PAUSE:         2000,
-  ARCADE_START_SIMULTANEOUS: 2,
+  ARCADE_START_SIMULTANEOUS: 1,
 
   ARCADE_UPGRADE_1_THRESHOLD: 100,
   ARCADE_UPGRADE_2_THRESHOLD: 400,

@@ -88,7 +88,20 @@ class GameScene {
 
   _bindInput() {
     this._onKey = (e) => {
-      if (e.code === 'Escape') { this._paused = !this._paused; return; }
+      if (e.code === 'Escape') {
+        this._paused = !this._paused;
+        if (this._paused) {
+          this._pauseScene = new PauseScene(
+            this.canvas, this.ctx,
+            () => { this._paused = false; this._pauseScene.destroy(); this._pauseScene = null; },
+            () => { this._paused = false; this._pauseScene.destroy(); this._pauseScene = null; this.destroy(); this._endGame(false, true); },
+            () => { this._paused = false; this._pauseScene.destroy(); this._pauseScene = null; this.destroy(); this._endGame(false, false, true); }
+          );
+        } else {
+          if (this._pauseScene) { this._pauseScene.destroy(); this._pauseScene = null; }
+        }
+        return;
+      }
       if (e.code === 'Space') {
         e.preventDefault();
         this._tryFire();
@@ -96,30 +109,9 @@ class GameScene {
     };
     window.addEventListener('keydown', this._onKey);
     this._onCanvasClick = (e) => {
-      if (this._paused && this._pauseBtns) {
-        const rect   = this.canvas.getBoundingClientRect();
-        const scaleX = CONFIG.CANVAS.WIDTH  / rect.width;
-        const scaleY = CONFIG.CANVAS.HEIGHT / rect.height;
-        const x = (e.clientX - rect.left) * scaleX;
-        const y = (e.clientY - rect.top)  * scaleY;
-
-        const [resume, restart, exit] = this._pauseBtns;
-        if (x > resume.cx - resume.w/2 && x < resume.cx + resume.w/2 && y > resume.y && y < resume.y + resume.h) {
-          this._paused = false;
-        } else if (x > restart.cx - restart.w/2 && x < restart.cx + restart.w/2 && y > restart.y && y < restart.y + restart.h) {
-          this._paused = false;
-          this.destroy();
-          // Signal restart via game over with restart flag
-          this._endGame(false, true);
-        } else if (x > exit.cx - exit.w/2 && x < exit.cx + exit.w/2 && y > exit.y && y < exit.y + exit.h) {
-          this._paused = false;
-          this.destroy();
-          this._endGame(false, false, true);
-        }
-        return;
-      }
       this._tryFire();
     };
+
     this.canvas.addEventListener('click', this._onCanvasClick);
   }
 
@@ -407,129 +399,6 @@ class GameScene {
     }
 
     // Pause overlay — drawn last, on top of everything
-    if (this._paused) this._drawPauseOverlay(ctx);
-  }
-
-  _drawPauseOverlay(ctx) {
-    const CW = CONFIG.CANVAS.WIDTH;
-    const CH = CONFIG.CANVAS.HEIGHT;
-    const CX = CW / 2;
-    const FONT = "'Share Tech Mono', monospace";
-
-    // Night vision tint
-    ctx.fillStyle = 'rgba(0, 48, 28, 0.78)';
-    ctx.fillRect(0, 0, CW, CH);
-
-    // Scanlines
-    ctx.save();
-    for (let y = 0; y < CH; y += 4) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
-      ctx.fillRect(0, y, CW, 2);
-    }
-    ctx.restore();
-
-    // Header
-    ctx.textAlign = 'center';
-    ctx.font = `bold 56px ${FONT}`;
-    ctx.fillStyle = '#44ffaa';
-    ctx.fillText('GAME PAUSED', CX, 220);
-
-    // Divider
-    ctx.strokeStyle = 'rgba(68,255,170,0.25)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(CX - 300, 250); ctx.lineTo(CX + 300, 250);
-    ctx.stroke();
-
-    // Total kills
-    ctx.font = `bold 28px ${FONT}`;
-    ctx.fillStyle = '#44ffaa';
-    ctx.fillText('KILLED', CX, 300);
-
-    // Kill breakdown
-    const ENEMY_LABELS = {
-      geran1: 'Geran-1',
-      geran2: 'Geran-2',
-      geran3: 'Geran-3',
-      kh555:  'Kh-555',
-      kalibr: 'Kalibr',
-      kh101:  'Kh-101',
-      total:  'TOTAL',
-    };
-
-    let rowY = 350;
-    for (const [type, label] of Object.entries(ENEMY_LABELS)) {
-      const count = type === 'total' ? this.kills : (this.killsByType[type] || 0);
-      ctx.font = `18px ${FONT}`;
-      ctx.fillStyle = count > 0 ? 'rgba(68,255,170,0.9)' : 'rgba(68,255,170,0.35)';
-      ctx.textAlign = 'left';
-      ctx.fillText(label, CX - 120, rowY);
-      ctx.textAlign = 'right';
-      ctx.font = `bold 18px ${FONT}`;
-      ctx.fillText(`${count}`, CX + 120, rowY);
-      rowY += 34;
-    }
-
-    // Divider
-    ctx.strokeStyle = 'rgba(68,255,170,0.25)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(CX - 300, rowY + 10); ctx.lineTo(CX + 300, rowY + 10);
-    ctx.stroke();
-
-    // Buttons
-    const BTN_W = 280, BTN_H = 60, BTN_GAP = 20;
-    const btns = [
-      { label: 'RESUME',         y: rowY + 40  },
-      { label: 'RESTART',        y: rowY + 40 + BTN_H + BTN_GAP },
-      { label: 'EXIT TO MENU',   y: rowY + 40 + (BTN_H + BTN_GAP) * 2 },
-    ];
-
-    for (const btn of btns) {
-      ctx.fillStyle = 'rgba(0,80,40,0.7)';
-      ctx.strokeStyle = 'rgba(68,255,170,0.5)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.rect(CX - BTN_W/2, btn.y, BTN_W, BTN_H);
-      ctx.fill(); ctx.stroke();
-      ctx.textAlign = 'center';
-      ctx.font = `bold 20px ${FONT}`;
-      ctx.fillStyle = '#44ffaa';
-      ctx.fillText(btn.label, CX, btn.y + 38);
-    }
-
-    // Store button Y positions for click detection
-    this._pauseBtns = btns.map(b => ({ ...b, w: BTN_W, h: BTN_H, cx: CX }));
-
-    ctx.textAlign = 'left';
-  }
-
-  _drawRadar(ctx) {
-    if (!this.player.hasWeapon('sam')) return;
-    const r = CONFIG.WEAPONS.SAM.radarRadius;
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(this.player.x, this.player.y, r, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0,255,100,0.12)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    if (this._samState.lockTarget && !this._samState.lockTarget.dead) {
-      const t = this._samState.lockTarget;
-      ctx.beginPath();
-      ctx.arc(t.x, t.y, 28, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(0,255,100,0.55)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      // Lock progress arc
-      const lockDelay = t.cfg.radarLockDelay || CONFIG.WEAPONS.SAM.lockOnDelay;
-      const progress = Math.min(1, this._samState.lockTimer / lockDelay);
-      ctx.beginPath();
-      ctx.arc(t.x, t.y, 28, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2);
-      ctx.strokeStyle = 'rgba(255,255,0,0.8)';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-    }
-    ctx.restore();
+    if (this._paused && this._pauseScene) this._pauseScene.draw(ctx);
   }
 }

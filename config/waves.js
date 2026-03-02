@@ -94,16 +94,16 @@ const WAVES = {
     // from = cumulative enemies spawned across entire arcade run
     phase1: {
       waves: [
-        { total: 5,  spawnCount: [1] },
-        { total: 10, spawnCount: [1] },
-        { total: 15, },
-        { total: 20, },
-        { total: 25, },
+        { total: 8,  spawnCount: [1] },
+        { total: 12, spawnCount: [1] },
+        { total: 18, spawnCount: [1] },
+        { total: 24, spawnCount: [1] },
+        { total: 30, spawnCount: [1] },
       ],
-      maxSim: 3,
+      maxSim: 4,
       spawnMin: 2000,
       spawnMax: 4000,
-      spawnCount: [1, 2], // fallback for waves without specific spawnCount
+      spawnCount: [1], // fallback for waves without specific spawnCount
       roster: [
         { type: 'geran1', from: 0,  weight: 1 },
         { type: 'geran2', from: 5,  weight: 2 },
