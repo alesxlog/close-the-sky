@@ -1,18 +1,20 @@
 // ============================================================
 // CLOSE THE SKY — gameScene.js
-// Shared game loop for Campaign and Arcade modes
+// Shared game loop for Campaign and Arcade modes.
+// Pause overlay extracted to PauseScene.
 // ============================================================
 
 class GameScene {
-  constructor(canvas, ctx, mode, onGameOver, onPitstop) {
+  constructor(canvas, ctx, mode, onGameOver, onPitstop, onPause) {
     this.canvas = canvas;
     this.ctx = ctx;
     this.mode = mode;           // 'campaign' | 'arcade'
     this.onGameOver = onGameOver;
     this.onPitstop = onPitstop; // campaign only
+    this.onPause = onPause;     // triggers PauseScene
 
     // Systems
-    this._bg = new Background();
+    this._bg = CityBackground.get();
     this._hud = new HUD();
     this._spawner = new Spawner();
 
@@ -29,8 +31,6 @@ class GameScene {
     this.killsByType   = { geran1: 0, geran2: 0, geran3: 0, kh555: 0, kalibr: 0, kh101: 0 };
     this.spawnedByType = { geran1: 0, geran2: 0, geran3: 0, kh555: 0, kalibr: 0, kh101: 0 };
 
-    // Pause state
-    this._paused = false;
     this.points = 0;
     this.cumulativePoints = 0;
     this.timeElapsed = 0; // ms
@@ -38,7 +38,7 @@ class GameScene {
     // Attack / wave tracking
     this.attackNum = 1;
     this.waveNum = 1;
-    this._waveStarted = false; // prevents false wave-end at game start
+    this._waveStarted = false;
     this._attackEnemiesLeft = 0;
 
     // Weapon cooldowns
@@ -88,7 +88,10 @@ class GameScene {
 
   _bindInput() {
     this._onKey = (e) => {
-      if (e.code === 'Escape') { this._paused = !this._paused; return; }
+      if (e.code === 'Escape') {
+        this.onPause();
+        return;
+      }
       if (e.code === 'Space') {
         e.preventDefault();
         this._tryFire();
@@ -96,28 +99,6 @@ class GameScene {
     };
     window.addEventListener('keydown', this._onKey);
     this._onCanvasClick = (e) => {
-      if (this._paused && this._pauseBtns) {
-        const rect   = this.canvas.getBoundingClientRect();
-        const scaleX = CONFIG.CANVAS.WIDTH  / rect.width;
-        const scaleY = CONFIG.CANVAS.HEIGHT / rect.height;
-        const x = (e.clientX - rect.left) * scaleX;
-        const y = (e.clientY - rect.top)  * scaleY;
-
-        const [resume, restart, exit] = this._pauseBtns;
-        if (x > resume.cx - resume.w/2 && x < resume.cx + resume.w/2 && y > resume.y && y < resume.y + resume.h) {
-          this._paused = false;
-        } else if (x > restart.cx - restart.w/2 && x < restart.cx + restart.w/2 && y > restart.y && y < restart.y + restart.h) {
-          this._paused = false;
-          this.destroy();
-          // Signal restart via game over with restart flag
-          this._endGame(false, true);
-        } else if (x > exit.cx - exit.w/2 && x < exit.cx + exit.w/2 && y > exit.y && y < exit.y + exit.h) {
-          this._paused = false;
-          this.destroy();
-          this._endGame(false, false, true);
-        }
-        return;
-      }
       this._tryFire();
     };
     this.canvas.addEventListener('click', this._onCanvasClick);
@@ -134,7 +115,6 @@ class GameScene {
   // ----------------------------------------------------------
   update(dt) {
     if (this._destroyed) return;
-    if (this._paused) return;
     const now = performance.now();
 
     this.timeElapsed += dt * 1000;
@@ -147,7 +127,6 @@ class GameScene {
         this.waveNum++;
         if (this.mode === 'arcade') this._spawner.nextWave();
       }
-      // Still update existing entities during pause
       this._updateEntities(dt, now);
       return;
     }
@@ -271,14 +250,11 @@ class GameScene {
   // ----------------------------------------------------------
   _checkProgression() {
     if (this.mode === 'campaign') {
-      // All enemies spawned and cleared
       if (this._attackEnemiesLeft <= 0 && this.enemies.length === 0) {
-        const atk = WAVES.campaign['attack' + this.attackNum];
         const atkMeta = CONFIG.ATTACKS[this.attackNum - 1];
         if (atkMeta.pitstopAfter) {
           this.player.resetHP();
 
-          // Capture frozen frame for AAR background
           const snap = document.createElement('canvas');
           snap.width  = CONFIG.CANVAS.WIDTH;
           snap.height = CONFIG.CANVAS.HEIGHT;
@@ -293,7 +269,6 @@ class GameScene {
             snapshot:      snap,
           };
 
-          // Brief delay so last explosion settles before modal appears
           setTimeout(() => this.onPitstop(aarData), 1500);
 
         } else {
@@ -301,11 +276,10 @@ class GameScene {
         }
       }
     } else {
-      // Arcade — wave complete when spawner is done and screen is clear
       if (this._spawner.isWaveComplete() && this.enemies.length === 0 && !this._inWavePause) {
         this._waveStarted = false;
         this._inWavePause = true;
-        this._wavePauseTimer = CONFIG.ARCADE.WAVE_PAUSE;
+        this._wavePauseTimer = WAVES.wavePause;
       }
     }
   }
@@ -405,103 +379,6 @@ class GameScene {
       ctx.textAlign = 'left';
       ctx.restore();
     }
-
-    // Pause overlay — drawn last, on top of everything
-    if (this._paused) this._drawPauseOverlay(ctx);
-  }
-
-  _drawPauseOverlay(ctx) {
-    const CW = CONFIG.CANVAS.WIDTH;
-    const CH = CONFIG.CANVAS.HEIGHT;
-    const CX = CW / 2;
-    const FONT = "'Share Tech Mono', monospace";
-
-    // Night vision tint
-    ctx.fillStyle = 'rgba(0, 48, 28, 0.78)';
-    ctx.fillRect(0, 0, CW, CH);
-
-    // Scanlines
-    ctx.save();
-    for (let y = 0; y < CH; y += 4) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
-      ctx.fillRect(0, y, CW, 2);
-    }
-    ctx.restore();
-
-    // Header
-    ctx.textAlign = 'center';
-    ctx.font = `bold 56px ${FONT}`;
-    ctx.fillStyle = '#44ffaa';
-    ctx.fillText('GAME PAUSED', CX, 220);
-
-    // Divider
-    ctx.strokeStyle = 'rgba(68,255,170,0.25)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(CX - 300, 250); ctx.lineTo(CX + 300, 250);
-    ctx.stroke();
-
-    // Total kills
-    ctx.font = `bold 28px ${FONT}`;
-    ctx.fillStyle = '#44ffaa';
-    ctx.fillText('KILLED', CX, 300);
-
-    // Kill breakdown
-    const ENEMY_LABELS = {
-      geran1: 'Geran-1',
-      geran2: 'Geran-2',
-      geran3: 'Geran-3',
-      kh555:  'Kh-555',
-      kalibr: 'Kalibr',
-      kh101:  'Kh-101',
-      total:  'TOTAL',
-    };
-
-    let rowY = 350;
-    for (const [type, label] of Object.entries(ENEMY_LABELS)) {
-      const count = type === 'total' ? this.kills : (this.killsByType[type] || 0);
-      ctx.font = `18px ${FONT}`;
-      ctx.fillStyle = count > 0 ? 'rgba(68,255,170,0.9)' : 'rgba(68,255,170,0.35)';
-      ctx.textAlign = 'left';
-      ctx.fillText(label, CX - 120, rowY);
-      ctx.textAlign = 'right';
-      ctx.font = `bold 18px ${FONT}`;
-      ctx.fillText(`${count}`, CX + 120, rowY);
-      rowY += 34;
-    }
-
-    // Divider
-    ctx.strokeStyle = 'rgba(68,255,170,0.25)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(CX - 300, rowY + 10); ctx.lineTo(CX + 300, rowY + 10);
-    ctx.stroke();
-
-    // Buttons
-    const BTN_W = 280, BTN_H = 60, BTN_GAP = 20;
-    const btns = [
-      { label: 'RESUME',         y: rowY + 40  },
-      { label: 'RESTART',        y: rowY + 40 + BTN_H + BTN_GAP },
-      { label: 'EXIT TO MENU',   y: rowY + 40 + (BTN_H + BTN_GAP) * 2 },
-    ];
-
-    for (const btn of btns) {
-      ctx.fillStyle = 'rgba(0,80,40,0.7)';
-      ctx.strokeStyle = 'rgba(68,255,170,0.5)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.rect(CX - BTN_W/2, btn.y, BTN_W, BTN_H);
-      ctx.fill(); ctx.stroke();
-      ctx.textAlign = 'center';
-      ctx.font = `bold 20px ${FONT}`;
-      ctx.fillStyle = '#44ffaa';
-      ctx.fillText(btn.label, CX, btn.y + 38);
-    }
-
-    // Store button Y positions for click detection
-    this._pauseBtns = btns.map(b => ({ ...b, w: BTN_W, h: BTN_H, cx: CX }));
-
-    ctx.textAlign = 'left';
   }
 
   _drawRadar(ctx) {
@@ -521,7 +398,6 @@ class GameScene {
       ctx.strokeStyle = 'rgba(0,255,100,0.55)';
       ctx.lineWidth = 2;
       ctx.stroke();
-      // Lock progress arc
       const lockDelay = t.cfg.radarLockDelay || CONFIG.WEAPONS.SAM.lockOnDelay;
       const progress = Math.min(1, this._samState.lockTimer / lockDelay);
       ctx.beginPath();

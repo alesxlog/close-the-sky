@@ -2,10 +2,19 @@
 // CLOSE THE SKY — waves.js
 // Single source of truth for all wave definitions.
 // Campaign: ordered roster with from/weight/max per attack.
-// Arcade: phase1 (handcrafted), phase2 (sequenced), phase3 (procedural).
+// Arcade: phase1 (sequenced), phase2 (sequenced), phase3 (procedural).
 // ============================================================
 
 const WAVES = {
+
+  // ----------------------------------------------------------
+  // GLOBAL SPAWNING CONSTRAINTS
+  // ----------------------------------------------------------
+  wavePause:           1200,   // ms between arcade waves
+  spawnLockAfterDeath: 1000,   // ms no-spawn after car destroyed
+  maxSimHighTier:      2,      // max simultaneous Kh-555 / Kalibr / Kh-101
+  maxSimKh101:         1,      // max simultaneous Kh-101
+  noHighTierFirst:     10000,  // ms — no high-tier in first N ms of attack
 
   // ----------------------------------------------------------
   // CAMPAIGN
@@ -19,45 +28,45 @@ const WAVES = {
       spawnMax: 3000,
       spawnCount: [1],
       roster: [
-        { type: 'geran1', from: 0,  weight: 2 },
+        { type: 'geran1', from: 0,  weight: 1 },
         { type: 'geran2', from: 15, weight: 1 },
       ],
     },
 
     attack2: {
-      total: 40,
-      maxSim: 2,
+      total: 20,
+      maxSim: 3,
       spawnMin: 1500,
-      spawnMax: 2500,
+      spawnMax: 3000,
       spawnCount: [1],
       roster: [
         { type: 'geran1', from: 0,  weight: 1 },
-        { type: 'geran2', from: 8,  weight: 3 },
+        { type: 'geran2', from: 8,  weight: 1 },
         { type: 'geran3', from: 19, weight: 1 },
       ],
     },
 
     attack3: {
-      total: 50,
+      total: 25,
       maxSim: 3,
       spawnMin: 1500,
-      spawnMax: 3500,
-      spawnCount: [1],
+      spawnMax: 2500,
+      spawnCount: [1, 2],
       roster: [
-        { type: 'geran1', from: 6,  weight: 1 },
-        { type: 'geran2', from: 2,  weight: 2 },
-        { type: 'geran3', from: 0,  weight: 2 },
-        { type: 'kh555',  from: 25, weight: 1 },
-      ],
+        { type: 'geran1', from: 5,  weight: 2 },
+        { type: 'geran2', from: 15, weight: 1 },
+        { type: 'geran3', from: 0,  weight: 1 },
+        { type: 'kh555',  from: 25, weight: 1, max: 2 }
+      ]
     },
 
     attack4: {
-      total: 60,
+      total: 30,
       maxSim: 3,
       spawnMin: 2000,
-      spawnMax: 5000,
-      spawnCount: [1,2],
-      spawnGap: 200,        // min px between enemies on X axis
+      spawnMax: 4000,
+      spawnCount: [2],
+      spawnGap: 200,
       roster: [
         { type: 'geran2', from: 1,  weight: 3 },
         { type: 'geran3', from: 5,  weight: 2 },
@@ -67,12 +76,12 @@ const WAVES = {
     },
 
     attack5: {
-      total: 75,
+      total: 35,
       maxSim: 3,
       spawnMin: 2500,
       spawnMax: 5000,
       spawnCount: [1, 2, 3],
-      spawnGap: 300,        // min px between enemies on X axis
+      spawnGap: 300,
       roster: [
         { type: 'geran1', from: 3,  weight: 2 },
         { type: 'geran2', from: 35, weight: 2 },
@@ -90,33 +99,79 @@ const WAVES = {
   // ----------------------------------------------------------
   arcade: {
 
-    // ---- Phase 1 — handcrafted waves 1-5 ----
-    // from = cumulative enemies spawned across entire arcade run
-    phase1: {
-      waves: [
-        { total: 5,  spawnCount: [1] },
-        { total: 10, spawnCount: [1] },
-        { total: 15, },
-        { total: 20, },
-        { total: 25, },
-      ],
-      maxSim: 3,
-      spawnMin: 2000,
-      spawnMax: 4000,
-      spawnCount: [1, 2], // fallback for waves without specific spawnCount
-      roster: [
-        { type: 'geran1', from: 0,  weight: 1 },
-        { type: 'geran2', from: 5,  weight: 2 },
-        { type: 'geran3', from: 15, weight: 1 },
-        { type: 'kh555',  from: 60, weight: 2, max: 5 },
-      ],
-    },
+    // ---- Phase 1 — sequenced waves 1-5 ----
+    phase1: [
+      // Wave 1
+      {
+        total: 5,
+        maxSim: 2,
+        spawnMin: 2500,
+        spawnMax: 4000,
+        spawnCount: [1],
+        sequence: [
+          { types: ['geran1'],                     count: 3 },
+          { types: ['geran1', 'geran2'],           count: 2 },
+        ],
+      },
+
+      // Wave 2
+      {
+        total: 10,
+        maxSim: 2,
+        spawnMin: 2000,
+        spawnMax: 3500,
+        spawnCount: [1],
+        sequence: [
+          { types: ['geran1', 'geran2'],           count: 6 },
+          { types: ['geran2'],                     count: 4 },
+        ],
+      },
+
+      // Wave 3
+      {
+        total: 15,
+        maxSim: 3,
+        spawnMin: 2000,
+        spawnMax: 3500,
+        spawnCount: [1, 2],
+        sequence: [
+          { types: ['geran1', 'geran2'],           count: 8 },
+          { types: ['geran2', 'geran3'],           count: 7 },
+        ],
+      },
+
+      // Wave 4
+      {
+        total: 20,
+        maxSim: 3,
+        spawnMin: 1500,
+        spawnMax: 3000,
+        spawnCount: [1, 2],
+        sequence: [
+          { types: ['geran1', 'geran2'],           count: 6 },
+          { types: ['geran3'],                     count: 4 },
+          { types: ['geran1', 'geran2', 'geran3'], count: 10 },
+        ],
+      },
+
+      // Wave 5
+      {
+        total: 25,
+        maxSim: 3,
+        spawnMin: 1500,
+        spawnMax: 3000,
+        spawnCount: [1, 2],
+        sequence: [
+          { types: ['geran2', 'geran3'],           count: 8 },
+          { types: ['geran1', 'geran3'],           count: 8 },
+          { types: ['geran1', 'geran2', 'geran3'], count: 9 },
+        ],
+      },
+    ],
 
     // ---- Phase 2 — sequenced waves 6-10 ----
-    // sequence: ordered groups, spawner works through them in order
-    // spawnAt: trigger enemy at specific count within the wave (optional)
     phase2: [
-      // Wave 6 — total: 30
+      // Wave 6
       {
         total: 30,
         maxSim: 4,
@@ -132,7 +187,7 @@ const WAVES = {
         ],
       },
 
-      // Wave 7 — total: 35
+      // Wave 7
       {
         total: 35,
         maxSim: 4,
@@ -148,7 +203,7 @@ const WAVES = {
         ],
       },
 
-      // Wave 8 — total: 40
+      // Wave 8
       {
         total: 40,
         maxSim: 5,
@@ -163,7 +218,7 @@ const WAVES = {
         ],
       },
 
-      // Wave 9 — total: 45
+      // Wave 9
       {
         total: 45,
         maxSim: 5,
@@ -176,7 +231,6 @@ const WAVES = {
           { types: ['kh555',  'geran1', 'geran2'],          count: 10 },
           { types: ['kalibr', 'geran1', 'geran2'],          count: 10 },
         ],
-        // kh101 triggered at specific enemy counts within wave
         triggered: [
           { type: 'kh101', spawnAt: 20 },
           { type: 'kh101', spawnAt: 30 },
@@ -185,7 +239,7 @@ const WAVES = {
         ],
       },
 
-      // Wave 10 — total: 50
+      // Wave 10
       {
         total: 50,
         maxSim: 6,

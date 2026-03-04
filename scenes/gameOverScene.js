@@ -1,197 +1,116 @@
-// ============================================================
-// CLOSE THE SKY — gameOverScene.js
-// Game over + win screen
-// ============================================================
 
-const FONT = "'Share Tech Mono', monospace";
-
-class GameOverScene {
+class GameOverScene extends SceneBase {
   constructor(canvas, ctx, stats, onRestart, onMenu) {
-    this.canvas = canvas;
-    this.ctx = ctx;
-    // stats: { win, kills, points, mode, attackNum, waveNum, totalSpawned, timeElapsed }
-    this.stats = stats;
+    super(canvas, ctx);
+    this.stats     = stats;
     this.onRestart = onRestart;
-    this.onMenu = onMenu;
-    this._bg = new Background();
-    this._bind();
-  }
+    this.onMenu    = onMenu;
+    this._tablet   = new TabletUI(canvas, ctx);
 
-  _bind() {
-    this._onClick = (e) => this._handleClick(e);
-    this._onKey = (e) => {
+    this._btnRestartY = 0;
+    this._btnMenuY    = 0;
+
+    // Typewriter state
+    this._typeText = stats.win
+      ? 'Congratulations! You have successfully closed the sky over your city. The North Atlantic Council was very impressed and decided to invite you to join NATO.'
+      : 'Your city has fallen silent. Streets once full of life now lie empty — no power, no water, no way home. The sky belonged to the enemy today.';
+    this._typeIndex = 0;
+    this._typeTimer = 0;
+    this._typeSpeed = 35; // ms per character
+
+    this._tablet.registerListeners(this);
+    this._on(this.canvas, 'click', (e) => this._handleClick(e), true);
+    this._on(window, 'keydown', (e) => {
       if (e.code === 'KeyR' || e.code === 'Space') this.onRestart();
       if (e.code === 'Escape' || e.code === 'KeyM') this.onMenu();
-    };
-    this.canvas.addEventListener('click', this._onClick);
-    window.addEventListener('keydown', this._onKey);
-  }
-
-  destroy() {
-    this.canvas.removeEventListener('click', this._onClick);
-    window.removeEventListener('keydown', this._onKey);
-  }
-
-  _handleClick(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    const scaleX = CONFIG.CANVAS.WIDTH / rect.width;
-    const scaleY = CONFIG.CANVAS.HEIGHT / rect.height;
-    const x = (e.clientX - rect.left) * scaleX;
-    const y = (e.clientY - rect.top) * scaleY;
-    const CX = CONFIG.CANVAS.WIDTH / 2;
-
-    // Campaign game over buttons (640, 740)
-    if (x > CX - 200 && x < CX + 200 && y > 640 && y < 720) this.onRestart();
-    if (x > CX - 200 && x < CX + 200 && y > 740 && y < 820) this.onMenu();
-    
-    // Arcade game over buttons (960, 1060)
-    if (x > CX - 200 && x < CX + 200 && y > 960 && y < 1040) this.onRestart();
-    if (x > CX - 200 && x < CX + 200 && y > 1060 && y < 1140) this.onMenu();
-  }
-
-  _formatTime(ms) {
-    const totalSec = Math.floor(ms / 1000);
-    const m = Math.floor(totalSec / 60);
-    const s = totalSec % 60;
-    return m > 0 ? `${m}m ${s}s` : `${s}s`;
-  }
-
-  draw(ctx) {
-    this._bg.draw(ctx);
-
-    const CX = CONFIG.CANVAS.WIDTH / 2;
-    const s = this.stats;
-
-    // Dark overlay
-    ctx.fillStyle = 'rgba(0,0,0,0.72)';
-    ctx.fillRect(0, 0, CONFIG.CANVAS.WIDTH, CONFIG.CANVAS.HEIGHT);
-
-    ctx.textAlign = 'center';
-
-    if (s.win) {
-      // Campaign win
-      ctx.font = `bold 64px ${FONT}`;
-      ctx.fillStyle = '#44ff88';
-      ctx.fillText('SKY CLOSED', CX, 260);
-
-      // Narrative body
-      ctx.font = `18px ${FONT}`;
-      ctx.fillStyle = 'rgba(255,255,255,0.65)';
-      const lines = [
-        'Congratulations!',
-        'You have successfully closed the sky over your city.',
-        'The North Atlantic Council was very impressed',
-        'and decided to invite you to join NATO.',
-        'Will you accept?',
-      ];
-      lines.forEach((line, i) => {
-        ctx.fillText(line, CX, 310 + i * 30);
-      });
-
-      this._drawStats(ctx, CX, 420, s);
-      this._drawButton(ctx, CX, 960, 400, 80, 'R  PLAY AGAIN');
-      this._drawButton(ctx, CX, 1060, 400, 80, 'M  MAIN MENU');
-
-    } else if (s.mode === 'arcade') {
-      // Arcade game over
-      ctx.font = `bold 72px ${FONT}`;
-      ctx.fillStyle = '#ff3333';
-      ctx.fillText('GAME OVER', CX, 220);
-
-      // Narrative body
-      ctx.font = `18px ${FONT}`;
-      ctx.fillStyle = 'rgba(255,255,255,0.65)';
-      const lines = [
-        'The city has fallen silent. ',
-        'Streets once full of life now lie empty —',
-        'no power, no water, no way home.',
-        'The sky belonged to the enemy today.',
-      ];
-      lines.forEach((line, i) => {
-        ctx.fillText(line, CX, 300 + i * 32);
-      });
-
-      // Divider
-      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(CX - 300, 510);
-      ctx.lineTo(CX + 300, 510);
-      ctx.stroke();
-
-      this._drawStats(ctx, CX, 560, s);
-      this._drawButton(ctx, CX, 960, 400, 80, 'R  RESTART');
-      this._drawButton(ctx, CX, 1060, 400, 80, 'M  MAIN MENU');
-
-    } else {
-      // Campaign game over
-      ctx.font = `bold 64px ${FONT}`;
-      ctx.fillStyle = '#ff3333';
-      ctx.fillText('GAME OVER', CX, 260);
-
-      ctx.font = `18px ${FONT}`;
-      ctx.fillStyle = 'rgba(255,255,255,0.65)';
-      const lines = [
-        'The city has fallen silent.',
-        'Streets once full of life now lie empty —',
-        'no power, no water, no way home.',
-        'The sky belonged to the enemy today.',
-      ];
-      lines.forEach((line, i) => {
-        ctx.fillText(line, CX, 420 + i * 32);
-      });
-
-      // this._drawStats(ctx, CX, 420, s);
-      this._drawButton(ctx, CX, 640, 400, 80, 'R  TRY AGAIN');
-      this._drawButton(ctx, CX, 740, 400, 80, 'M  MAIN MENU');
-    }
-
-    ctx.textAlign = 'left';
-  }
-
-  _drawStats(ctx, cx, startY, s) {
-    const rows = [
-      { label: 'WAVES SURVIVED',    value: `${s.waveNum}` },
-      { label: 'TIME SURVIVED',     value: this._formatTime(s.timeElapsed || 0) },
-      { label: 'ENEMIES DESTROYED', value: `${s.kills}` },
-      { label: 'POINTS EARNED',     value: `${s.points}` },
-
-    ];
-
-    rows.forEach((row, i) => {
-      const y = startY + i * 72;
-
-      // Row bg
-      ctx.fillStyle = 'rgba(255,255,255,0.05)';
-      ctx.beginPath();
-      ctx.roundRect(cx - 300, y, 600, 56, 6);
-      ctx.fill();
-
-      ctx.textAlign = 'left';
-      ctx.font = `16px ${FONT}`;
-      ctx.fillStyle = 'rgba(255,255,255,0.45)';
-      ctx.fillText(row.label, cx - 280, y + 34);
-
-      ctx.textAlign = 'right';
-      ctx.font = `bold 26px ${FONT}`;
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(row.value, cx + 280, y + 36);
-
-      ctx.textAlign = 'center';
     });
   }
 
-  _drawButton(ctx, cx, y, w, h, label) {
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
-    ctx.beginPath();
-    ctx.roundRect(cx - w/2, y, w, h, 8);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `bold 24px ${FONT}`;
-    ctx.fillText(label, cx, y + 50);
+  _handleClick(e) {
+    const { x, y } = this._canvasXY(e);
+    const hit = this._tablet.hitTest(x, y);
+    if (!hit) return;
+    const cw = this._tablet.SCREEN_W - this._tablet.CONTENT_PAD * 2;
+    if (hit.x >= 0 && hit.x <= cw) {
+      if (hit.y >= this._btnRestartY && hit.y <= this._btnRestartY + 48) this.onRestart();
+      if (hit.y >= this._btnMenuY && hit.y <= this._btnMenuY + 48)       this.onMenu();
+    }
+  }
+
+  update(dt) {
+    this._fadeIn(dt);
+    this._tablet.updateScroll(dt);
+
+    // Typewriter advance
+    this._typeTimer += dt * 1000;
+    while (this._typeTimer >= this._typeSpeed && this._typeIndex < this._typeText.length) {
+      this._typeIndex++;
+      this._typeTimer -= this._typeSpeed;
+    }
+  }
+
+  draw(ctx) {
+    CityBackground.get().drawSnapshot(ctx);
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(0, 0, this._CW, this._CH);
+
+    const scene = this;
+    const s = this.stats;
+    const visibleText = this._typeText.substring(0, this._typeIndex);
+    const showCaret = this._typeIndex < this._typeText.length;
+
+    this._tablet.draw(ctx, (cctx, cw) => {
+      let y = 0;
+
+      const titleColor = s.win ? '#44ff88' : '#e04040';
+      const titleText  = s.win ? 'SKY CLOSED' : 'GAME OVER';
+      y += TabletUI.drawTitle(cctx, y, titleText, { center: true, width: cw, color: titleColor });
+      y += TabletUI.drawDivider(cctx, y, cw);
+      y += 4;
+
+      // Typewriter body
+      const bodyH = TabletUI.drawBody(cctx, y, visibleText, cw, {
+        color: 'rgba(160,200,144,0.7)',
+        lineHeight: 26,
+      });
+      // Blinking caret
+      if (showCaret) {
+        // Draw a thin line after last character — approximate position
+        cctx.fillStyle = 'rgba(126,207,90,0.6)';
+        const caretBlink = Math.floor(Date.now() / 500) % 2 === 0;
+        if (caretBlink) {
+          // Approximate caret position (end of last line)
+          cctx.fillRect(cw * 0.05, y + bodyH - 12, 2, 16);
+        }
+      }
+      y += bodyH + 8;
+
+      // Stats
+      if (s.mode === 'arcade' || s.win) {
+        y += TabletUI.drawHeader(cctx, y, 'Final Results', cw);
+        y += 4;
+        y += TabletUI.drawStatRow(cctx, y, 'Waves Survived', String(s.waveNum), cw);
+        const fmt = (ms) => {
+          const sec = Math.floor(ms / 1000);
+          const m = Math.floor(sec / 60), ss = sec % 60;
+          return m > 0 ? `${m}m ${ss}s` : `${ss}s`;
+        };
+        y += TabletUI.drawStatRow(cctx, y, 'Time Survived', fmt(s.timeElapsed || 0), cw);
+        y += TabletUI.drawStatRow(cctx, y, 'Enemies Destroyed', String(s.kills), cw);
+        y += TabletUI.drawStatRow(cctx, y, 'Points Earned', String(s.points), cw, { valueColor: '#f0e080' });
+        y += 16;
+      }
+
+      // Footer buttons
+      y += 8;
+      scene._btnRestartY = y;
+      y += TabletUI.drawButton(cctx, y, s.win ? 'PLAY AGAIN' : 'RESTART', cw);
+      scene._btnMenuY = y;
+      y += TabletUI.drawButton(cctx, y, 'MAIN MENU', cw, { secondary: true });
+
+      return y;
+    }, { centered: !s.win && s.mode !== 'arcade', alpha: this._alpha });
   }
 }
+
+
