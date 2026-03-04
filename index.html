@@ -56,6 +56,8 @@
   <script src="scenes/SceneBase.js"></script>
   <script src="scenes/background.js"></script>
   <script src="scenes/hud.js"></script>
+  <script src="scenes/splashScene.js"></script>
+  <script src="scenes/interludeScene.js"></script>
   <script src="scenes/menuScene.js"></script>
   <script src="scenes/pauseScene.js"></script>
   <script src="scenes/gameOverScene.js"></script>
@@ -104,6 +106,14 @@
           rafId = requestAnimationFrame(loop);
         }
         rafId = requestAnimationFrame(loop);
+      }
+
+      function showSplash() {
+        const splash = new SplashScene(canvas, ctx, () => {
+          splash.destroy();
+          showMenu();
+        });
+        startLoop(splash);
       }
 
       function showMenu() {
@@ -183,26 +193,30 @@
             // onPitstop
             (gameState) => {
               if (currentScene && currentScene.destroy) currentScene.destroy();
-              const aar = new AARScene(canvas, ctx, gameState, () => {
-                aar.destroy();
-                const shop = new UpgradeStationScene(canvas, ctx, gameState, () => {
-                  shop.destroy();
-                  const nextAttack = gameState.attackNum + 1;
-                  showMissionBrief(nextAttack, () => {
-                    gameScene.points = gameState.points;
-                    gameScene.player = gameState.player;
-                    gameScene._loadAttack(nextAttack);
-                    gameScene.enemies = [];
-                    gameScene.projectiles = [];
-                    gameScene.explosions = [];
-                    gameScene._destroyed = false;
-                    gameScene._bindInput();
-                    startLoop(gameScene);
+              const interlude = new InterludeScene(canvas, ctx, () => {
+                interlude.destroy();
+                const aar = new AARScene(canvas, ctx, gameState, () => {
+                  aar.destroy();
+                  const shop = new UpgradeStationScene(canvas, ctx, gameState, () => {
+                    shop.destroy();
+                    const nextAttack = gameState.attackNum + 1;
+                    showMissionBrief(nextAttack, () => {
+                      gameScene.points = gameState.points;
+                      gameScene.player = gameState.player;
+                      gameScene._loadAttack(nextAttack);
+                      gameScene.enemies = [];
+                      gameScene.projectiles = [];
+                      gameScene.explosions = [];
+                      gameScene._destroyed = false;
+                      gameScene._bindInput();
+                      startLoop(gameScene);
+                    });
                   });
+                  startLoop(shop);
                 });
-                startLoop(shop);
+                startLoop(aar);
               });
-              startLoop(aar);
+              startLoop(interlude);
             },
             // onPause
             onPause
@@ -218,7 +232,7 @@
       }
 
       // Boot
-      showMenu();
+      showSplash();
     });
   </script>
 </body>

@@ -80,6 +80,7 @@ class GameScene {
     this.waveNum = 1;
     this._attackEnemiesLeft = atk.total;
     this._spawnedThisAttack = 0;
+    this._gameEnded = false;
     this.spawnedByType = { geran1: 0, geran2: 0, geran3: 0, kh555: 0, kalibr: 0, kh101: 0 };
     this.killsByType   = { geran1: 0, geran2: 0, geran3: 0, kh555: 0, kalibr: 0, kh101: 0 };
     this._spawner.resetCampaign(num);
@@ -253,6 +254,8 @@ class GameScene {
       if (this._attackEnemiesLeft <= 0 && this.enemies.length === 0) {
         const atkMeta = CONFIG.ATTACKS[this.attackNum - 1];
         if (atkMeta.pitstopAfter) {
+          if (this._gameEnded) return;
+          this._gameEnded = true;
           this.player.resetHP();
 
           const snap = document.createElement('canvas');
@@ -272,14 +275,17 @@ class GameScene {
           setTimeout(() => this.onPitstop(aarData), 1500);
 
         } else {
-          this._endGame(true);
+          if (!this._gameEnded) {
+            this._gameEnded = true;
+            setTimeout(() => this._endGame(true), 1500);
+          }
         }
       }
     } else {
       if (this._spawner.isWaveComplete() && this.enemies.length === 0 && !this._inWavePause) {
         this._waveStarted = false;
         this._inWavePause = true;
-        this._wavePauseTimer = WAVES.wavePause;
+        this._wavePauseTimer = CONFIG.ARCADE.WAVE_PAUSE;
       }
     }
   }
