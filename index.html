@@ -29,7 +29,7 @@
 <body>
   <canvas id="gameCanvas" width="1280" height="1280"></canvas>
 
-  <!-- Tuning — your values, never overwritten -->
+  <!-- Tuning -->
   <script src="config/tuning.js"></script>
 
   <!-- Config -->
@@ -49,18 +49,19 @@
   <script src="entities/projectiles.js"></script>
   <script src="entities/explosion.js"></script>
 
+  <!-- UI -->
+  <script src="ui/TabletUI.js"></script>
+
   <!-- Scenes -->
-<script src="scenes/background.js"></script>
-  <script src="scenes/backgroundSnapshot.js"></script>
-  <script src="utils/tabletUI.js"></script>
+  <script src="scenes/SceneBase.js"></script>
+  <script src="scenes/background.js"></script>
   <script src="scenes/hud.js"></script>
   <script src="scenes/menuScene.js"></script>
-  <script src="scenes/pitstopScene.js"></script>
-  <script src="scenes/aarScene.js"></script>
-  <script src="scenes/gameOverScene.js"></script>
-  <script src="scenes/intelScene.js"></script>
   <script src="scenes/pauseScene.js"></script>
-  <script src="scenes/winScene.js"></script>
+  <script src="scenes/gameOverScene.js"></script>
+  <script src="scenes/missionBriefScene.js"></script>
+  <script src="scenes/aarScene.js"></script>
+  <script src="scenes/upgradeStationScene.js"></script>
   <script src="scenes/gameScene.js"></script>
 
   <script>
@@ -85,7 +86,7 @@
 
       Input.init(canvas, getScale);
 
-      // ---- SCENE MANAGER ----
+      // ── SCENE MANAGER ──
       let currentScene = null;
       let rafId = null;
       let lastTime = 0;
@@ -104,8 +105,7 @@
         }
         rafId = requestAnimationFrame(loop);
       }
-      
-      BackgroundSnapshot.init(canvas); 
+
       function showMenu() {
         if (currentScene && currentScene.destroy) currentScene.destroy();
         const menu = new MenuScene(canvas, ctx, (mode) => {
@@ -115,20 +115,61 @@
         startLoop(menu);
       }
 
-      function showIntel(attackNum, onComplete) {
-        console.log('showIntel called for attack', attackNum);
-        const intel = new IntelScene(canvas, ctx, attackNum, () => {
-          console.log('IntelScene completed for attack', attackNum);
+      function showMissionBrief(attackNum, onComplete) {
+        const brief = new MissionBriefScene(canvas, ctx, attackNum, () => {
           onComplete();
         });
-        startLoop(intel);
+        startLoop(brief);
       }
 
       function startGame(mode) {
 
         function launchScene() {
-          const scene = new GameScene(
+          let gameScene = null;
+
+          // Pause handler — captures frozen frame, shows PauseScene
+          function onPause() {
+            const snap = document.createElement('canvas');
+            snap.width  = CONFIG.CANVAS.WIDTH;
+            snap.height = CONFIG.CANVAS.HEIGHT;
+            snap.getContext('2d').drawImage(canvas, 0, 0);
+
+            const gs = {
+              mode:      gameScene.mode,
+              attackNum: gameScene.attackNum,
+              waveNum:   gameScene.waveNum,
+              kills:     gameScene.kills,
+              points:    gameScene.points,
+              timeElapsed: gameScene.timeElapsed,
+            };
+
+            const pause = new PauseScene(canvas, ctx, snap, gs,
+              // Resume
+              () => {
+                pause.destroy();
+                gameScene._destroyed = false;
+                gameScene._bindInput();
+                startLoop(gameScene);
+              },
+              // Restart
+              () => {
+                pause.destroy();
+                gameScene.destroy();
+                startGame(mode);
+              },
+              // Exit
+              () => {
+                pause.destroy();
+                gameScene.destroy();
+                showMenu();
+              }
+            );
+            startLoop(pause);
+          }
+
+          gameScene = new GameScene(
             canvas, ctx, mode,
+            // onGameOver
             (stats) => {
               if (currentScene && currentScene.destroy) currentScene.destroy();
               if (stats.restart) { startGame(mode); return; }
@@ -139,42 +180,44 @@
               );
               startLoop(go);
             },
+            // onPitstop
             (gameState) => {
               if (currentScene && currentScene.destroy) currentScene.destroy();
               const aar = new AARScene(canvas, ctx, gameState, () => {
                 aar.destroy();
-                const ps = new PitstopScene(canvas, ctx, gameState, () => {
-                  ps.destroy();
+                const shop = new UpgradeStationScene(canvas, ctx, gameState, () => {
+                  shop.destroy();
                   const nextAttack = gameState.attackNum + 1;
-                  showIntel(nextAttack, () => {
-                    scene.points = gameState.points;
-                    scene.player = gameState.player;
-                    scene._loadAttack(nextAttack);
-                    scene.enemies = [];
-                    scene.projectiles = [];
-                    scene.explosions = [];
-                    scene._destroyed = false;
-                    scene._bindInput();
-                    startLoop(scene);
+                  showMissionBrief(nextAttack, () => {
+                    gameScene.points = gameState.points;
+                    gameScene.player = gameState.player;
+                    gameScene._loadAttack(nextAttack);
+                    gameScene.enemies = [];
+                    gameScene.projectiles = [];
+                    gameScene.explosions = [];
+                    gameScene._destroyed = false;
+                    gameScene._bindInput();
+                    startLoop(gameScene);
                   });
                 });
-                startLoop(ps);
+                startLoop(shop);
               });
               startLoop(aar);
-            }
+            },
+            // onPause
+            onPause
           );
-          startLoop(scene);
+          startLoop(gameScene);
         }
 
         if (mode === 'campaign') {
-          showIntel(1, () => launchScene());
+          showMissionBrief(1, () => launchScene());
         } else {
           launchScene();
         }
       }
 
-      // Boot to menu
-      BackgroundSnapshot.init(canvas);
+      // Boot
       showMenu();
     });
   </script>

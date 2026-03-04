@@ -140,7 +140,7 @@ class Spawner {
   // ---- SHARED ----
 
   triggerSpawnLock() {
-    this._spawnLockUntil = performance.now() + this.G.SPAWN_LOCK_AFTER_DEATH;
+    this._spawnLockUntil = performance.now() + WAVES.spawnLockAfterDeath;
   }
 
   setEnemyList(list) {
@@ -307,7 +307,7 @@ class Spawner {
       if (this._arcadeWaveSpawned >= this._arcadeWaveTotal) break;
 
       const wantHighTier = Math.random() < this._phase3HighTierRatio &&
-                           htOnScreen < this.G.MAX_SIMULTANEOUS_HIGHTIER;
+                           htOnScreen < WAVES.maxSimHighTier;
 
       let available = P3.roster.filter(r => {
         const isHT = highTiers.includes(r.type);
@@ -337,11 +337,11 @@ class Spawner {
     const highTierTypes = ['kh555', 'kalibr', 'kh101'];
     if (highTierTypes.includes(type)) {
       const count = this._activeEnemies.filter(e => highTierTypes.includes(e.type)).length;
-      if (count >= this.G.MAX_SIMULTANEOUS_HIGHTIER) return false;
+      if (count >= WAVES.maxSimHighTier) return false;
     }
     if (type === 'kh101') {
       const count = this._activeEnemies.filter(e => e.type === 'kh101').length;
-      if (count >= this.G.MAX_SIMULTANEOUS_KH101) return false;
+      if (count >= WAVES.maxSimKh101) return false;
     }
     return true;
   }
