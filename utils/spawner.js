@@ -2,13 +2,11 @@
 // CLOSE THE SKY — spawner.js
 // Wave-aware spawner. Reads from WAVES (waves.js).
 // Campaign: roster with from/weight/max, counts spawned enemies.
-// Arcade: phase1 roster, phase2 sequence+triggered, phase3 procedural.
+// Arcade: phase1 sequenced, phase2 sequenced, phase3 procedural.
 // ============================================================
 
 class Spawner {
   constructor() {
-    this.G = CONFIG.GAME;
-
     this._lastSpawnTime   = 0;
     this._nextSpawnDelay  = 0;
     this._spawnLockUntil  = 0;
@@ -71,23 +69,26 @@ class Spawner {
     this._arcadeSeqIndex    = 0;
     this._arcadeSeqSpawned  = 0;
 
+    const P1      = WAVES.arcade.phase1;  // array of wave defs
+    const P2      = WAVES.arcade.phase2;  // array of wave defs
     const P3start = WAVES.arcade.phase3.startWave;
-    const P2      = WAVES.arcade.phase2;
 
-    if (waveNum <= 5) {
-      this._arcadePhase = 1;
-      const ph1  = WAVES.arcade.phase1;
-      const wIdx = waveNum - 1;
-      this._arcadeWaveTotal = ph1.waves[wIdx] ? ph1.waves[wIdx].total : ph1.waves[ph1.waves.length - 1].total;
-      this._intervalMin     = ph1.spawnMin;
-      this._intervalMax     = ph1.spawnMax;
-      this._spawnCount      = Array.isArray(ph1.spawnCount) ? ph1.spawnCount : [ph1.spawnCount];
-      this._maxSim          = ph1.maxSim;
-      this._arcadeRoster    = ph1.roster;
+    if (waveNum <= P1.length) {
+      // Phase 1 — sequenced (same format as phase 2)
+      this._arcadePhase = 2;  // reuse phase2 spawning logic
+      const wDef = P1[waveNum - 1];
+      this._arcadeWaveTotal = wDef.total;
+      this._intervalMin     = wDef.spawnMin;
+      this._intervalMax     = wDef.spawnMax;
+      this._spawnCount      = Array.isArray(wDef.spawnCount) ? wDef.spawnCount : [wDef.spawnCount];
+      this._maxSim          = wDef.maxSim;
+      this._arcadeSequence  = wDef.sequence || [];
+      this._arcadeTriggered = (wDef.triggered || []).slice();
 
-    } else if (waveNum < P3start) {
+    } else if (waveNum <= P1.length + P2.length && waveNum < P3start) {
+      // Phase 2 — sequenced
       this._arcadePhase = 2;
-      const wDef = P2[waveNum - 6];
+      const wDef = P2[waveNum - P1.length - 1];
       this._arcadeWaveTotal = wDef.total;
       this._intervalMin     = wDef.spawnMin;
       this._intervalMax     = wDef.spawnMax;
@@ -97,6 +98,7 @@ class Spawner {
       this._arcadeTriggered = (wDef.triggered || []).slice();
 
     } else {
+      // Phase 3 — procedural
       this._arcadePhase = 3;
       this._loadPhase3Wave(waveNum);
     }
@@ -209,36 +211,9 @@ class Spawner {
   // ---- ARCADE SPAWNING ----
 
   _spawnArcadeBatch() {
-    if (this._arcadePhase === 1) return this._spawnPhase1Batch();
     if (this._arcadePhase === 2) return this._spawnPhase2Batch();
     if (this._arcadePhase === 3) return this._spawnPhase3Batch();
     return [];
-  }
-
-  _spawnPhase1Batch() {
-    const batch  = [];
-    const count  = this._pickSpawnCount();
-    const slots  = this._maxSim - this._activeEnemies.length;
-    const actual = Math.min(count, slots);
-
-    for (let i = 0; i < actual; i++) {
-      if (this._arcadeWaveSpawned >= this._arcadeWaveTotal) break;
-      const available = this._arcadeRoster.filter(r => {
-        if (r.from > this._arcadeCumulative) return false;
-        if (r.max !== undefined && (this._spawnedByType[r.type] || 0) >= r.max) return false;
-        return this._canSpawn(r.type);
-      });
-      if (available.length === 0) break;
-      const type  = this._weightedPick(available);
-      const enemy = this._makeEnemy(type);
-      if (enemy) {
-        batch.push(enemy);
-        this._arcadeWaveSpawned++;
-        this._arcadeCumulative++;
-        this._spawnedByType[type] = (this._spawnedByType[type] || 0) + 1;
-      }
-    }
-    return batch;
   }
 
   _spawnPhase2Batch() {
