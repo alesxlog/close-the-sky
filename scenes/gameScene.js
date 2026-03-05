@@ -5,13 +5,15 @@
 // ============================================================
 
 class GameScene {
-  constructor(canvas, ctx, mode, onGameOver, onPitstop, onPause) {
+  constructor(canvas, ctx, mode, onGameOver, onPitstop, onPause, waveNum = null, savedLoadout = null) {
     this.canvas = canvas;
     this.ctx = ctx;
     this.mode = mode;           // 'campaign' | 'arcade'
     this.onGameOver = onGameOver;
     this.onPitstop = onPitstop; // campaign only
     this.onPause = onPause;     // triggers PauseScene
+    this.arcadeWaveNum = waveNum; // For starting Arcade at specific wave
+    this.savedLoadout = savedLoadout; // Saved vehicle and weapons
 
     // Systems
     this._bg = CityBackground.get();
@@ -21,6 +23,11 @@ class GameScene {
     // Game state
     this.player = new Player('truck');
     this.player.addWeapon('mg');
+    
+    // Apply saved loadout if provided (for JOIN NATO functionality)
+    if (this.savedLoadout) {
+      this._applySavedLoadout();
+    }
 
     this.enemies = [];
     this.projectiles = [];
@@ -71,7 +78,50 @@ class GameScene {
       this._spawner.setEnemyList(this.enemies);
       this._waveStarted = false;
       this._inWavePause = false;
+      
+      // Start at specific wave if provided (for JOIN NATO)
+      if (this.arcadeWaveNum) {
+        this.waveNum = this.arcadeWaveNum;
+        this._spawner.loadArcadeWave(this.arcadeWaveNum);
+      }
     }
+  }
+
+  _applySavedLoadout() {
+    if (!this.savedLoadout) return;
+    
+    // Apply vehicle
+    if (this.savedLoadout.vehicle) {
+      this.player = new Player(this.savedLoadout.vehicle);
+    }
+    
+    // Apply weapons
+    if (this.savedLoadout.weapons) {
+      this.savedLoadout.weapons.forEach(weapon => {
+        this.player.addWeapon(weapon);
+      });
+    }
+    
+    // Apply upgrades
+    if (this.savedLoadout.upgrades) {
+      this.savedLoadout.upgrades.forEach(upgrade => {
+        this.player.applyUpgrade(upgrade);
+      });
+    }
+  }
+
+  _getNatoLoadout() {
+    // Get saved NATO loadout from localStorage
+    const saved = localStorage.getItem('natoLoadout');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse NATO loadout:', e);
+        return null;
+      }
+    }
+    return null;
   }
 
   _loadAttack(num) {
@@ -298,6 +348,9 @@ class GameScene {
   }
 
   _endGame(win, restart = false, exit = false) {
+    // Extract player loadout data for JOIN NATO functionality
+    const playerLoadout = this._extractPlayerLoadout();
+    
     this.onGameOver({
       win,
       restart,
@@ -308,7 +361,21 @@ class GameScene {
       attackNum: this.attackNum,
       waveNum: this.waveNum,
       timeElapsed: this.timeElapsed,
+      // Player loadout data for JOIN NATO
+      playerVehicle: playerLoadout.vehicle,
+      playerWeapons: playerLoadout.weapons,
+      playerUpgrades: playerLoadout.upgrades,
     });
+  }
+
+  _extractPlayerLoadout() {
+    // Extract current player loadout from game state
+    const loadout = {
+      vehicle: this.player.type || 'truck',
+      weapons: this.player.weapons ? this.player.weapons.map(w => w.type) : ['mg'],
+      upgrades: this.player.upgrades || []
+    };
+    return loadout;
   }
 
   // ----------------------------------------------------------

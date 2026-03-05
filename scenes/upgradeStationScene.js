@@ -38,7 +38,8 @@ class UpgradeStationScene extends SceneBase {
 
     // Owned checks
     if (item.id === 'truck')       return 'owned';
-    if (item.id === 'lav'          && p.garage.some(v => v.id === 'lav')) return 'owned';
+    if (item.id === 'lav' && p.garage.some(v => v.id === 'lav')) return 'owned';
+    if (item.id === 'lav' && p.hasWeapon('autocannon')) return 'owned';
     if (item.id === 'mg'           && p.hasWeapon('mg'))        return 'owned';
     if (item.id === 'mg_double')   { const mg = p.weapons.find(w => w.id === 'mg');       if (mg && mg.doubleBarrel) return 'owned'; }
     if (item.id === 'autocannon'   && p.hasWeapon('autocannon'))return 'owned';

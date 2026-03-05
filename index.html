@@ -132,7 +132,7 @@
         startLoop(brief);
       }
 
-      function startGame(mode) {
+      function startGame(mode, waveNum = null, savedLoadout = null) {
 
         function launchScene() {
           let gameScene = null;
@@ -165,7 +165,7 @@
               () => {
                 pause.destroy();
                 gameScene.destroy();
-                startGame(mode);
+                startGame(mode, waveNum, savedLoadout);
               },
               // Exit
               () => {
@@ -182,10 +182,10 @@
             // onGameOver
             (stats) => {
               if (currentScene && currentScene.destroy) currentScene.destroy();
-              if (stats.restart) { startGame(mode); return; }
+              if (stats.restart) { startGame(mode, waveNum, savedLoadout); return; }
               if (stats.exit)    { showMenu(); return; }
               const go = new GameOverScene(canvas, ctx, stats,
-                () => { go.destroy(); startGame(mode); },
+                () => { go.destroy(); startGame(mode, waveNum, savedLoadout); },
                 () => { go.destroy(); showMenu(); }
               );
               startLoop(go);
@@ -219,7 +219,10 @@
               startLoop(interlude);
             },
             // onPause
-            onPause
+            onPause,
+            // Additional parameters for JOIN NATO functionality
+            waveNum,
+            savedLoadout
           );
           startLoop(gameScene);
         }

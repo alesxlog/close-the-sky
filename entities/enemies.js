@@ -142,6 +142,7 @@ class Geran2 extends EnemyBase {
     super('geran2', x);
     this.startX = x;
     this.hasFlipped = false;
+    this.horizontalDirection = Math.random() < 0.5 ? -1 : 1; // Random left or right at spawn
   }
 
   update(dt) {
@@ -154,15 +155,15 @@ class Geran2 extends EnemyBase {
     // Calculate progress through screen (0 to 1)
     const progress = Math.max(0, Math.min(1, (this.y - CANVAS.PLAY_TOP) / (CANVAS.PLAY_BOTTOM - CANVAS.PLAY_TOP)));
     
-    // Determine if we should flip
+    // Determine if we should flip vertically
     if (!this.hasFlipped && progress >= cfg.flipProgress) {
       this.hasFlipped = true;
     }
 
-    // Calculate diagonal movement with flip
+    // Calculate diagonal movement with vertical flip and random horizontal direction
     const angleRad = (cfg.diagonalAngle * Math.PI) / 180;
-    const direction = this.hasFlipped ? -1 : 1; // Flip direction vertically
-    const horizontalSpeed = Math.sin(angleRad) * cfg.speed * direction;
+    const verticalDirection = this.hasFlipped ? -1 : 1; // Flip direction vertically
+    const horizontalSpeed = Math.sin(angleRad) * cfg.speed * verticalDirection * this.horizontalDirection;
     
     // Update horizontal position
     this.x += horizontalSpeed * dt;

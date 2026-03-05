@@ -12,7 +12,7 @@ const WAVES = {
   // ----------------------------------------------------------
   wavePause:           1000,   // ms between arcade waves
   spawnLockAfterDeath: 1000,   // ms no-spawn after car destroyed
-  maxSimHighTier:      8,      // max simultaneous Kh-555 / Kalibr / Kh-101
+  maxSimHighTier:      3,      // max simultaneous Kh-555 / Kalibr / Kh-101
   maxSimKh101:         2,      // max simultaneous Kh-101
   noHighTierFirst:     1000,  // ms — no high-tier in first N ms of attack
 
@@ -21,101 +21,79 @@ const WAVES = {
   // ----------------------------------------------------------
   campaign: {
     attack1: {
-      total: 16,
+      total: 10,
       maxSim: 2,
-      spawnMin: 2000,
-      spawnMax: 4000,
+      spawnMin: 2500,
+      spawnMax: 5000,
       spawnCount: [1],
       roster: [
         { type: 'geran1', from: 0, weight: 1 },
-        { type: 'geran2', from: 8, weight: 1 }
+        { type: 'geran2', from: 5, weight: 1 }
       ],
-      // Campaign metadata for progression
-      totalEnemies: (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_TOTAL : 20),
-      minDistance: (typeof TUNING !== 'undefined' ? TUNING.ATTACK1_MIN_DISTANCE : 200),
-      noHighTierFirst: true, 
       pitstopAfter: true,
     },
 
     attack2: {
-      total: 24,
-      maxSim: 3,
-      spawnMin: 2500,
-      spawnMax: 5000,
-      spawnCount: [1,2],
-      spawnGap: 100,
+      total: 20,
+      maxSim: 2,
+      spawnMin: 2000,
+      spawnMax: 3500,
+      spawnCount: [1],
       roster: [
-        { type: 'geran1', from: 8, weight: 1 },
-        { type: 'geran2', from: 0, weight: 2 },
-        { type: 'geran3', from: 16, weight: 2,},
+        { type: 'geran1', from: 0, weight: 1 },
+        { type: 'geran2', from: 5, weight: 2, max: 5 },
+        { type: 'geran3', from: 10, weight: 1},
       ],
-      // Campaign metadata for progression
-      totalEnemies: (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_TOTAL : 40),
-      minDistance: (typeof TUNING !== 'undefined' ? TUNING.ATTACK2_MIN_DISTANCE : 300),
-      noHighTierFirst: true, 
       pitstopAfter: true,
     },
 
     attack3: {
-      total: 32,
+      total: 25,
       maxSim: 3,
-      spawnMin: 2500,
-      spawnMax: 5000,
-      spawnCount: [2],
-      spawnGap: 200,
+      spawnMin: 2000,
+      spawnMax: 4000,
+      spawnCount: [1],
       roster: [
-        { type: 'geran1', from: 24, weight: 1 },
-        { type: 'geran2', from: 0, weight: 1 },
-        { type: 'geran3', from: 8, weight: 1 },
-        { type: 'kh555',  from: 16, weight: 1, max: 4 },
+        { type: 'geran1', from: 10, weight: 1 },
+        { type: 'geran2', from: 0, weight: 2 },
+        { type: 'geran3', from: 5, weight: 2, max: 7 },
+        { type: 'kh555',  from: 15, weight: 1, max: 3 },
       ],
-      // Campaign metadata for progression
-      totalEnemies: (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_TOTAL : 60),
-      minDistance: (typeof TUNING !== 'undefined' ? TUNING.ATTACK3_MIN_DISTANCE : 180),
-      noHighTierFirst: true, 
       pitstopAfter: true,
     },
 
     attack4: {
-      total: 40,
+      total: 32,
       maxSim: 3,
       spawnMin: 3000,
-      spawnMax: 6000,
-      spawnCount: [2,3],
-      spawnGap: 300,
+      spawnMax: 5000,
+      spawnCount: [1, 2],
+      spawnGap: 400,
       roster: [
-        { type: 'geran1', from: 0, weight: 1 },
-        { type: 'geran2', from: 4, weight: 1 },
-        { type: 'geran3', from: 8, weight: 1 },
-        { type: 'kh555',  from: 24, weight: 1, max: 4 },
-        { type: 'kalibr', from: 32, weight: 2, max: 3 },
+        { type: 'geran1', from: 20, weight: 1 },
+        { type: 'geran2', from: 5, weight: 2 },
+        { type: 'geran3', from: 0, weight: 2 },
+        { type: 'kh555',  from: 10, weight: 1, max: 5 },
+        { type: 'kalibr', from: 30, weight: 3, max: 2 },
       ],
-      // Campaign metadata for progression
-      totalEnemies: 80,
-      minDistance: (typeof TUNING !== 'undefined' ? TUNING.ATTACK4_MIN_DISTANCE : 160),
-      noHighTierFirst: true, 
       pitstopAfter: true,
     },
 
     attack5: {
-      total: 50,
+      total: 33,
       maxSim: 3,
-      spawnMin: 2500,
-      spawnMax: 5000,
+      spawnMin: 3000,
+      spawnMax: 6000,
       spawnCount: [1, 2, 3],
       spawnGap: 400,
       roster: [
-        { type: 'geran1', from: 0, weight: 1 },
-        { type: 'geran2', from: 8, weight: 1 },
-        { type: 'geran3', from: 16, weight: 1 },
-        { type: 'kh555',  from: 24, weight: 1, max: 4 },
-        { type: 'kalibr', from: 32, weight: 1, max: 3 },
-        { type: 'kh101',  from: 40, weight: 1, max: 2 },
+        { type: 'geran1', from: 10, weight: 1 },
+        { type: 'geran2', from: 15, weight: 2 },
+        { type: 'geran3', from: 5, weight: 3 },
+        { type: 'kh555',  from: 20, weight: 1, max: 6 },
+        { type: 'kalibr', from: 0, weight: 1, max: 4 },
+        { type: 'kh101',  from: 32, weight: 1, max: 2 },
       ],
-      // Campaign metadata for progression
-      totalEnemies: (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_TOTAL : 100),
-      minDistance: (typeof TUNING !== 'undefined' ? TUNING.ATTACK5_MIN_DISTANCE : 140),
-      noHighTierFirst: true, 
       pitstopAfter: false,
     },
   },

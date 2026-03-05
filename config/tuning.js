@@ -8,11 +8,11 @@ const TUNING = {
   // ================================================================
   // VEHICLES
   // ================================================================
-  TRUCK_SPEED:  200,
+  TRUCK_SPEED:  180,
   TRUCK_HP:     2,
   TRUCK_SLOTS:  2,
 
-  LAV_SPEED:    190,
+  LAV_SPEED:    200,
   LAV_HP:       3,
   LAV_SLOTS:    4,
 
@@ -47,8 +47,8 @@ const TUNING = {
   GERAN2_SPEED:          140,
   GERAN3_SPEED_NORMAL:   120,
   GERAN3_SPEED_TERMINAL: 150,
-  KH555_SPEED:           100,
-  KALIBR_SPEED:          125,
+  KH555_SPEED:           130,
+  KALIBR_SPEED:          140,
   KH101_SPEED:           150,
 
   // ================================================================
@@ -57,9 +57,9 @@ const TUNING = {
   GERAN1_HP:  3,
   GERAN2_HP:  4,
   GERAN3_HP:  5,
-  KH555_HP:   8,
-  KALIBR_HP:  9,
-  KH101_HP:   10,
+  KH555_HP:   9,
+  KALIBR_HP:  11,
+  KH101_HP:   13,
 
   // ================================================================
   // ENEMY KILL POINTS
@@ -67,43 +67,43 @@ const TUNING = {
   GERAN1_PTS:  11,
   GERAN2_PTS:  13,
   GERAN3_PTS:  17,
-  KH555_PTS:   33,
-  KALIBR_PTS:  44,
-  KH101_PTS:   55,
+  KH555_PTS:   30,
+  KALIBR_PTS:  40,
+  KH101_PTS:   50,
 
   // ================================================================
   // ENEMY TRAJECTORIES
   // ================================================================
-  GERAN1_DIAGONAL_ANGLE:    15,
+  GERAN1_DIAGONAL_ANGLE:    20,
   GERAN3_DIAGONAL_ANGLE:    60,
   GERAN3_TERMINAL_TIME:     4000,
 
-  GERAN2_DIAGONAL_ANGLE:    30,
+  GERAN2_DIAGONAL_ANGLE:    40,
   GERAN2_FLIP_PROGRESS:     0.5,  // Flip at 50% of screen height
 
-  KH101_DIAGONAL_ANGLE:  120,
-  KH555_SINE_AMPLITUDE:  160,
-  KH555_SINE_PERIOD:     4000,
-  KALIBR_SINE_AMPLITUDE: 320,
+  KH101_DIAGONAL_ANGLE:  80,
+  KH555_SINE_AMPLITUDE:  300,
+  KH555_SINE_PERIOD:     3000,
+  KALIBR_SINE_AMPLITUDE: 30,
   KALIBR_SINE_PERIOD:    3000,
 
   // ================================================================
   // COSTS
   // ================================================================
-  COST_LAV:          300,
-  COST_MG:           100,
-  COST_MG_DOUBLE:    100,
-  COST_AUTOCANNON:   200,
-  COST_AC_DOUBLE:    200,
-  COST_SAM:          350,
-  COST_SAM_2ROCKETS: 350,
+  COST_LAV:          200,
+  COST_MG:           90,
+  COST_MG_DOUBLE:    90,
+  COST_AUTOCANNON:   400,
+  COST_AC_DOUBLE:    400,
+  COST_SAM:          300,
+  COST_SAM_2ROCKETS: 500,
 
   // ================================================================
   // ARCADE UPGRADES
   // ================================================================
   ARCADE_UPGRADE_1_THRESHOLD: 100,
-  ARCADE_UPGRADE_2_THRESHOLD: 300,
-  ARCADE_UPGRADE_3_THRESHOLD: 500,
-  ARCADE_UPGRADE_4_THRESHOLD: 900,
-  ARCADE_UPGRADE_5_THRESHOLD: 1300,
+  ARCADE_UPGRADE_2_THRESHOLD: 200,
+  ARCADE_UPGRADE_3_THRESHOLD: 300,
+  ARCADE_UPGRADE_4_THRESHOLD: 400,
+  ARCADE_UPGRADE_5_THRESHOLD: 500,
 };
