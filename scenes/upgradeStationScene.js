@@ -22,14 +22,70 @@ class UpgradeStationScene extends SceneBase {
 
   _getCatalog() {
     return [
-      { id: 'truck',      name: 'Pickup Truck',         type: 'vehicle', imgSrc: 'assets/images/b_truck.png',         stats: 'HP 2 · SLOTS 2 · SPD 420', cost: 0 },
-      { id: 'lav',        name: 'Light Armoured Vehicle',type: 'vehicle', imgSrc: 'assets/images/b_lav.png',           stats: 'HP 3 · SLOTS 4 · SPD 330', cost: 300 },
-      { id: 'mg',         name: 'Machine Gun',           type: 'weapon',  imgSrc: 'assets/images/b_machinegun.png',    stats: 'DMG 1 · SLOTS 1',          cost: 100 },
-      { id: 'mg_double',  name: 'Double Barrel MG',      type: 'weapon',  imgSrc: 'assets/images/b_machinegun2b.png',  stats: 'DMG 1×2 · SLOTS 1',        cost: 100 },
-      { id: 'autocannon', name: 'Autocannon 20mm',       type: 'weapon',  imgSrc: 'assets/images/b_autocannon.png',    stats: 'DMG 3 · SLOTS 2',          cost: 200 },
-      { id: 'ac_double',  name: 'Twin Barrel Autocannon',type: 'weapon',  imgSrc: 'assets/images/b_autocannon2b.png',  stats: 'DMG 3×2 · SLOTS 2',        cost: 200 },
-      { id: 'sam',        name: 'SAM Launcher',          type: 'weapon',  imgSrc: 'assets/images/b_sam1.png',          stats: 'DMG 7 · SLOTS 2',          cost: 350 },
-      { id: 'sam_2rockets',name:'SAM Launcher (×2)',      type: 'weapon',  imgSrc: 'assets/images/b_sam2.png',          stats: 'DMG 7×2 · SLOTS 2',        cost: 350 },
+      { 
+        id: 'truck',      
+        name: 'Pickup Truck',         
+        type: 'vehicle', 
+        imgSrc: 'assets/images/b_truck.png',         
+        stats: `HP ${typeof TUNING !== 'undefined' ? TUNING.TRUCK_HP : 2} · SLOTS ${typeof TUNING !== 'undefined' ? TUNING.TRUCK_SLOTS : 2} · SPD ${typeof TUNING !== 'undefined' ? TUNING.TRUCK_SPEED : 180}`, 
+        cost: 0 
+      },
+      { 
+        id: 'lav',        
+        name: 'Light Armoured Vehicle',
+        type: 'vehicle', 
+        imgSrc: 'assets/images/b_lav.png',           
+        stats: `HP ${typeof TUNING !== 'undefined' ? TUNING.LAV_HP : 3} · SLOTS ${typeof TUNING !== 'undefined' ? TUNING.LAV_SLOTS : 4} · SPD ${typeof TUNING !== 'undefined' ? TUNING.LAV_SPEED : 200}`, 
+        cost: typeof TUNING !== 'undefined' ? TUNING.COST_LAV : 200 
+      },
+      { 
+        id: 'mg',         
+        name: 'Machine Gun',           
+        type: 'weapon',  
+        imgSrc: 'assets/images/b_machinegun.png',    
+        stats: `DMG ${typeof TUNING !== 'undefined' ? TUNING.MG_DAMAGE : 1} · SLOTS 1`,          
+        cost: typeof TUNING !== 'undefined' ? TUNING.COST_MG : 100 
+      },
+      { 
+        id: 'mg_double',  
+        name: 'Double Barrel MG',      
+        type: 'weapon',  
+        imgSrc: 'assets/images/b_machinegun2b.png',  
+        stats: `DMG ${typeof TUNING !== 'undefined' ? TUNING.MG_DAMAGE : 1}×2 · SLOTS 1`,        
+        cost: typeof TUNING !== 'undefined' ? TUNING.COST_MG_DOUBLE : 125 
+      },
+      { 
+        id: 'autocannon', 
+        name: 'Autocannon 20mm',       
+        type: 'weapon',  
+        imgSrc: 'assets/images/b_autocannon.png',    
+        stats: `DMG ${typeof TUNING !== 'undefined' ? TUNING.AUTOCANNON_DAMAGE : 2} · SLOTS 2`,          
+        cost: typeof TUNING !== 'undefined' ? TUNING.COST_AUTOCANNON : 400 
+      },
+      { 
+        id: 'ac_double',  
+        name: 'Twin Barrel Autocannon',
+        type: 'weapon',  
+        imgSrc: 'assets/images/b_autocannon2b.png',  
+        stats: `DMG ${typeof TUNING !== 'undefined' ? TUNING.AUTOCANNON_DAMAGE : 2}×2 · SLOTS 2`,        
+        cost: typeof TUNING !== 'undefined' ? TUNING.COST_AC_DOUBLE : 400 
+      },
+      { 
+        id: 'sam',        
+        name: 'SAM Launcher',          
+        type: 'weapon',  
+        imgSrc: 'assets/images/b_sam1.png',          
+        stats: `DMG ${typeof TUNING !== 'undefined' ? TUNING.SAM_DAMAGE : 8} · SLOTS 2`,          
+        cost: typeof TUNING !== 'undefined' ? TUNING.COST_SAM : 300 
+      },
+      { 
+        id: 'sam_2rockets',
+        name:'SAM Launcher (×2)',      
+        type: 'weapon',  
+        imgSrc: 'assets/images/b_sam2.png',          
+        stats: `DMG ${typeof TUNING !== 'undefined' ? TUNING.SAM_DAMAGE : 8}×2 · SLOTS 2`,        
+        cost: typeof TUNING !== 'undefined' ? TUNING.COST_SAM_2ROCKETS : 500 
+      },
     ];
   }
 
@@ -48,12 +104,12 @@ class UpgradeStationScene extends SceneBase {
     if (item.id === 'sam_2rockets'){ const sam = p.weapons.find(w => w.id === 'sam');     if (sam && sam.twoRockets) return 'owned'; }
 
     // Prerequisites / exclusions
-    if (item.id === 'mg'           && p.hasWeapon('autocannon'))  return 'unavailable';
-    if (item.id === 'mg_double'    && !p.hasWeapon('mg'))         return 'unavailable';
-    if (item.id === 'mg_double'    && p.hasWeapon('autocannon'))  return 'unavailable';
-    if (item.id === 'autocannon'   && !p.hasWeapon('mg'))         return 'unavailable';
-    if (item.id === 'ac_double'    && !p.hasWeapon('autocannon')) return 'unavailable';
-    if (item.id === 'sam_2rockets' && !p.hasWeapon('sam'))        return 'unavailable';
+    if (item.id === 'mg' && p.hasWeapon('autocannon')) return 'unavailable';
+    if (item.id === 'mg_double' && !p.hasWeapon('mg')) return 'unavailable';
+    if (item.id === 'mg_double' && p.hasWeapon('autocannon')) return 'unavailable';
+    if (item.id === 'autocannon' && !p.hasWeapon('mg')) return 'unavailable';
+    if (item.id === 'ac_double' && !p.hasWeapon('autocannon') && !p.hasWeapon('mg')) return 'unavailable';
+    if (item.id === 'sam_2rockets' && !p.hasWeapon('sam')) return 'unavailable';
     if (item.type === 'weapon') {
       const def = CONFIG.WEAPONS[item.id.toUpperCase()];
       if (def && p.slotsUsed + def.slots > p.vehicle.slots) return 'unavailable';
@@ -73,10 +129,24 @@ class UpgradeStationScene extends SceneBase {
     } else if (item.id === 'mg_double') {
       p.upgradeDoubleBarrel('mg');
     } else if (item.id === 'autocannon') {
+      // Handle upgrade from mg or mg_double to autocannon
       const mgIdx = p.weapons.findIndex(w => w.id === 'mg');
-      if (mgIdx !== -1) { p.slotsUsed -= p.weapons[mgIdx].def.slots; p.weapons.splice(mgIdx, 1); }
+      if (mgIdx !== -1) { 
+        p.slotsUsed -= p.weapons[mgIdx].def.slots; 
+        p.weapons.splice(mgIdx, 1); 
+      }
       p.addWeapon('autocannon');
     } else if (item.id === 'ac_double') {
+      // Handle upgrade from autocannon or mg_double to ac_double
+      const mgIdx = p.weapons.findIndex(w => w.id === 'mg');
+      if (mgIdx !== -1) { 
+        p.slotsUsed -= p.weapons[mgIdx].def.slots; 
+        p.weapons.splice(mgIdx, 1); 
+      }
+      // Add autocannon if not already present, then upgrade to double
+      if (!p.hasWeapon('autocannon')) {
+        p.addWeapon('autocannon');
+      }
       p.upgradeDoubleBarrel('autocannon');
     } else if (item.id === 'sam') {
       p.addWeapon('sam');

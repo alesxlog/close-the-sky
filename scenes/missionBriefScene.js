@@ -87,13 +87,18 @@ class MissionBriefScene extends SceneBase {
       let y = 0;
 
       y += TabletUI.drawTitle(cctx, y, 'MISSION BRIEF', {});
-      y += TabletUI.drawSubtitle(cctx, y, 'INBOX  //  UPDATES  //  INTEL', {});
       y += TabletUI.drawDivider(cctx, y, cw);
       y += TabletUI.drawHeader(cctx, y, `Intelligence Report — Attack ${scene.attackNum}`, cw);
       y += 4;
       y += TabletUI.drawBody(cctx, y, brief.body, cw, { highlights: brief.highlights });
-      y += 16;
+      
+      // Add padding to push button to bottom of screen
+      const remainingSpace = this._tablet.SCREEN_H - this._tablet.CONTENT_PAD * 2 - y - 48;
+      if (remainingSpace > 0) {
+        y += remainingSpace;
+      }
 
+      // Footer - positioned at bottom of screen
       scene._btnDeployY = y;
       y += TabletUI.drawButton(cctx, y, 'DEPLOY', cw);
 

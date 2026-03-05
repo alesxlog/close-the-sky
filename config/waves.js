@@ -21,10 +21,10 @@ const WAVES = {
   // ----------------------------------------------------------
   campaign: {
     attack1: {
-      total: 10,
+      total: 11,
       maxSim: 2,
-      spawnMin: 2500,
-      spawnMax: 5000,
+      spawnMin: 3000,
+      spawnMax: 6000,
       spawnCount: [1],
       roster: [
         { type: 'geran1', from: 0, weight: 1 },
@@ -37,7 +37,7 @@ const WAVES = {
       total: 20,
       maxSim: 2,
       spawnMin: 2000,
-      spawnMax: 3500,
+      spawnMax: 4000,
       spawnCount: [1],
       roster: [
         { type: 'geran1', from: 0, weight: 1 },
@@ -48,16 +48,16 @@ const WAVES = {
     },
 
     attack3: {
-      total: 25,
+      total: 26,
       maxSim: 3,
       spawnMin: 2000,
       spawnMax: 4000,
       spawnCount: [1],
       roster: [
         { type: 'geran1', from: 10, weight: 1 },
-        { type: 'geran2', from: 0, weight: 2 },
-        { type: 'geran3', from: 5, weight: 2, max: 7 },
-        { type: 'kh555',  from: 15, weight: 1, max: 3 },
+        { type: 'geran2', from: 0, weight: 1 },
+        { type: 'geran3', from: 5, weight: 1, max: 7 },
+        { type: 'kh555',  from: 20, weight: 1, max: 2 },
       ],
       pitstopAfter: true,
     },
@@ -108,11 +108,11 @@ const WAVES = {
 
     // Upgrade progression
     UPGRADES: [
-      { step: 1, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_1_THRESHOLD : 100),  upgrade: 'mg_double',      enemyUnlock: 'geran3' },
-      { step: 2, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_2_THRESHOLD : 400),  upgrade: 'lav_autocannon', enemyUnlock: 'kh555'  },
-      { step: 3, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_3_THRESHOLD : 750),  upgrade: 'sam',            enemyUnlock: 'kalibr' },
-      { step: 4, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_4_THRESHOLD : 950),  upgrade: 'ac_double',      enemyUnlock: null     },
-      { step: 5, cumulative: (typeof TUNING !== 'undefined' ? TUNING.ARCADE_UPGRADE_5_THRESHOLD : 1300), upgrade: 'sam_2rockets',   enemyUnlock: 'kh101'  },
+      { step: 1, cumulative: 100, upgrade: 'mg_double' },
+      { step: 2, cumulative: 200, upgrade: 'lav_autocannon' },
+      { step: 3, cumulative: 300, upgrade: 'sam' },
+      { step: 4, cumulative: 400, upgrade: 'ac_double' },
+      { step: 5, cumulative: 500, upgrade: 'sam_2rockets' },
     ],
 
     // Phase 1: Learning (waves 1-5) — sequenced
@@ -126,7 +126,7 @@ const WAVES = {
         spawnCount: [1],
         roster: [
           { type: 'geran1', weight: 2 },
-          { type: 'geran2', weight: 1 }
+          { type: 'geran2', from: 4, weight: 1 }
         ],
       },
 
@@ -153,7 +153,7 @@ const WAVES = {
         roster: [
           { type: 'geran1', weight: 1 },
           { type: 'geran2', weight: 2 },
-          { type: 'geran3', weight: 1 }
+          { type: 'geran3', from: 10, weight: 1 }
         ],
       },
 
@@ -180,8 +180,8 @@ const WAVES = {
         spawnCount: [1, 2],
         roster: [
           { type: 'geran1', weight: 1 },
-          { type: 'geran2', weight: 2 },
-          { type: 'geran3', weight: 2 }
+          { type: 'geran2', weight: 1 },
+          { type: 'geran3', weight: 1 }
         ],
       },
     ],
@@ -198,7 +198,8 @@ const WAVES = {
         roster: [
           { type: 'geran1', weight: 1 },
           { type: 'geran2', weight: 1 },
-          { type: 'geran3', weight: 2 }
+          { type: 'geran3', weight: 2 },
+          { type: 'kh555', from: 20, weight: 1, max: 1 },
         ],
       },
 
@@ -212,7 +213,8 @@ const WAVES = {
         roster: [
           { type: 'geran1', weight: 1 },
           { type: 'geran2', weight: 2 },
-          { type: 'geran3', weight: 2 }
+          { type: 'geran3', weight: 2 },
+          { type: 'kh555', from: 20, weight: 1, max: 2 },
         ],
       },
 
@@ -227,8 +229,8 @@ const WAVES = {
           { type: 'geran1', weight: 2 },
           { type: 'geran2', weight: 2 },
           { type: 'geran3', weight: 1 },
-          { type: 'kh555', weight: 1 },
-          { type: 'kalibr', weight: 1 }
+          { type: 'kh555', weight: 1, max: 3 },
+          { type: 'kalibr', weight: 1, max: 1 }
         ],
       },
 
@@ -243,8 +245,8 @@ const WAVES = {
           { type: 'geran1', weight: 1 },
           { type: 'geran2', weight: 2 },
           { type: 'geran3', weight: 2 },
-          { type: 'kh555', weight: 1 },
-          { type: 'kalibr', weight: 1 }
+          { type: 'kh555', weight: 1, max: 4 },
+          { type: 'kalibr', weight: 1, max: 2 }
         ],
       },
 
@@ -259,14 +261,11 @@ const WAVES = {
           { type: 'geran1', weight: 2 },
           { type: 'geran2', weight: 2 },
           { type: 'geran3', weight: 2 },
-          { type: 'kh555', weight: 1 },
-          { type: 'kalibr', weight: 1 }
+          { type: 'kh555', weight: 1, max: 5 },
+          { type: 'kalibr', weight: 1, max: 3 }
         ],
         triggered: [
-          { type: 'kh101', spawnAt: 40 },
-          { type: 'kh101', spawnAt: 44 },
-          { type: 'kh101', spawnAt: 46 },
-          { type: 'kh101', spawnAt: 48 },
+          { type: 'kh101', spawnAt: 49 },
           { type: 'kh101', spawnAt: 50 },
         ],
       },

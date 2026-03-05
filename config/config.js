@@ -256,9 +256,9 @@ const CONFIG = {
   // EXPLOSION
   // ----------------------------------------------------------
   EXPLOSION: {
-    WIDTH: 100,
-    HEIGHT: 100,
-    DURATION: 1500,       // ms
+    WIDTH: 80,
+    HEIGHT: 80,
+    DURATION: 1000,       // ms
     COLORS: ['#ff6600', '#ff9900', '#ffcc00', '#ffffff'],
   },
 

@@ -49,7 +49,6 @@ class MenuScene extends SceneBase {
       let y = 0;
 
       y += TabletUI.drawTitle(cctx, y, 'MAIN MENU', { center: true, width: cw });
-      y += TabletUI.drawSubtitle(cctx, y, 'Close the Sky — Air Defence Simulator', { center: true, width: cw });
       y += TabletUI.drawDivider(cctx, y, cw);
       y += 8;
       y += TabletUI.drawBody(cctx, y, 'Select your mission, Commander. The skies won\'t defend themselves.', cw);

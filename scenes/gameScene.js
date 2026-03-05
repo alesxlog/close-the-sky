@@ -49,19 +49,22 @@ class GameScene {
     this._attackEnemiesLeft = 0;
 
     // Weapon cooldowns
-    this._cooldowns = { mg: 0, autocannon: 0 };
+    this._cooldowns = { 
+      mg: (typeof TUNING !== 'undefined' ? TUNING.MG_COOLDOWN : 500), 
+      autocannon: (typeof TUNING !== 'undefined' ? TUNING.AUTOCANNON_COOLDOWN : 300) 
+    };
 
     // SAM state
-    this._samState = { lockTarget: null, lockTimer: 0, cooldownUntil: 0 };
+    this._samState = { 
+      lockTarget: null, 
+      lockTimer: (typeof TUNING !== 'undefined' ? TUNING.SAM_LOCK_DELAY : 300), 
+      cooldownUntil: 0 
+    };
 
     // Timers
     this._spawnLocked = false;
     this._wavePauseTimer = 0;
     this._inWavePause = false;
-
-    // Arcade unlock state
-    this._arcadeStep = 0;
-    this._unlockedEnemyTypes = ['geran1', 'geran2'];
 
     this._initMode();
     this._bindInput();
@@ -217,7 +220,6 @@ class GameScene {
         if (this.killsByType[h.enemy.type] !== undefined) this.killsByType[h.enemy.type]++;
         this.points += h.enemy.cfg.killPts;
         this.cumulativePoints += h.enemy.cfg.killPts;
-        if (this.mode === 'arcade') this._checkArcadeUpgrades();
       }
     }
 
@@ -379,37 +381,6 @@ class GameScene {
   }
 
   // ----------------------------------------------------------
-  // ARCADE — upgrades
-  // ----------------------------------------------------------
-  _checkArcadeUpgrades() {
-    const steps = WAVES.arcade.UPGRADES;
-    while (this._arcadeStep < steps.length) {
-      const step = steps[this._arcadeStep];
-      if (this.cumulativePoints >= step.cumulative) {
-        this._applyArcadeUpgrade(step);
-        this._arcadeStep++;
-      } else break;
-    }
-  }
-
-  _applyArcadeUpgrade(step) {
-    const p = this.player;
-    switch (step.upgrade) {
-      case 'mg_double':      p.upgradeDoubleBarrel('mg');        break;
-      case 'lav_autocannon': p.upgradeToLAV();                    break;
-      case 'sam':            p.addWeapon('sam');                  break;
-      case 'ac_double':      p.upgradeDoubleBarrel('autocannon'); break;
-      case 'sam_2rockets': {
-        const sam = p.weapons.find(w => w.id === 'sam');
-        if (sam) sam.twoRockets = true;
-        break;
-      }
-    }
-    this._upgradeMsg = 'UPGRADE: ' + step.upgrade.toUpperCase().replace('_', ' ');
-    this._upgradeMsgTimer = 3000;
-  }
-
-  // ----------------------------------------------------------
   // DRAW
   // ----------------------------------------------------------
   draw(ctx) {
@@ -445,19 +416,6 @@ class GameScene {
       ctx.textAlign = 'center';
       ctx.fillText(`WAVE ${this.waveNum} CLEAR`, CONFIG.CANVAS.WIDTH / 2, 200);
       ctx.textAlign = 'left';
-    }
-
-    // Arcade upgrade notification
-    if (this._upgradeMsgTimer > 0) {
-      this._upgradeMsgTimer -= 16;
-      ctx.save();
-      ctx.globalAlpha = Math.min(1, this._upgradeMsgTimer / 500);
-      ctx.font = 'bold 36px monospace';
-      ctx.fillStyle = '#44ff88';
-      ctx.textAlign = 'center';
-      ctx.fillText(this._upgradeMsg, CONFIG.CANVAS.WIDTH / 2, 160);
-      ctx.textAlign = 'left';
-      ctx.restore();
     }
   }
 

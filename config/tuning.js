@@ -91,8 +91,8 @@ const TUNING = {
   // COSTS
   // ================================================================
   COST_LAV:          200,
-  COST_MG:           90,
-  COST_MG_DOUBLE:    90,
+  COST_MG:           100,
+  COST_MG_DOUBLE:    100,
   COST_AUTOCANNON:   400,
   COST_AC_DOUBLE:    400,
   COST_SAM:          300,

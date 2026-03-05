@@ -14,7 +14,7 @@ class Spawner {
 
     // Shared
     this._intervalMin  = 3000;
-    this._intervalMax  = 5000;
+    this._intervalMax  = 6000;
     this._spawnCount   = [1];
     this._maxSim       = 3;
 

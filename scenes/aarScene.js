@@ -9,7 +9,6 @@ class AARScene extends SceneBase {
     this._btnContinueY = 0;
 
     this._stats = this._computeStats();
-    this._logisticsMsg = this._getLogisticsMsg();
 
     this._tablet.registerListeners(this);
     this._on(this.canvas, 'click', (e) => this._handleClick(e), true);
@@ -43,33 +42,6 @@ class AARScene extends SceneBase {
       : totalKilled > 0 ? '∞' : '0';
 
     return { rows, totalKilled, totalMissed, totalSpawned, accuracy, ratio, totalPts };
-  }
-
-  _getLogisticsMsg() {
-    const pts    = this.gs.points;
-    const player = this.gs.player;
-
-    const hasWeapon  = (id) => player.weapons && player.weapons.some(w => w.id === id);
-    const hasVehicle = (id) => player.garage  && player.garage.some(v => v.id === id);
-
-    let vehicleAvail = !hasVehicle('lav') && pts >= CONFIG.VEHICLES.LAV.cost;
-    let weaponAvail  = false;
-
-    for (const item of CONFIG.PITSTOP.ITEMS) {
-      if (item.id === 'lav') continue;
-      if (pts < item.cost)   continue;
-      if (item.id === 'mg'           && hasWeapon('mg'))         continue;
-      if (item.id === 'autocannon'   && hasWeapon('autocannon')) continue;
-      if (item.id === 'sam'          && hasWeapon('sam'))        continue;
-      if (item.requires && !hasWeapon(item.requires))            continue;
-      weaponAvail = true;
-      break;
-    }
-
-    if (vehicleAvail && weaponAvail) return "Major restock! Vehicle and weapons — best selection we've had in a while.";
-    if (vehicleAvail)                return "Heads up — we've got a vehicle that fits your price range.";
-    if (weaponAvail)                 return "New shipment. Weapon upgrade available for your budget.";
-    return "Current stock is above your budget. The catalogue is open — plan ahead.";
   }
 
   _handleClick(e) {
@@ -145,10 +117,6 @@ class AARScene extends SceneBase {
       });
 
       y += TabletUI.drawBreakdownTable(cctx, y, columns, rows, cw);
-      y += 8;
-
-      // Logistics toast
-      y += TabletUI.drawToast(cctx, y, 'Logistics Officer', scene._logisticsMsg, cw);
       y += 8;
 
       // Footer

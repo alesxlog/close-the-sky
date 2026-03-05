@@ -441,7 +441,7 @@ class TabletUI {
     const color = options.color || '#7ecf5a';
     const width = options.width || 424;
 
-    ctx.font = `bold 28px ${FONT}`;
+    ctx.font = `bold 36px ${FONT}`;
     ctx.fillStyle = color;
     ctx.textAlign = align;
     const tx = align === 'center' ? width / 2 : 0;
@@ -456,7 +456,7 @@ class TabletUI {
     const color = options.color || 'rgba(126,207,90,0.45)';
     const width = options.width || 424;
 
-    ctx.font = `14px ${FONT}`;
+    ctx.font = `24px ${FONT}`;
     ctx.fillStyle = color;
     ctx.textAlign = align;
     const tx = align === 'center' ? width / 2 : 0;
@@ -488,7 +488,7 @@ class TabletUI {
 
   static drawHeader(ctx, y, text, width) {
     const FONT = "'Share Tech Mono', monospace";
-    ctx.font = `12px ${FONT}`;
+    ctx.font = `16px ${FONT}`;
     ctx.fillStyle = 'rgba(126,207,90,0.35)';
     ctx.letterSpacing = '2px';
     ctx.fillText(text.toUpperCase(), 0, y + 12);
@@ -508,8 +508,8 @@ class TabletUI {
 
   static drawBody(ctx, y, text, width, options = {}) {
     const FONT    = "'Share Tech Mono', monospace";
-    const fontSize = options.fontSize || 15;
-    const lineH    = options.lineHeight || 24;
+    const fontSize = options.fontSize || 22;
+    const lineH    = options.lineHeight || 32;
     const color    = options.color || '#a0c890';
     const highlights = options.highlights || [];
 
@@ -542,12 +542,12 @@ class TabletUI {
     const FONT = "'Share Tech Mono', monospace";
     const valueColor = options.valueColor || '#e0f0d0';
 
-    ctx.font = `15px ${FONT}`;
+    ctx.font = `20px ${FONT}`;
     ctx.fillStyle = '#a0c890';
     ctx.textAlign = 'left';
     ctx.fillText(label, 0, y + 15);
 
-    ctx.font = `bold 15px ${FONT}`;
+    ctx.font = `bold 20px ${FONT}`;
     ctx.fillStyle = valueColor;
     ctx.textAlign = 'right';
     ctx.fillText(value, width, y + 15);
@@ -575,65 +575,13 @@ class TabletUI {
     ctx.stroke();
 
     // Label
-    ctx.font = `bold 16px ${FONT}`;
+    ctx.font = `bold 20px ${FONT}`;
     ctx.fillStyle = secondary ? 'rgba(126,207,90,0.55)' : '#7ecf5a';
     ctx.textAlign = 'center';
     ctx.fillText(label, width / 2, y + h / 2 + 6);
     ctx.textAlign = 'left';
 
     return h + 10;
-  }
-
-  // ── Toast notification ──
-
-  static drawToast(ctx, y, from, message, width) {
-    const FONT = "'Share Tech Mono', monospace";
-    const PAD  = 14;
-    const msgFontSize = 12;
-    const lineH = 18;
-
-    // Measure message height
-    ctx.font = `${msgFontSize}px ${FONT}`;
-    const words = message.split(' ');
-    let lw = 0, lines = 1;
-    const maxW = width - PAD * 2;
-    for (const w of words) {
-      const ww = ctx.measureText(w + ' ').width;
-      if (lw + ww > maxW && lw > 0) { lines++; lw = 0; }
-      lw += ww;
-    }
-    const msgH = lines * lineH;
-    const totalH = PAD + 16 + 4 + msgH + PAD;
-
-    // Background
-    ctx.fillStyle = '#1a1400';
-    ctx.beginPath();
-    ctx.roundRect(0, y, width, totalH, 8);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(240,192,64,0.35)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.roundRect(0, y, width, totalH, 8);
-    ctx.stroke();
-
-    // From
-    ctx.font = `bold 12px ${FONT}`;
-    ctx.fillStyle = '#f0c040';
-    ctx.fillText(from, PAD, y + PAD + 12);
-
-    // Message (wrapped)
-    ctx.font = `${msgFontSize}px ${FONT}`;
-    ctx.fillStyle = 'rgba(240,192,64,0.7)';
-    let mx = PAD, my = y + PAD + 16 + 4 + msgFontSize;
-    for (const w of words) {
-      const str = w + ' ';
-      const ww = ctx.measureText(str).width;
-      if (mx - PAD + ww > maxW && mx > PAD) { mx = PAD; my += lineH; }
-      ctx.fillText(str, mx, my);
-      mx += ww;
-    }
-
-    return totalH + 8;
   }
 
   // ── Upgrade card ──
@@ -673,15 +621,15 @@ class TabletUI {
 
     // Text
     const tx = imgX + imgW + 12;
-    ctx.font = `bold 14px ${FONT}`;
+    ctx.font = `bold 24px ${FONT}`;
     ctx.fillStyle = '#e0f0d0';
     ctx.fillText(item.name, tx, y + 22);
 
-    ctx.font = `12px ${FONT}`;
+    ctx.font = `18px ${FONT}`;
     ctx.fillStyle = 'rgba(160,200,144,0.6)';
     ctx.fillText(item.stats || '', tx, y + 40);
 
-    ctx.font = `13px ${FONT}`;
+    ctx.font = `16px ${FONT}`;
     ctx.fillStyle = owned ? 'rgba(126,207,90,0.4)' : '#f0e080';
     ctx.fillText(owned ? 'OWNED' : `${item.cost} pts`, tx, y + 58);
 
@@ -701,7 +649,7 @@ class TabletUI {
       ctx.beginPath();
       ctx.roundRect(cbX, cbY, cbSize, cbSize, 4);
       ctx.fill();
-      ctx.font = `bold 14px ${FONT}`;
+      ctx.font = `bold 18px ${FONT}`;
       ctx.fillStyle = '#7ecf5a';
       ctx.textAlign = 'center';
       ctx.fillText('✓', cbX + cbSize / 2, cbY + cbSize / 2 + 5);
@@ -745,7 +693,7 @@ class TabletUI {
 
     // Data rows
     for (const row of rows) {
-      ctx.font = row.bold ? `bold 14px ${FONT}` : `14px ${FONT}`;
+      ctx.font = row.bold ? `bold 18px ${FONT}` : `18px ${FONT}`;
       if (row.dividerAbove) {
         ctx.strokeStyle = 'rgba(126,207,90,0.2)';
         ctx.lineWidth = 0.8;

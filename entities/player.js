@@ -60,14 +60,9 @@ class Player {
 
     this._addVehicle('lav', 'active');
     this._syncActiveVehicle();
-
-    // MG → Autocannon (atomic transform)
-    const mgIndex = this.weapons.findIndex(w => w.id === 'mg');
-    if (mgIndex !== -1) {
-      this.slotsUsed -= this.weapons[mgIndex].def.slots;
-      this.weapons.splice(mgIndex, 1);
-      this.addWeapon('autocannon');
-    }
+    
+    // Note: Weapon upgrades (MG → Autocannon) happen through pitstop shop
+    // LAV upgrade only changes the vehicle, keeps existing weapons
   }
 
   // Called when active vehicle HP hits 0
