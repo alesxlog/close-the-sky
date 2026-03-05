@@ -64,10 +64,15 @@ class Spawner {
   }
 
   _loadArcadeWave(waveNum) {
+    console.log('SPAWNER DEBUG: _loadArcadeWave called with waveNum:', waveNum);
     this._arcadeWave        = waveNum;
     this._arcadeWaveSpawned = 0;
     this._arcadeSeqIndex    = 0;
     this._arcadeSeqSpawned  = 0;
+    // Set spawn time in the past to allow immediate spawning
+    const past = performance.now() - 10000; // 10 seconds ago
+    this._lastSpawnTime     = past;
+    this._nextSpawnDelay    = 1000; // Small initial delay
 
     const P1      = WAVES.arcade.phase1;  // array of wave defs
     const P2      = WAVES.arcade.phase2;  // array of wave defs
@@ -155,7 +160,12 @@ class Spawner {
   }
 
   nextWave() {
-    this._loadArcadeWave(this._arcadeWave + 1);
+    const newWave = this._arcadeWave + 1;
+    console.log('SPAWNER DEBUG: nextWave() called', {
+      currentWave: this._arcadeWave,
+      newWave: newWave
+    });
+    this._loadArcadeWave(newWave);
   }
 
   getArcadeWave() {
@@ -166,15 +176,28 @@ class Spawner {
   update(totalSpawnedThisAttack) {
     const now = performance.now();
 
-    if (now < this._spawnLockUntil)                       return [];
-    if (this._activeEnemies.length >= this._maxSim)       return [];
-    if (now - this._lastSpawnTime < this._nextSpawnDelay) return [];
+    if (now < this._spawnLockUntil) {
+      console.log('SPAWN DEBUG: Blocked by spawn lock until', this._spawnLockUntil);
+      return [];
+    }
+    if (this._activeEnemies.length >= this._maxSim) {
+      console.log('SPAWN DEBUG: Blocked by max sim limit', this._activeEnemies.length, '>=', this._maxSim);
+      return [];
+    }
+    if (now - this._lastSpawnTime < this._nextSpawnDelay) {
+      console.log('SPAWN DEBUG: Blocked by spawn delay', now - this._lastSpawnTime, '<', this._nextSpawnDelay);
+      return [];
+    }
 
-    this._lastSpawnTime  = now;
-    this._nextSpawnDelay = this._randomInterval();
-
-    if (this._arcadeMode) return this._spawnArcadeBatch();
-    return this._spawnCampaignBatch(totalSpawnedThisAttack);
+    // Only update spawn time and delay after actually spawning
+    const batch = this._arcadeMode ? this._spawnArcadeBatch() : this._spawnCampaignBatch(totalSpawnedThisAttack);
+    
+    if (batch.length > 0) {
+      this._lastSpawnTime  = now;
+      this._nextSpawnDelay = this._randomInterval();
+    }
+    
+    return batch;
   }
 
   // ---- CAMPAIGN SPAWNING ----
@@ -211,6 +234,22 @@ class Spawner {
   // ---- ARCADE SPAWNING ----
 
   _spawnArcadeBatch() {
+    console.log('SPAWN DEBUG: _spawnArcadeBatch called', {
+      phase: this._arcadePhase,
+      waveNum: this._arcadeWave,
+      waveSpawned: this._arcadeWaveSpawned,
+      waveTotal: this._arcadeWaveTotal,
+      seqIndex: this._arcadeSeqIndex,
+      seqSpawned: this._arcadeSeqSpawned,
+      sequenceLength: this._arcadeSequence?.length
+    });
+    
+    // Don't spawn if wave is already complete
+    if (this._arcadeWaveSpawned >= this._arcadeWaveTotal) {
+      console.log('SPAWN DEBUG: Wave already complete, not spawning');
+      return [];
+    }
+    
     if (this._arcadePhase === 2) return this._spawnPhase2Batch();
     if (this._arcadePhase === 3) return this._spawnPhase3Batch();
     return [];
@@ -220,6 +259,13 @@ class Spawner {
     const batch = [];
     const slots = this._maxSim - this._activeEnemies.length;
     let   added = 0;
+    
+    console.log('PHASE2 DEBUG: Starting batch spawn', {
+      slots, maxSim: this._maxSim, activeEnemies: this._activeEnemies.length,
+      waveSpawned: this._arcadeWaveSpawned, waveTotal: this._arcadeWaveTotal,
+      seqIndex: this._arcadeSeqIndex, seqSpawned: this._arcadeSeqSpawned,
+      sequenceLength: this._arcadeSequence?.length
+    });
 
     // Triggered enemies — fire at specific wave-enemy counts
     if (this._arcadeTriggered) {
