@@ -135,13 +135,13 @@ class Geran1 extends EnemyBase {
 }
 
 // ============================================================
-// GERAN-2 — taller delta, slalom
+// GERAN-2 — taller delta, diagonal flip
 // ============================================================
 class Geran2 extends EnemyBase {
   constructor(x) {
     super('geran2', x);
     this.startX = x;
-    this.phase = Math.random() * Math.PI * 2;
+    this.hasFlipped = false;
   }
 
   update(dt) {
@@ -151,9 +151,25 @@ class Geran2 extends EnemyBase {
 
     this.y += cfg.speed * dt;
 
-    const progress = Math.max(0, (this.y - CANVAS.PLAY_TOP) / (CANVAS.PLAY_BOTTOM - CANVAS.PLAY_TOP));
-    const amp = cfg.slalomAmpTop + (cfg.slalomAmpBottom - cfg.slalomAmpTop) * progress;
-    this.x = this.startX + Math.sin(this.y * 0.0018 + this.phase) * amp * this.bounceFlip;
+    // Calculate progress through screen (0 to 1)
+    const progress = Math.max(0, Math.min(1, (this.y - CANVAS.PLAY_TOP) / (CANVAS.PLAY_BOTTOM - CANVAS.PLAY_TOP)));
+    
+    // Determine if we should flip
+    if (!this.hasFlipped && progress >= cfg.flipProgress) {
+      this.hasFlipped = true;
+    }
+
+    // Calculate diagonal movement with flip
+    const angleRad = (cfg.diagonalAngle * Math.PI) / 180;
+    const direction = this.hasFlipped ? -1 : 1; // Flip direction vertically
+    const horizontalSpeed = Math.sin(angleRad) * cfg.speed * direction;
+    
+    // Update horizontal position
+    this.x += horizontalSpeed * dt;
+    
+    // Keep within screen bounds
+    this.x = Math.max(0, Math.min(CANVAS.WIDTH, this.x));
+    
     this._checkBounce();
     if (this.y >= CANVAS.PLAY_BOTTOM) this.reachedBottom = true;
   }
@@ -303,6 +319,7 @@ class Kh555 extends EnemyBase {
     this.phase = Math.random() * Math.PI * 2;
     this.inRadar = false;
     this.lockTimer = 0;
+    this.lastBounceX = x; // Track last bounce position
   }
 
   update(dt) {
@@ -310,8 +327,26 @@ class Kh555 extends EnemyBase {
     const cfg = this.cfg;
     this.y += cfg.speed * dt;
     const t = this.age / cfg.sinePeriod;
-    this.x = this.startX + Math.sin(t * Math.PI * 2 + this.phase) * cfg.sineAmplitude * this.bounceFlip;
-    this._checkBounce();
+    
+    // Calculate intended X position from sine wave
+    const intendedX = this.startX + Math.sin(t * Math.PI * 2 + this.phase) * cfg.sineAmplitude * this.bounceFlip;
+    
+    // Check if we would bounce at this position
+    const half = this.cfg.hitboxW / 2;
+    if (intendedX < half || intendedX > CONFIG.CANVAS.WIDTH - half) {
+      // Only flip if we actually hit the edge
+      if (this.bounceFlip * (intendedX - this.lastBounceX) < 0) {
+        this.bounceFlip *= -1;
+        this.lastBounceX = intendedX; // Update bounce reference
+      }
+      // Keep at edge boundary
+      this.x = intendedX < half ? half : CONFIG.CANVAS.WIDTH - half;
+    } else {
+      // Normal sine wave movement
+      this.x = intendedX;
+      this.lastBounceX = intendedX;
+    }
+    
     if (this.y >= CONFIG.CANVAS.PLAY_BOTTOM) this.reachedBottom = true;
   }
 
@@ -365,6 +400,7 @@ class Kalibr extends EnemyBase {
     this.phase = Math.random() * Math.PI * 2;
     this.inRadar = false;
     this.lockTimer = 0;
+    this.lastBounceX = x; // Track last bounce position
   }
 
   update(dt) {
@@ -372,8 +408,26 @@ class Kalibr extends EnemyBase {
     const cfg = this.cfg;
     this.y += cfg.speed * dt;
     const t = this.age / cfg.sinePeriod;
-    this.x = this.startX + Math.sin(t * Math.PI * 2 + this.phase) * cfg.sineAmplitude * this.bounceFlip;
-    this._checkBounce();
+    
+    // Calculate intended X position from sine wave
+    const intendedX = this.startX + Math.sin(t * Math.PI * 2 + this.phase) * cfg.sineAmplitude * this.bounceFlip;
+    
+    // Check if we would bounce at this position
+    const half = this.cfg.hitboxW / 2;
+    if (intendedX < half || intendedX > CONFIG.CANVAS.WIDTH - half) {
+      // Only flip if we actually hit the edge
+      if (this.bounceFlip * (intendedX - this.lastBounceX) < 0) {
+        this.bounceFlip *= -1;
+        this.lastBounceX = intendedX; // Update bounce reference
+      }
+      // Keep at edge boundary
+      this.x = intendedX < half ? half : CONFIG.CANVAS.WIDTH - half;
+    } else {
+      // Normal sine wave movement
+      this.x = intendedX;
+      this.lastBounceX = intendedX;
+    }
+    
     if (this.y >= CONFIG.CANVAS.PLAY_BOTTOM) this.reachedBottom = true;
   }
 
@@ -424,6 +478,7 @@ class Kh101 extends EnemyBase {
     this.inRadar = false;
     this.lockTimer = 0;
     this.hasBeenFired = false;
+    this.lastBounceX = x; // Track last bounce position
 
     this._p1 = { freq: 0.0008, amp: 120, phase: Math.random() * Math.PI * 2 };
     this._p2 = { freq: 0.0021, amp: 60,  phase: Math.random() * Math.PI * 2 };
@@ -438,12 +493,31 @@ class Kh101 extends EnemyBase {
     this.y += cfg.speed * dt;
 
     const t = this.age;
-    this.x = this.startX
+    // Calculate intended X position from perlin-like movement
+    const intendedX = this.startX
       + Math.sin(t * this._p1.freq + this._p1.phase) * this._p1.amp
       + Math.sin(t * this._p2.freq + this._p2.phase) * this._p2.amp
       + Math.sin(t * this._p3.freq + this._p3.phase) * this._p3.amp;
 
-    this._checkBounce();
+    // Check if we would bounce at this position
+    const half = this.cfg.hitboxW / 2;
+    if (intendedX < half || intendedX > CANVAS.WIDTH - half) {
+      // Only flip if we actually hit the edge
+      if ((intendedX - this.lastBounceX) < 0) {
+        // Reverse all wave phases to create bounce effect
+        this._p1.phase = Math.PI - this._p1.phase;
+        this._p2.phase = Math.PI - this._p2.phase;
+        this._p3.phase = Math.PI - this._p3.phase;
+        this.lastBounceX = intendedX; // Update bounce reference
+      }
+      // Keep at edge boundary
+      this.x = intendedX < half ? half : CANVAS.WIDTH - half;
+    } else {
+      // Normal perlin-like movement
+      this.x = intendedX;
+      this.lastBounceX = intendedX;
+    }
+
     if (this.y >= CANVAS.PLAY_BOTTOM) this.reachedBottom = true;
   }
 

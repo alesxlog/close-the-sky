@@ -142,26 +142,26 @@ const WAVES = {
       // Wave 1
       {
         total: 8,
-        maxSim: 2,
+        maxSim: 1,
         spawnMin: 2000,
-        spawnMax: 3000,
+        spawnMax: 4000,
         spawnCount: [1],
-        sequence: [
-          { types: ['geran1'],                     count: 4 },
-          { types: ['geran1', 'geran2'],           count: 4 },
+        roster: [
+          { type: 'geran1', weight: 2 },
+          { type: 'geran2', weight: 1 }
         ],
       },
 
       // Wave 2
       {
-        total: 10,
+        total: 12,
         maxSim: 2,
         spawnMin: 2000,
-        spawnMax: 3000,
+        spawnMax: 4000,
         spawnCount: [1],
-        sequence: [
-          { types: ['geran1', 'geran2'],           count: 6 },
-          { types: ['geran2'],                     count: 4 },
+        roster: [
+          { type: 'geran1', weight: 1 },
+          { type: 'geran2', weight: 1 }
         ],
       },
 
@@ -169,12 +169,13 @@ const WAVES = {
       {
         total: 16,
         maxSim: 3,
-        spawnMin: 2000,
+        spawnMin: 3000,
         spawnMax: 4000,
-        spawnCount: [1, 2],
-        sequence: [
-          { types: ['geran1', 'geran2'],           count: 8 },
-          { types: ['geran2', 'geran3'],           count: 8 },
+        spawnCount: [1],
+        roster: [
+          { type: 'geran1', weight: 1 },
+          { type: 'geran2', weight: 2 },
+          { type: 'geran3', weight: 1 }
         ],
       },
 
@@ -185,24 +186,24 @@ const WAVES = {
         spawnMin: 2000,
         spawnMax: 4000,
         spawnCount: [1, 2],
-        sequence: [
-          { types: ['geran1', 'geran2'],           count: 6 },
-          { types: ['geran3'],                     count: 5 },
-          { types: ['geran1', 'geran2', 'geran3'], count: 9 },
+        roster: [
+          { type: 'geran1', weight: 1 },
+          { type: 'geran2', weight: 1 },
+          { type: 'geran3', weight: 1 }
         ],
       },
 
       // Wave 5
       {
-        total: 25,
+        total: 24,
         maxSim: 3,
         spawnMin: 2000,
-        spawnMax: 3000,
+        spawnMax: 4000,
         spawnCount: [1, 2],
-        sequence: [
-          { types: ['geran2', 'geran3'],           count: 8 },
-          { types: ['geran1', 'geran3'],           count: 8 },
-          { types: ['geran1', 'geran2', 'geran3'], count: 9 },
+        roster: [
+          { type: 'geran1', weight: 1 },
+          { type: 'geran2', weight: 2 },
+          { type: 'geran3', weight: 2 }
         ],
       },
     ],
@@ -211,73 +212,77 @@ const WAVES = {
     phase2: [
       // Wave 6
       {
-        total: 30,
+        total: 28,
         maxSim: 4,
-        spawnMin: 1000,
-        spawnMax: 2500,
-        spawnCount: [1, 2],
-        sequence: [
-          { types: ['geran2', 'geran3'],           count: 10 },
-          { types: ['geran1'],                     count: 8 },
-          { types: ['geran1', 'geran2', 'geran3'], count: 12 },
+        spawnMin: 2000,
+        spawnMax: 4000,
+        spawnCount: [2],
+        roster: [
+          { type: 'geran1', weight: 1 },
+          { type: 'geran2', weight: 1 },
+          { type: 'geran3', weight: 2 }
         ],
       },
 
       // Wave 7
       {
-        total: 35,
+        total: 32,
         maxSim: 4,
-        spawnMin: 1000,
-        spawnMax: 2500,
-        spawnCount: [1, 2],
-        sequence: [
-          { types: ['geran1', 'geran2', 'geran3'], count: 15 },
-          { types: ['geran2', 'geran3'],           count: 10 },
-          { types: ['geran1'],                     count: 10 },
+        spawnMin: 2000,
+        spawnMax: 4000,
+        spawnCount: [2],
+        roster: [
+          { type: 'geran1', weight: 1 },
+          { type: 'geran2', weight: 2 },
+          { type: 'geran3', weight: 2 }
         ],
       },
 
       // Wave 8
       {
         total: 40,
-        maxSim: 5,
-        spawnMin: 800,
-        spawnMax: 2000,
-        spawnCount: [2, 3],
-        sequence: [
-          { types: ['kh555', 'geran1', 'geran2', 'kalibr'],  count: 10 },
-          { types: ['geran1', 'geran2', 'geran3'],         count: 15 },
-          { types: ['geran2', 'geran3'],                   count: 15 },
+        maxSim: 4,
+        spawnMin: 2000,
+        spawnMax: 4000,
+        spawnCount: [2],
+        roster: [
+          { type: 'geran1', weight: 2 },
+          { type: 'geran2', weight: 2 },
+          { type: 'geran3', weight: 1 },
+          { type: 'kh555', weight: 1 },
+          { type: 'kalibr', weight: 1 }
         ],
       },
 
       // Wave 9
       {
-        total: 45,
+        total: 44,
         maxSim: 5,
         spawnMin: 800,
         spawnMax: 2000,
-        spawnCount: [2, 3],
-        sequence: [
-          { types: ['geran1'],                              count: 8  },
-          { types: ['geran2', 'geran3'],                   count: 12 },
-          { types: ['kh555', 'geran1', 'geran2', 'kalibr'], count: 10 },
-          { types: ['geran1', 'geran2', 'geran3'],         count: 15 },
+        spawnCount: [1, 2],
+        roster: [
+          { type: 'geran1', weight: 1 },
+          { type: 'geran2', weight: 2 },
+          { type: 'geran3', weight: 2 },
+          { type: 'kh555', weight: 1 },
+          { type: 'kalibr', weight: 1 }
         ],
       },
 
       // Wave 10
       {
         total: 50,
-        maxSim: 6,
+        maxSim: 5,
         spawnMin: 600,
         spawnMax: 1800,
-        spawnCount: [2, 3],
-        sequence: [
-          { types: ['kh555'],                              count: 2  },
-          { types: ['geran1', 'geran2', 'geran3'],         count: 12 },
-          { types: ['kalibr'],                             count: 2  },
-          { types: ['geran1', 'geran2', 'geran3'],         count: 12 },
+        spawnCount: [1, 2],
+        roster: [
+          { type: 'geran1', weight: 2 },
+          { type: 'geran2', weight: 2 },
+          { type: 'geran3', weight: 2 },
+          { type: 'kh555', weight: 1 },
+          { type: 'kalibr', weight: 1 }
         ],
         triggered: [
           { type: 'kh101', spawnAt: 40 },

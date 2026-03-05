@@ -64,7 +64,6 @@ class Spawner {
   }
 
   _loadArcadeWave(waveNum) {
-    console.log('SPAWNER DEBUG: _loadArcadeWave called with waveNum:', waveNum);
     this._arcadeWave        = waveNum;
     this._arcadeWaveSpawned = 0;
     this._arcadeSeqIndex    = 0;
@@ -79,27 +78,27 @@ class Spawner {
     const P3start = WAVES.arcade.phase3.startWave;
 
     if (waveNum <= P1.length) {
-      // Phase 1 — sequenced (same format as phase 2)
-      this._arcadePhase = 2;  // reuse phase2 spawning logic
+      // Phase 1 — roster-based spawning
+      this._arcadePhase = 1;
       const wDef = P1[waveNum - 1];
       this._arcadeWaveTotal = wDef.total;
       this._intervalMin     = wDef.spawnMin;
       this._intervalMax     = wDef.spawnMax;
       this._spawnCount      = Array.isArray(wDef.spawnCount) ? wDef.spawnCount : [wDef.spawnCount];
       this._maxSim          = wDef.maxSim;
-      this._arcadeSequence  = wDef.sequence || [];
+      this._arcadeRoster    = wDef.roster || [];
       this._arcadeTriggered = (wDef.triggered || []).slice();
 
     } else if (waveNum <= P1.length + P2.length && waveNum < P3start) {
-      // Phase 2 — sequenced
-      this._arcadePhase = 2;
+      // Phase 2 — roster-based spawning
+      this._arcadePhase = 1;
       const wDef = P2[waveNum - P1.length - 1];
       this._arcadeWaveTotal = wDef.total;
       this._intervalMin     = wDef.spawnMin;
       this._intervalMax     = wDef.spawnMax;
       this._spawnCount      = Array.isArray(wDef.spawnCount) ? wDef.spawnCount : [wDef.spawnCount];
       this._maxSim          = wDef.maxSim;
-      this._arcadeSequence  = wDef.sequence || [];
+      this._arcadeRoster    = wDef.roster || [];
       this._arcadeTriggered = (wDef.triggered || []).slice();
 
     } else {
@@ -160,12 +159,7 @@ class Spawner {
   }
 
   nextWave() {
-    const newWave = this._arcadeWave + 1;
-    console.log('SPAWNER DEBUG: nextWave() called', {
-      currentWave: this._arcadeWave,
-      newWave: newWave
-    });
-    this._loadArcadeWave(newWave);
+    this._loadArcadeWave(this._arcadeWave + 1);
   }
 
   getArcadeWave() {
@@ -177,15 +171,12 @@ class Spawner {
     const now = performance.now();
 
     if (now < this._spawnLockUntil) {
-      console.log('SPAWN DEBUG: Blocked by spawn lock until', this._spawnLockUntil);
       return [];
     }
     if (this._activeEnemies.length >= this._maxSim) {
-      console.log('SPAWN DEBUG: Blocked by max sim limit', this._activeEnemies.length, '>=', this._maxSim);
       return [];
     }
     if (now - this._lastSpawnTime < this._nextSpawnDelay) {
-      console.log('SPAWN DEBUG: Blocked by spawn delay', now - this._lastSpawnTime, '<', this._nextSpawnDelay);
       return [];
     }
 
@@ -234,38 +225,69 @@ class Spawner {
   // ---- ARCADE SPAWNING ----
 
   _spawnArcadeBatch() {
-    console.log('SPAWN DEBUG: _spawnArcadeBatch called', {
-      phase: this._arcadePhase,
-      waveNum: this._arcadeWave,
-      waveSpawned: this._arcadeWaveSpawned,
-      waveTotal: this._arcadeWaveTotal,
-      seqIndex: this._arcadeSeqIndex,
-      seqSpawned: this._arcadeSeqSpawned,
-      sequenceLength: this._arcadeSequence?.length
-    });
-    
     // Don't spawn if wave is already complete
     if (this._arcadeWaveSpawned >= this._arcadeWaveTotal) {
-      console.log('SPAWN DEBUG: Wave already complete, not spawning');
       return [];
     }
     
+    if (this._arcadePhase === 1) return this._spawnPhase1Batch();
     if (this._arcadePhase === 2) return this._spawnPhase2Batch();
     if (this._arcadePhase === 3) return this._spawnPhase3Batch();
     return [];
+  }
+
+  _spawnPhase1Batch() {
+    const batch = [];
+    const slots = this._maxSim - this._activeEnemies.length;
+    let   added = 0;
+
+    // Triggered enemies — fire at specific wave-enemy counts
+    if (this._arcadeTriggered) {
+      for (let i = this._arcadeTriggered.length - 1; i >= 0; i--) {
+        const t = this._arcadeTriggered[i];
+        if (this._arcadeWaveSpawned >= t.spawnAt && added < slots) {
+          const enemy = this._makeEnemy(t.type);
+          if (enemy) {
+            batch.push(enemy);
+            added++;
+            this._arcadeWaveSpawned++;
+            this._arcadeCumulative++;
+          }
+          this._arcadeTriggered.splice(i, 1);
+        }
+      }
+    }
+
+    // Roster-based spawning
+    const count  = this._pickSpawnCount();
+    const actual = Math.min(count, slots - added);
+
+    for (let i = 0; i < actual; i++) {
+      if (this._arcadeWaveSpawned >= this._arcadeWaveTotal) break;
+
+      const available = this._arcadeRoster.filter(r => {
+        if (!this._canSpawn(r.type)) return false;
+        return true;
+      });
+      
+      if (available.length === 0) break;
+
+      const type = this._weightedPick(available);
+      const enemy = this._makeEnemy(type);
+      if (enemy) {
+        batch.push(enemy);
+        added++;
+        this._arcadeWaveSpawned++;
+        this._arcadeCumulative++;
+      }
+    }
+    return batch;
   }
 
   _spawnPhase2Batch() {
     const batch = [];
     const slots = this._maxSim - this._activeEnemies.length;
     let   added = 0;
-    
-    console.log('PHASE2 DEBUG: Starting batch spawn', {
-      slots, maxSim: this._maxSim, activeEnemies: this._activeEnemies.length,
-      waveSpawned: this._arcadeWaveSpawned, waveTotal: this._arcadeWaveTotal,
-      seqIndex: this._arcadeSeqIndex, seqSpawned: this._arcadeSeqSpawned,
-      sequenceLength: this._arcadeSequence?.length
-    });
 
     // Triggered enemies — fire at specific wave-enemy counts
     if (this._arcadeTriggered) {

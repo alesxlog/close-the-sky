@@ -125,16 +125,12 @@ class GameScene {
       this._wavePauseTimer -= dt * 1000;
       // Safety check for NaN
       if (isNaN(this._wavePauseTimer)) {
-        console.log('GAME DEBUG: Timer NaN detected, resetting to 4000');
         this._wavePauseTimer = 4000;
       }
-      console.log('GAME DEBUG: Wave pause timer', this._wavePauseTimer, 'dt:', dt * 1000);
       if (this._wavePauseTimer <= 0) {
-        console.log('GAME DEBUG: Wave pause ending, waveNum:', this.waveNum, 'mode:', this.mode);
         this._inWavePause = false;
         this.waveNum++;
         if (this.mode === 'arcade') {
-          console.log('GAME DEBUG: Calling nextWave for wave', this.waveNum);
           this._spawner.nextWave();
           this._waveStarted = true; // Start the next wave
         }
@@ -145,7 +141,6 @@ class GameScene {
 
     // Spawn
     const newEnemies = this._spawner.update(this._spawnedThisAttack || 0);
-    console.log('GAME DEBUG: Spawner returned', newEnemies.length, 'enemies, _waveStarted:', this._waveStarted);
     for (const e of newEnemies) {
       if (this.mode === 'campaign' && this._attackEnemiesLeft <= 0) break;
       this.enemies.push(e);
@@ -294,18 +289,10 @@ class GameScene {
         }
       }
     } else {
-      console.log('GAME DEBUG: Arcade wave completion check', {
-        isWaveComplete: this._spawner.isWaveComplete(),
-        enemiesLength: this.enemies.length,
-        inWavePause: this._inWavePause,
-        condition: this._spawner.isWaveComplete() && this.enemies.length === 0 && !this._inWavePause
-      });
       if (this._spawner.isWaveComplete() && this.enemies.length === 0 && !this._inWavePause) {
-        console.log('GAME DEBUG: Starting wave pause for wave', this.waveNum);
         this._waveStarted = false;
         this._inWavePause = true;
         this._wavePauseTimer = WAVES.arcade.WAVE_PAUSE || 4000; // Ensure it's a number
-        console.log('GAME DEBUG: Wave pause timer set to', this._wavePauseTimer);
       }
     }
   }
