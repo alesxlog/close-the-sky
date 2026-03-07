@@ -266,6 +266,8 @@ class Spawner {
       if (this._arcadeWaveSpawned >= this._arcadeWaveTotal) break;
 
       const available = this._arcadeRoster.filter(r => {
+        if (r.from !== undefined && r.from > this._arcadeWaveSpawned) return false;
+        if (r.max !== undefined && (this._spawnedByType[r.type] || 0) >= r.max) return false;
         if (!this._canSpawn(r.type)) return false;
         return true;
       });
@@ -355,10 +357,16 @@ class Spawner {
       let available = P3.roster.filter(r => {
         const isHT = highTiers.includes(r.type);
         if (wantHighTier !== isHT) return false;
+        if (r.from !== undefined && r.from > this._arcadeWaveSpawned) return false;
+        if (r.max !== undefined && (this._spawnedByType[r.type] || 0) >= r.max) return false;
         return this._canSpawn(r.type);
       });
       if (available.length === 0) {
-        available = P3.roster.filter(r => this._canSpawn(r.type));
+        available = P3.roster.filter(r => {
+          if (r.from !== undefined && r.from > this._arcadeWaveSpawned) return false;
+          if (r.max !== undefined && (this._spawnedByType[r.type] || 0) >= r.max) return false;
+          return this._canSpawn(r.type);
+        });
       }
       if (available.length === 0) break;
 

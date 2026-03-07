@@ -124,14 +124,13 @@ const WAVES = {
   arcade: {
     // Core arcade settings
     WAVE_PAUSE:        (typeof TUNING !== 'undefined' ? TUNING.ARCADE_WAVE_PAUSE         : 4000),
-    START_SIMULTANEOUS:(typeof TUNING !== 'undefined' ? TUNING.ARCADE_START_SIMULTANEOUS : 4),
 
     // Upgrade progression
     UPGRADES: [
       { step: 1, cumulative: 100, upgrade: 'mg_double' },
       { step: 2, cumulative: 300, upgrade: 'lav_mg_double' },
-      { step: 3, cumulative: 600, upgrade: 'sam' },
-      { step: 4, cumulative: 1000, upgrade: 'ac_double' },
+      { step: 3, cumulative: 600, upgrade: 'ac_double' },
+      { step: 4, cumulative: 1000, upgrade: 'sam' },
       { step: 5, cumulative: 1500, upgrade: 'sam_2rockets' },
     ],
 
@@ -167,13 +166,13 @@ const WAVES = {
       {
         total: 16,
         maxSim: 3,
-        spawnMin: 3000,
-        spawnMax: 4000,
+        spawnMin: 2000,
+        spawnMax: 3000,
         spawnCount: [1],
         roster: [
           { type: 'geran1', weight: 1 },
           { type: 'geran2', weight: 2 },
-          { type: 'geran3', from: 10, weight: 1 }
+          { type: 'geran3', from: 10, weight: 3 }
         ],
       },
 
@@ -181,13 +180,14 @@ const WAVES = {
       {
         total: 20,
         maxSim: 3,
-        spawnMin: 2000,
-        spawnMax: 4000,
+        spawnMin: 3000,
+        spawnMax: 6000,
         spawnCount: [1, 2],
         roster: [
           { type: 'geran1', weight: 1 },
           { type: 'geran2', weight: 1 },
-          { type: 'geran3', weight: 1 }
+          { type: 'geran3', weight: 1 },
+          { type: 'kh555', from: 15, weight: 1},
         ],
       },
 
@@ -195,19 +195,54 @@ const WAVES = {
       {
         total: 24,
         maxSim: 3,
-        spawnMin: 2000,
-        spawnMax: 4000,
+        spawnMin: 3000,
+        spawnMax: 5000,
         spawnCount: [1, 2],
         roster: [
           { type: 'geran1', weight: 1 },
           { type: 'geran2', weight: 1 },
-          { type: 'geran3', weight: 1 }
+          { type: 'geran3', weight: 1 },
+          { type: 'kh555', from: 18, weight: 2, max: 2 },
         ],
       },
-    ],
+      
+      ],
 
     // Phase 2: Combination (waves 6-10) — handcrafted
     phase2: [
+      // Wave 6
+      {
+        total: 28,
+        maxSim: 3,
+        spawnMin: 3000,
+        spawnMax: 6000,
+        spawnCount: [2],
+        roster: [
+          { type: 'geran1', weight: 1 },
+          { type: 'geran2', weight: 1 },
+          { type: 'geran3', weight: 1 },
+          { type: 'kh555', from: 18, weight: 2, max: 3 },
+          { type: 'kalibr', weight: 2, max: 2 }
+        ],
+      },
+
+      // Wave 7
+      {
+        total: 32,
+        maxSim: 3,
+        spawnMin: 3000,
+        spawnMax: 6000,
+        spawnCount: [2],
+        roster: [
+          { type: 'geran1', weight: 1 },
+          { type: 'geran2', weight: 1 },
+          { type: 'geran3', weight: 1 },
+          { type: 'kh555', from: 6, weight: 2, max: 6 },
+          { type: 'kalibr', from: 12, weight: 2, max: 4 },
+          { type: 'k101', from: 18, weight: 2, max: 2 }
+        ],
+      },
+    
       // Wave 6
       {
         total: 28,
