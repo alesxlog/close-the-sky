@@ -147,10 +147,6 @@ class AARScene extends SceneBase {
       y += TabletUI.drawBreakdownTable(cctx, y, columns, rows, cw);
       y += 8;
 
-      // Logistics toast
-      y += TabletUI.drawToast(cctx, y, 'Logistics Officer', scene._logisticsMsg, cw);
-      y += 8;
-
       // Footer
       scene._btnContinueY = y;
       y += TabletUI.drawButton(cctx, y, 'OPEN UPGRADE STATION', cw);

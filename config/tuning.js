@@ -43,13 +43,13 @@ const TUNING = {
   // ================================================================
   // ENEMY SPEEDS
   // ================================================================
-  GERAN1_SPEED:          130,
+  GERAN1_SPEED:          135,
   GERAN2_SPEED:          140,
   GERAN3_SPEED_NORMAL:   120,
-  GERAN3_SPEED_TERMINAL: 150,
-  KH555_SPEED:           160,
-  KALIBR_SPEED:          165,
-  KH101_SPEED:           170,
+  GERAN3_SPEED_TERMINAL: 145,
+  KH555_SPEED:           150,
+  KALIBR_SPEED:          155,
+  KH101_SPEED:           160,
 
   // ================================================================
   // ENEMY HP
@@ -102,8 +102,8 @@ const TUNING = {
   // ARCADE UPGRADES
   // ================================================================
   ARCADE_UPGRADE_1_THRESHOLD: 100,
-  ARCADE_UPGRADE_2_THRESHOLD: 200,
-  ARCADE_UPGRADE_3_THRESHOLD: 300,
-  ARCADE_UPGRADE_4_THRESHOLD: 400,
-  ARCADE_UPGRADE_5_THRESHOLD: 500,
+  ARCADE_UPGRADE_2_THRESHOLD: 300,
+  ARCADE_UPGRADE_3_THRESHOLD: 600,
+  ARCADE_UPGRADE_4_THRESHOLD: 1000,
+  ARCADE_UPGRADE_5_THRESHOLD: 1500,
 };
