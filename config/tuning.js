@@ -82,10 +82,10 @@ const TUNING = {
   GERAN2_FLIP_PROGRESS:     0.5,  // Flip at 50% of screen height
 
   KH101_DIAGONAL_ANGLE:  80,
-  KH555_SINE_AMPLITUDE:  100,
-  KH555_SINE_PERIOD:     100,
-  KALIBR_SINE_AMPLITUDE: 200,
-  KALIBR_SINE_PERIOD:    200,
+  KH555_SINE_AMPLITUDE:  320,     // px
+  KH555_SINE_PERIOD:     4000,    // ms per full oscillation
+  KALIBR_SINE_AMPLITUDE: 480,
+  KALIBR_SINE_PERIOD:    3000,
 
   // ================================================================
   // COSTS
