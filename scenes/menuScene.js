@@ -12,7 +12,7 @@ class MenuScene extends SceneBase {
     this._tablet.registerListeners(this);
     this._on(this.canvas, 'click', (e) => this._handleClick(e), true);
     this._on(window, 'keydown', (e) => {
-      if (e.code === 'KeyE' || e.code === 'Digit1') this.onSelect('arcade');
+      if (e.code === 'KeyA' || e.code === 'Digit1') this.onSelect('arcade');
       if (e.code === 'KeyC' || e.code === 'Digit2') this.onSelect('campaign');
     });
   }

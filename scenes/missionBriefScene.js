@@ -6,6 +6,7 @@ class MissionBriefScene extends SceneBase {
     this.onComplete = onComplete;
     this._tablet    = new TabletUI(canvas, ctx);
     this._completed = false;
+    this._btnDeployY = 0; // Track DEPLOY button position
 
     // Resolve briefing
     this._brief = this._resolve(attackNum);
@@ -58,13 +59,13 @@ class MissionBriefScene extends SceneBase {
 
   _handleClick(e) {
     const { x, y } = this._canvasXY(e);
-    const hit = this._tablet.hitTest(x, y, 80); // 80px footer height
+    const hit = this._tablet.hitTest(x, y);
     if (!hit) return;
     const cw = this._tablet.SCREEN_W - this._tablet.CONTENT_PAD * 2;
     
-    // Check if click is in footer area
-    if (hit.isFooter) {
-      if (hit.x >= 0 && hit.x <= cw) {
+    // Check if click is in content area
+    if (!hit.isFooter && hit.x >= 0 && hit.x <= cw) {
+      if (hit.y >= this._btnDeployY && hit.y <= this._btnDeployY + 48) {
         this._complete();
       }
     }
@@ -76,33 +77,29 @@ class MissionBriefScene extends SceneBase {
   }
 
   draw(ctx) {
+    this._drawBackground(ctx);
+    this._tablet.draw(ctx, this._renderContent.bind(this), { 
+      alpha: this._alpha
+    });
+  }
+
+  _drawBackground(ctx) {
     NightBackground.get().drawSnapshot(ctx);
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.fillRect(0, 0, this._CW, this._CH);
+  }
 
-    const scene = this;
-    const brief = this._brief;
-
-    // Define footer function
-    const footer = (cctx, cw) => {
-      // Draw DEPLOY button in footer
-      TabletUI.drawButton(cctx, 0, 'DEPLOY', cw);
-    };
-
-    this._tablet.draw(ctx, (cctx, cw) => {
-      let y = 0;
-
-      y += TabletUI.drawTitle(cctx, y, 'MISSION BRIEF', {});
-      y += TabletUI.drawDivider(cctx, y, cw);
-      y += TabletUI.drawHeader(cctx, y, `Intelligence Report — Attack ${scene.attackNum}`, cw);
-      y += 4;
-      y += TabletUI.drawBody(cctx, y, brief.body, cw, { highlights: brief.highlights });
-
-      return y;
-    }, { 
-      alpha: this._alpha,
-      footer: footer
-    });
+  _renderContent(cctx, cw) {
+    let y = 0;
+    y += TabletUI.drawTitle(cctx, y, 'MISSION BRIEF', {});
+    y += TabletUI.drawDivider(cctx, y, cw);
+    y += TabletUI.drawHeader(cctx, y, `Intelligence Report — Attack ${this.attackNum}`, cw);
+    y += 4;
+    y += TabletUI.drawBody(cctx, y, this._brief.body, cw, { highlights: this._brief.highlights });
+    y += 16;
+    this._btnDeployY = y; // Store DEPLOY button position
+    y += TabletUI.drawButton(cctx, y, 'DEPLOY', cw);
+    return y;
   }
 }
 
