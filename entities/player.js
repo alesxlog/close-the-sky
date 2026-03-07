@@ -167,6 +167,49 @@ class Player {
     return this.weapons.some(w => w.id === weaponId);
   }
 
+  applyUpgrade(upgradeId) {
+    if (upgradeId === 'lav') {
+      this.upgradeToLAV();
+    } else if (upgradeId === 'lav_mg') {
+      // Special arcade upgrade: LAV + MG
+      this.upgradeToLAV();
+      if (!this.hasWeapon('mg')) {
+        this.addWeapon('mg');
+      }
+    } else if (upgradeId === 'lav_mg_double') {
+      // Special arcade upgrade: LAV + Double MG
+      this.upgradeToLAV();
+      if (!this.hasWeapon('mg')) {
+        this.addWeapon('mg');
+      }
+      this.upgradeDoubleBarrel('mg');
+    } else if (upgradeId === 'mg_double') {
+      if (!this.hasWeapon('mg')) {
+        this.addWeapon('mg');
+      }
+      this.upgradeDoubleBarrel('mg');
+    } else if (upgradeId === 'ac_double') {
+      // Handle upgrade from autocannon or mg_double to ac_double
+      const mgIdx = this.weapons.findIndex(w => w.id === 'mg');
+      if (mgIdx !== -1) {
+        this.slotsUsed -= this.weapons[mgIdx].def.slots; 
+        this.weapons.splice(mgIdx, 1); 
+      }
+      // Add autocannon if not already present, then upgrade to double
+      if (!this.hasWeapon('autocannon')) {
+        this.addWeapon('autocannon');
+      }
+      this.upgradeDoubleBarrel('autocannon');
+    } else if (upgradeId === 'sam') {
+      if (!this.hasWeapon('sam')) {
+        this.addWeapon('sam');
+      }
+    } else if (upgradeId === 'sam_2rockets') {
+      const sam = this.weapons.find(w => w.id === 'sam');
+      if (sam) sam.twoRockets = true;
+    }
+  }
+
   getBounds() {
     return {
       left:   this.x - this.width / 2,

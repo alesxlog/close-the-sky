@@ -38,7 +38,7 @@ class MenuScene extends SceneBase {
   }
 
   draw(ctx) {
-    CityBackground.get().drawSnapshot(ctx);
+    NightBackground.get().drawSnapshot(ctx);
 
     // Dark overlay
     ctx.fillStyle = 'rgba(0,0,0,0.45)';

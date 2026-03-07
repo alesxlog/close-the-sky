@@ -7,8 +7,6 @@ class MissionBriefScene extends SceneBase {
     this._tablet    = new TabletUI(canvas, ctx);
     this._completed = false;
 
-    this._btnDeployY = 0;
-
     // Resolve briefing
     this._brief = this._resolve(attackNum);
 
@@ -60,11 +58,13 @@ class MissionBriefScene extends SceneBase {
 
   _handleClick(e) {
     const { x, y } = this._canvasXY(e);
-    const hit = this._tablet.hitTest(x, y);
+    const hit = this._tablet.hitTest(x, y, 80); // 80px footer height
     if (!hit) return;
     const cw = this._tablet.SCREEN_W - this._tablet.CONTENT_PAD * 2;
-    if (hit.x >= 0 && hit.x <= cw) {
-      if (hit.y >= this._btnDeployY && hit.y <= this._btnDeployY + 48) {
+    
+    // Check if click is in footer area
+    if (hit.isFooter) {
+      if (hit.x >= 0 && hit.x <= cw) {
         this._complete();
       }
     }
@@ -76,12 +76,18 @@ class MissionBriefScene extends SceneBase {
   }
 
   draw(ctx) {
-    CityBackground.get().drawSnapshot(ctx);
+    NightBackground.get().drawSnapshot(ctx);
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.fillRect(0, 0, this._CW, this._CH);
 
     const scene = this;
     const brief = this._brief;
+
+    // Define footer function
+    const footer = (cctx, cw) => {
+      // Draw DEPLOY button in footer
+      TabletUI.drawButton(cctx, 0, 'DEPLOY', cw);
+    };
 
     this._tablet.draw(ctx, (cctx, cw) => {
       let y = 0;
@@ -91,19 +97,12 @@ class MissionBriefScene extends SceneBase {
       y += TabletUI.drawHeader(cctx, y, `Intelligence Report — Attack ${scene.attackNum}`, cw);
       y += 4;
       y += TabletUI.drawBody(cctx, y, brief.body, cw, { highlights: brief.highlights });
-      
-      // Add padding to push button to bottom of screen
-      const remainingSpace = this._tablet.SCREEN_H - this._tablet.CONTENT_PAD * 2 - y - 48;
-      if (remainingSpace > 0) {
-        y += remainingSpace;
-      }
-
-      // Footer - positioned at bottom of screen
-      scene._btnDeployY = y;
-      y += TabletUI.drawButton(cctx, y, 'DEPLOY', cw);
 
       return y;
-    }, { alpha: this._alpha });
+    }, { 
+      alpha: this._alpha,
+      footer: footer
+    });
   }
 }
 

@@ -21,7 +21,7 @@ class HUD {
     }
   }
 
-  // state: { garage, hp, maxHp, kills, points, mode, attackNum, waveNum, timeElapsed }
+  // state: { garage, hp, maxHp, kills, missed, points, mode, attackNum, waveNum, timeElapsed }
   draw(ctx, state) {
     const y  = this.C.HUD_TOP;
     const h  = this.C.HUD_HEIGHT;
@@ -144,10 +144,14 @@ class HUD {
   _drawRight(ctx, rightX, row1Y, row2Y, state) {
     ctx.textAlign = 'right';
 
-    // Row 1 — kills
+    // Row 1 — kills/missed (e.g., "10/1" with missed in red)
     ctx.font = `bold 22px ${HUD_FONT}`;
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(`${state.kills} kills`, rightX, row1Y);
+    ctx.fillText(`${state.kills}`, rightX - 35, row1Y);
+    
+    ctx.fillStyle = '#ff4444';
+    ctx.fillText('/', rightX - 20, row1Y);
+    ctx.fillText(`${state.missed}`, rightX, row1Y);
 
     // Row 2 — points
     ctx.font = `20px ${HUD_FONT}`;

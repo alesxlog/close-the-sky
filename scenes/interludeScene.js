@@ -8,43 +8,43 @@ class InterludeScene extends SceneBase {
   constructor(canvas, ctx, onComplete) {
     super(canvas, ctx);
     this.onComplete = onComplete;
-    this._bg = CityBackground.get();
+    this._bg = NightBackground.get();
     this._elapsed = 0;
     this._done = false;
 
     // Timeline
-    this._SUNRISE_DUR  = 5;    // total animation
-    this._AUTO_ADVANCE = 5.5;  // auto-continue after this
+    this._SUNRISE_DUR  = 3;    // total animation
+    this._AUTO_ADVANCE = 3.5;  // auto-continue after this
     this._FADE_OUT_DUR = 0.6;
 
     this._fadingOut = false;
     this._fadeOutTimer = 0;
 
-    // Sky keyframes: night → pre-dawn → dawn → early morning
+    // Sky keyframes: night (dark blue) → pre-dawn → dawn → morning
     this._skyFrames = [
       { t: 0.0, stops: [
-        { stop: 0.0, color: [10, 10, 30] },       // near black
-        { stop: 0.4, color: [20, 20, 50] },        // deep navy
-        { stop: 0.75,color: [30, 25, 45] },        // dark purple
-        { stop: 1.0, color: [25, 15, 30] },        // night horizon
+        { stop: 0.0, color: [13, 21, 53] },        // matches NightBackground top
+        { stop: 0.4, color: [17, 29, 69] },        // rich navy
+        { stop: 0.75,color: [23, 33, 80] },        // deep blue
+        { stop: 1.0, color: [30, 45, 98] },        // horizon blue
       ]},
       { t: 0.3, stops: [
-        { stop: 0.0, color: [15, 20, 50] },        // dark blue
-        { stop: 0.4, color: [40, 40, 80] },         // indigo
-        { stop: 0.75,color: [100, 60, 70] },        // mauve
-        { stop: 1.0, color: [160, 80, 50] },        // warm glow
+        { stop: 0.0, color: [15, 20, 55] },        // dark blue
+        { stop: 0.4, color: [40, 50, 90] },        // indigo
+        { stop: 0.75,color: [110, 70, 75] },       // mauve
+        { stop: 1.0, color: [170, 90, 55] },       // warm glow
       ]},
-      { t: 0.6, stops: [
-        { stop: 0.0, color: [26, 26, 78] },        // CONFIG navy
-        { stop: 0.4, color: [74, 111, 165] },       // CONFIG blue
-        { stop: 0.75,color: [220, 150, 80] },       // golden
-        { stop: 1.0, color: [255, 140, 60] },       // orange horizon
+      { t: 0.65, stops: [
+        { stop: 0.0, color: [26, 35, 85] },        // navy
+        { stop: 0.4, color: [74, 111, 165] },      // blue
+        { stop: 0.75,color: [220, 155, 85] },      // golden
+        { stop: 1.0, color: [255, 145, 65] },      // orange horizon
       ]},
       { t: 1.0, stops: [
-        { stop: 0.0, color: [26, 26, 78] },        // matches CONFIG.SKY
-        { stop: 0.4, color: [74, 111, 165] },
-        { stop: 0.75,color: [244, 164, 96] },
-        { stop: 1.0, color: [255, 107, 53] },
+        { stop: 0.0, color: [74, 143, 224] },      // matches DayBackground top
+        { stop: 0.4, color: [107, 174, 232] },     // mid blue
+        { stop: 0.75,color: [245, 201, 122] },     // golden
+        { stop: 1.0, color: [240, 144, 64] },      // warm orange — matches DayBackground
       ]},
     ];
 

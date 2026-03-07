@@ -8,11 +8,11 @@ const TUNING = {
   // ================================================================
   // VEHICLES
   // ================================================================
-  TRUCK_SPEED:  180,
+  TRUCK_SPEED:  175,
   TRUCK_HP:     2,
   TRUCK_SLOTS:  2,
 
-  LAV_SPEED:    200,
+  LAV_SPEED:    210,
   LAV_HP:       3,
   LAV_SLOTS:    4,
 
@@ -34,11 +34,11 @@ const TUNING = {
   AUTOCANNON_COOLDOWN:     300,
   AUTOCANNON_DESPAWN_DIST: 920,
 
-  SAM_PROJ_SPEED:   400,
+  SAM_PROJ_SPEED:   300,
   SAM_DAMAGE:       8,
-  SAM_COOLDOWN:     800,
-  SAM_RADAR_RADIUS: 600,
-  SAM_LOCK_DELAY:   300,
+  SAM_COOLDOWN:     1000,
+  SAM_RADAR_RADIUS: 400,
+  SAM_LOCK_DELAY:   400,
 
   // ================================================================
   // ENEMY SPEEDS
@@ -47,9 +47,9 @@ const TUNING = {
   GERAN2_SPEED:          140,
   GERAN3_SPEED_NORMAL:   120,
   GERAN3_SPEED_TERMINAL: 150,
-  KH555_SPEED:           130,
-  KALIBR_SPEED:          140,
-  KH101_SPEED:           150,
+  KH555_SPEED:           160,
+  KALIBR_SPEED:          165,
+  KH101_SPEED:           170,
 
   // ================================================================
   // ENEMY HP
@@ -57,9 +57,9 @@ const TUNING = {
   GERAN1_HP:  3,
   GERAN2_HP:  4,
   GERAN3_HP:  5,
-  KH555_HP:   9,
-  KALIBR_HP:  11,
-  KH101_HP:   13,
+  KH555_HP:   10,
+  KALIBR_HP:  12,
+  KH101_HP:   14,
 
   // ================================================================
   // ENEMY KILL POINTS
@@ -67,9 +67,9 @@ const TUNING = {
   GERAN1_PTS:  11,
   GERAN2_PTS:  13,
   GERAN3_PTS:  17,
-  KH555_PTS:   30,
-  KALIBR_PTS:  40,
-  KH101_PTS:   50,
+  KH555_PTS:   21,
+  KALIBR_PTS:  25,
+  KH101_PTS:   30,
 
   // ================================================================
   // ENEMY TRAJECTORIES
@@ -82,10 +82,10 @@ const TUNING = {
   GERAN2_FLIP_PROGRESS:     0.5,  // Flip at 50% of screen height
 
   KH101_DIAGONAL_ANGLE:  80,
-  KH555_SINE_AMPLITUDE:  300,
-  KH555_SINE_PERIOD:     3000,
-  KALIBR_SINE_AMPLITUDE: 30,
-  KALIBR_SINE_PERIOD:    3000,
+  KH555_SINE_AMPLITUDE:  100,
+  KH555_SINE_PERIOD:     100,
+  KALIBR_SINE_AMPLITUDE: 200,
+  KALIBR_SINE_PERIOD:    200,
 
   // ================================================================
   // COSTS

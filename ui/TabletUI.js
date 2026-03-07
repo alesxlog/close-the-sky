@@ -181,28 +181,48 @@ class TabletUI {
   // ── Hit test: convert canvas click → content-space coordinates ──
   //    Returns { x, y } in content space, or null if outside screen
 
-  hitTest(canvasX, canvasY) {
+  hitTest(canvasX, canvasY, footerHeight = 0) {
     if (!this._isInsideScreen(canvasX, canvasY)) return null;
-    return {
-      x: canvasX - this.SX - this.CONTENT_PAD,
-      y: canvasY - this.SY + this._scrollY - this.CONTENT_PAD - this._drawOffsetY,
-    };
+    
+    const relativeY = canvasY - this.SY;
+    const isInFooter = footerHeight > 0 && relativeY >= (this.SCREEN_H - footerHeight);
+    
+    if (isInFooter) {
+      // Footer hit test - no scroll adjustment, fixed position
+      return {
+        x: canvasX - this.SX - this.CONTENT_PAD,
+        y: relativeY - (this.SCREEN_H - footerHeight) - this.CONTENT_PAD,
+        isFooter: true
+      };
+    } else {
+      // Content hit test - with scroll adjustment
+      return {
+        x: canvasX - this.SX - this.CONTENT_PAD,
+        y: canvasY - this.SY + this._scrollY - this.CONTENT_PAD - this._drawOffsetY,
+        isFooter: false
+      };
+    }
   }
 
   // ══════════════════════════════════════════════════════════
   // DRAW — Main entry point
   // renderContent: function(ctx, width, height) → returns contentHeight
-  // options: { centered: bool, alpha: number }
+  // options: { centered: bool, alpha: number, footer: function }
   // ══════════════════════════════════════════════════════════
 
   draw(ctx, renderContent, options = {}) {
     const alpha = options.alpha !== undefined ? options.alpha : 1;
+    const footer = options.footer || null;
+    const footerHeight = footer ? 80 : 0; // Reserve 80px for footer
 
     ctx.save();
     ctx.globalAlpha = alpha;
 
     this._drawBezel(ctx);
     this._drawScreen(ctx);
+
+    // Content area (reduced by footer if present)
+    const contentAreaHeight = this.SCREEN_H - footerHeight;
 
     // Render content to offscreen canvas
     const cctx = this._contentCtx;
@@ -214,32 +234,56 @@ class TabletUI {
     cctx.restore();
 
     this._contentHeight = contentH + this.CONTENT_PAD * 2;
-    this._maxScroll = Math.max(0, this._contentHeight - this.SCREEN_H);
+    this._maxScroll = Math.max(0, this._contentHeight - contentAreaHeight);
 
     // If centered and content fits, offset to center
     this._drawOffsetY = 0;
-    if (options.centered && this._contentHeight <= this.SCREEN_H) {
-      this._drawOffsetY = Math.floor((this.SCREEN_H - this._contentHeight) / 2);
+    if (options.centered && this._contentHeight <= contentAreaHeight) {
+      this._drawOffsetY = Math.floor((contentAreaHeight - this._contentHeight) / 2);
     }
 
-    // Clip to screen area and blit content
+    // Clip to content area and blit content
     ctx.save();
     ctx.beginPath();
-    ctx.roundRect(this.SX, this.SY, this.SCREEN_W, this.SCREEN_H, 6);
+    ctx.roundRect(this.SX, this.SY, this.SCREEN_W, contentAreaHeight, 6);
     ctx.clip();
 
     ctx.drawImage(
       this._contentCanvas,
       0, this._scrollY,
-      this.SCREEN_W, this.SCREEN_H,
+      this.SCREEN_W, contentAreaHeight,
       this.SX, this.SY + this._drawOffsetY,
-      this.SCREEN_W, this.SCREEN_H
+      this.SCREEN_W, contentAreaHeight
     );
     ctx.restore();
 
-    // Scrollbar
+    // Scrollbar (only for content area)
     if (this._maxScroll > 0) {
-      this._drawScrollbar(ctx);
+      this._drawScrollbar(ctx, contentAreaHeight);
+    }
+
+    // Draw footer if provided
+    if (footer) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(this.SX, this.SY + contentAreaHeight, this.SCREEN_W, footerHeight, 6);
+      ctx.clip();
+      
+      const footerCtx = this._contentCtx;
+      footerCtx.clearRect(0, 0, this._contentCanvas.width, this._contentCanvas.height);
+      footerCtx.save();
+      footerCtx.translate(this.CONTENT_PAD, this.CONTENT_PAD);
+      footer(footerCtx, cw);
+      footerCtx.restore();
+      
+      ctx.drawImage(
+        this._contentCanvas,
+        0, 0,
+        this.SCREEN_W, footerHeight,
+        this.SX, this.SY + contentAreaHeight,
+        this.SCREEN_W, footerHeight
+      );
+      ctx.restore();
     }
 
     // Screen inner shadow (on top of content)
@@ -408,10 +452,10 @@ class TabletUI {
 
   // ── Scrollbar ──
 
-  _drawScrollbar(ctx) {
+  _drawScrollbar(ctx, contentAreaHeight = this.SCREEN_H) {
     const trackX = this.SX + this.SCREEN_W - 10;
     const trackY = this.SY + 4;
-    const trackH = this.SCREEN_H - 8;
+    const trackH = contentAreaHeight - 8;
 
     // Track
     ctx.fillStyle = 'rgba(126,207,90,0.04)';
@@ -420,7 +464,7 @@ class TabletUI {
     ctx.fill();
 
     // Thumb
-    const ratio  = this.SCREEN_H / this._contentHeight;
+    const ratio  = contentAreaHeight / this._contentHeight;
     const thumbH = Math.max(30, trackH * ratio);
     const thumbY = trackY + (trackH - thumbH) * (this._scrollY / this._maxScroll);
 

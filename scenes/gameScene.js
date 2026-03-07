@@ -16,7 +16,7 @@ class GameScene {
     this.savedLoadout = savedLoadout; // Saved vehicle and weapons
 
     // Systems
-    this._bg = CityBackground.get();
+    this._bg = NightBackground.get();
     this._hud = new HUD();
     this._spawner = new Spawner();
 
@@ -41,6 +41,7 @@ class GameScene {
     this.points = 0;
     this.cumulativePoints = 0;
     this.timeElapsed = 0; // ms
+    this.missed = 0; // Track enemies that reached bottom
 
     // Attack / wave tracking
     this.attackNum = 1;
@@ -131,6 +132,10 @@ class GameScene {
     const atk = WAVES.campaign['attack' + num];
     this.attackNum = num;
     this.waveNum = 1;
+    this.timeElapsed = 0; // Reset timer for new attack
+    this.missed = 0; // Reset missed counter for new attack
+    this.kills = 0; // Reset kills for new attack
+    this.points = 0; // Reset points for new attack
     this._attackEnemiesLeft = atk.total;
     this._spawnedThisAttack = 0;
     this._gameEnded = false;
@@ -172,6 +177,11 @@ class GameScene {
     const now = performance.now();
 
     this.timeElapsed += dt * 1000;
+
+    // Check for arcade auto-upgrades
+    if (this.mode === 'arcade') {
+      this._checkArcadeUpgrades();
+    }
 
     // Wave pause countdown
     if (this._inWavePause) {
@@ -224,7 +234,13 @@ class GameScene {
     }
 
     // Enemies reaching bottom
-    Collision.checkBottomReached(this.enemies, this.explosions);
+    for (const e of this.enemies) {
+      if (e.reachedBottom && !e._bottomProcessed) {
+        e._bottomProcessed = true;
+        this.missed++;
+        this.explosions.push(new Explosion(e.x, CONFIG.CANVAS.PLAY_BOTTOM));
+      }
+    }
 
     // Vehicle collisions
     Collision.checkCarHit(this.enemies, this.player, this.explosions);
@@ -402,6 +418,7 @@ class GameScene {
       hp:        this.player.hp,
       maxHp:     this.player.maxHp,
       kills:     this.kills,
+      missed:    this.missed,
       points:    this.points,
       mode:      this.mode,
       attackNum: this.attackNum,
@@ -445,5 +462,18 @@ class GameScene {
       ctx.stroke();
     }
     ctx.restore();
+  }
+
+  _checkArcadeUpgrades() {
+    const upgrades = WAVES.arcade.UPGRADES;
+    const appliedUpgrades = this.player.upgrades || [];
+    
+    for (const upgrade of upgrades) {
+      if (this.cumulativePoints >= upgrade.cumulative && !appliedUpgrades.includes(upgrade.upgrade)) {
+        this.player.applyUpgrade(upgrade.upgrade);
+        appliedUpgrades.push(upgrade.upgrade);
+        this.player.upgrades = appliedUpgrades;
+      }
+    }
   }
 }

@@ -42,6 +42,12 @@ const INTEL = {
     template: 5,
   },
 
+  attack6: {
+    agency:   'Sector Command',
+    targets:  'power, water, heat — every critical node in a single package',
+    template: 4,
+  },
+
   // ---- Templates ----
   templates: {
     1: 'Sector Command reports confirmed hostile air activity east of the contact line. Expect %TOTAL_ENEMIES% threats inbound: %ENEMY_ROSTER%. Strike package is already airborne. Primary targets: %TARGET_LIST%.',

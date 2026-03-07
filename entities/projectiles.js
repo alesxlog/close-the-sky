@@ -93,7 +93,7 @@ class Shell extends ProjectileBase {
   update(dt) {
     const dy = this.speed * dt;
     this._trail.unshift({ x: this.x, y: this.y });
-    if (this._trail.length > 8) this._trail.pop();
+    if (this._trail.length > 6) this._trail.pop();
 
     this.y -= dy;
     this.distTravelled += dy;
@@ -111,7 +111,7 @@ class Shell extends ProjectileBase {
     for (let i = 0; i < this._trail.length; i++) {
       const t = this._trail[i];
       const alpha = this.trailAlpha * (1 - i / this._trail.length);
-      const r = (this.width / 2) * (1 - i / this._trail.length * 0.5);
+      const r = (this.width / 1.5) * (1 - i / this._trail.length * 0.5);
       ctx.beginPath();
       ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(255,180,50,${alpha})`;

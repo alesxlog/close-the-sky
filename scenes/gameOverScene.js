@@ -32,55 +32,9 @@ class GameOverScene extends SceneBase {
     if (!hit) return;
     const cw = this._tablet.SCREEN_W - this._tablet.CONTENT_PAD * 2;
     if (hit.x >= 0 && hit.x <= cw) {
-      if (hit.y >= this._btnRestartY && hit.y <= this._btnRestartY + 48) {
-        if (this.stats.win) {
-          // JOIN NATO - start Arcade mode on Wave 11 with saved loadout
-          this._startArcadeWave11();
-        } else {
-          this.onRestart();
-        }
-      }
-      if (hit.y >= this._btnMenuY && hit.y <= this._btnMenuY + 48) this.onMenu();
+      if (hit.y >= this._btnRestartY && hit.y <= this._btnRestartY + 48) this.onRestart();
+      if (hit.y >= this._btnMenuY && hit.y <= this._btnMenuY + 48)       this.onMenu();
     }
-  }
-
-  _startArcadeWave11() {
-    // Save current player loadout when winning Campaign
-    const savedLoadout = this._savePlayerLoadout();
-    
-    // Start Arcade mode on Wave 11 with saved loadout
-    if (this.onRestart) {
-      this.onRestart('arcade', 11, savedLoadout);
-    }
-  }
-
-  _savePlayerLoadout() {
-    // Extract player's current loadout from the completed Campaign
-    // This should be called when player wins Campaign
-    const loadout = {
-      vehicle: this.stats.playerVehicle || 'lav',
-      weapons: this.stats.playerWeapons || ['autocannon', 'sam'],
-      upgrades: this.stats.playerUpgrades || ['mg_double', 'ac_double']
-    };
-    
-    // Store in localStorage for persistence
-    localStorage.setItem('natoLoadout', JSON.stringify(loadout));
-    return loadout;
-  }
-
-  _getPlayerVehicle() {
-    // Get current vehicle type from stats
-    return this.stats.playerVehicle || 'lav';
-  }
-
-  _getPlayerWeapons() {
-    // Get current weapons from stats
-    return this.stats.playerWeapons || ['autocannon', 'sam'];
-  }
-
-  _getPlayerUpgrades() {
-    // Get current upgrades from stats
-    return this.stats.playerUpgrades || ['mg_double', 'ac_double'];
   }
 
   update(dt) {
@@ -96,7 +50,7 @@ class GameOverScene extends SceneBase {
   }
 
   draw(ctx) {
-    CityBackground.get().drawSnapshot(ctx);
+    DamagedBackground.get().drawSnapshot(ctx);
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
     ctx.fillRect(0, 0, this._CW, this._CH);
 
@@ -150,7 +104,7 @@ class GameOverScene extends SceneBase {
       // Footer buttons
       y += 8;
       scene._btnRestartY = y;
-      y += TabletUI.drawButton(cctx, y, s.win ? 'JOIN NATO' : 'RESTART', cw);
+      y += TabletUI.drawButton(cctx, y, s.win ? 'PLAY AGAIN' : 'RESTART', cw);
       scene._btnMenuY = y;
       y += TabletUI.drawButton(cctx, y, 'MAIN MENU', cw, { secondary: true });
 

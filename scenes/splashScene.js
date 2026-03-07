@@ -8,7 +8,7 @@ class SplashScene extends SceneBase {
   constructor(canvas, ctx, onComplete) {
     super(canvas, ctx);
     this.onComplete = onComplete;
-    this._bg = CityBackground.get();
+    this._bg = NightBackground.get();
     this._elapsed = 0;
     this._done = false;
 
@@ -46,10 +46,10 @@ class SplashScene extends SceneBase {
         { stop: 1.0, color: [120, 40, 30] },       // dark red
       ]},
       { t: 1.0, stops: [
-        { stop: 0.0, color: [10, 10, 30] },       // near black
-        { stop: 0.4, color: [20, 20, 50] },        // deep navy
-        { stop: 0.75,color: [30, 25, 45] },        // dark purple
-        { stop: 1.0, color: [25, 15, 30] },        // night horizon
+        { stop: 0.0, color: [13, 21, 53] },        // dark navy — matches NightBackground
+        { stop: 0.4, color: [17, 29, 69] },        // rich navy
+        { stop: 0.75,color: [23, 33, 80] },        // deep blue
+        { stop: 1.0, color: [30, 45, 98] },        // horizon blue
       ]},
     ];
 
