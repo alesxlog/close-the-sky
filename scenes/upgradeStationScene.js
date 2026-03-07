@@ -166,7 +166,7 @@ class UpgradeStationScene extends SceneBase {
 
       y += 16;
       scene._btnDeployY = y;
-      y += TabletUI.drawButton(cctx, y, 'CONFIRM & DEPLOY', cw);
+      y += TabletUI.drawButton(cctx, y, 'CONFIRM', cw);
 
       return y;
     }, { alpha: this._alpha });

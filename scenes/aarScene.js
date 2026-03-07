@@ -65,11 +65,6 @@ class AARScene extends SceneBase {
       weaponAvail = true;
       break;
     }
-
-    if (vehicleAvail && weaponAvail) return "Major restock! Vehicle and weapons — best selection we've had in a while.";
-    if (vehicleAvail)                return "Heads up — we've got a vehicle that fits your price range.";
-    if (weaponAvail)                 return "New shipment. Weapon upgrade available for your budget.";
-    return "Current stock is above your budget. The catalogue is open — plan ahead.";
   }
 
   _handleClick(e) {
@@ -149,7 +144,7 @@ class AARScene extends SceneBase {
 
       // Footer
       scene._btnContinueY = y;
-      y += TabletUI.drawButton(cctx, y, 'OPEN UPGRADE STATION', cw);
+      y += TabletUI.drawButton(cctx, y, 'CONTINUE', cw);
 
       return y;
     }, { alpha: this._alpha });
